@@ -1,0 +1,46 @@
+<html>
+<head>
+<title>WARCreate Options</title>
+<style type="text/css">
+#contact{ bottom: 5px; left: 5px;}
+input#waybackWarcSource {width: 50%;}
+.check {font-style: italic;}
+.green {font-style: normal; color: green;}
+.red {font-style: normal; color: red;}
+.orange {font-style: normal; color: orange;}
+#preflightCheck {list-style-type: none; margin: 0; padding: 0 0 0 1.0em;}
+
+</style>
+</head>
+<script type="text/javascript" src="../js/options.js"></script>
+<body id="body">
+
+
+
+<label for="waybackWarcSource">Wayback WARC Source folder:</label><br /><input type="text" id="waybackWarcSource" value="C:\xampp\tomcat\webapps\ROOT\files1\"/><br />
+<button id="save">Save</button><button id="clear">Clear</button><br />
+<h3>Handle generated WARCs by:</h3>
+<input type="radio" name="output" id="output_save" value="output_save" /><label for="output_save">Saving to downloads folder</label><br />
+<input type="radio" name="output" id="output_save_warc" value="output_save_warc" disabled="disabled" /><label for="output_save">Saving to Wayback-Accessible folder</label><br />
+<input type="radio" name="output" id="output_display" value="output_display" checked="checked" /><label for="output_display">Opening contents in a new tab</label>
+
+<h3>Images</h3>
+<input type="radio" name="images" id="images_inline" value="image_inline"  /><label for="images_inline">Convert image data to inline data</label><br />
+<input type="radio" name="images" id="images_separate" value="images_separate"  checked="checked" /><label for="images_images_separate">Archive images as separate resources</label><br />
+
+<!--<h3>Additional Support</h3>
+<input type="checkbox" name="memento" id="memento" disabled="disabled" /><label for="memento">Add Memento Support to HTTP Headers</label><br />-->
+
+<h3>Pre-flight Check</h3>
+<ul id="preflightCheck">
+	<li class="check" id="check_WarcValidation" title="http://localhost/validate.php">WARC Validation</li>
+	<li class="check" id="check_AjaxXSSCircumvention" title="http://localhost/getThatImage.php">AJAX XSS Circumvention</li>
+	<li class="check" id="check_HTML5SandboxEscaping" title="http://localhost/index.php">HTML5 Sandbox Escaping</li>
+	<li class="check" id="check_MementoSupport" title="http://localhost:81">Memento Support</li>
+	<li class="check" id="check_localWaybackInstance" title="http://localhost:8080/wayback/">Local Wayback Instance &bull; <a href="http://matkelly.com/warcreate/xampp">Get help</a></li>
+</ul>
+
+
+<p id="contact">For support or to report a bug, contact <a href="mailto:warcreate@matkelly.com">Mat Kelly</a>.</p>
+</body>
+</html>

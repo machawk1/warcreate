@@ -1,29 +1,29 @@
 {
   "name": "WARCreate",
-  "version": "0.2013.2.7",
+  "version": "0.2013.3.20",
   "manifest_version": 2,
   
   "description": "Create Wayback-Consumable WARC Files from Any Webpage",
   "icons" : {
-    "48" : "icon-48.png",
-    "128" : "icon-128.png"
+    "48" : "icons/icon-48.png",
+    "128" : "icons/icon-128.png"
   },
   "background": {
-	"page":"background.html"
+	"page":"html/background.html"
    },
   "homepage_url": "http://warcreate.com",
   
   "content_scripts": [
 	{
 		"matches": ["http://*/*", "https://*/*"],
-		"js": ["content.js"]
+		"js": ["js/content.js"]
 	}
    ],
   "page_action" :
   {
-    "default_icon" : "icon-19.png",
+    "default_icon" : "icons/icon-19.png",
     "default_title" : "WARCreate, click for options",
-	"default_popup" : "decryptor.html"
+	"default_popup" : "html/decryptor.html"
   },
   "permissions" : [
 	 "webRequest",
@@ -33,7 +33,7 @@
 	 "http://*/",
 	 "*://*/*"
   ],
-  "options_page": "options.html",
+  "options_page": "html/options.html",
   "update_url": "http://warcreate/updates.xml",
   
   

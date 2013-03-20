@@ -1,0 +1,82 @@
+<html>
+<head>
+<script type="text/javascript" src="../js/jquery-1.7.min.js"></script>
+<script type="text/javascript" src="../js/jquery.rc4.js"></script>		<!-- Simple key-based hashing library -->
+<script type="text/javascript" src="../js/jquery.getimagedata.min.js"></script> <!-- To overcome Same Origin Policy -->
+<style type="text/css">
+a {font-family: 'Futura', sans-serif; font-size: 0.8em; text-align: right; color: blue; display: block; margin: 1.0em 0 0 0;}
+button:hover {cursor:pointer;}
+
+#errorText {color: red; font-weight: bold; display: none; text-align: center; font-size: 0.5em;}
+</style>
+
+
+<!-- test 20130117 Using FileSaver.js as an attempt to not use XAMPP -->
+<script type="application/ecmascript" async="" src="../js/FileSaver/BlobBuilder.min.js"></script>
+<script type="application/ecmascript" async="" src="../js/FileSaver/FileSaver.min.js"></script>
+<!--<script type="application/ecmascript" async="" src="https://raw.github.com/eligrey/FileSaver.js/master/demo/demo.min.js"/>-->
+
+<!-- test 20130117 for save-as dialog -->
+<!-- combined into downloadify.js <script type="text/javascript" src="downloadify/swfobject.js"></script>-->
+<!--<script type="text/javascript" src="downloadify/downloadify.js"></script>
+<script type="text/javascript" src="downloadify/load.js"></script>-->
+
+
+<script src="../js/code.js"></script>
+
+
+
+
+
+</head>
+<body>
+<!--
+<form method="get" action="foo.html">
+<label for="key">Content (optional)</label><input type="text" id="content" name="content" />
+<label for="key">Key</label><input type="password" id="key" name="key" />-->
+<!--<input type="button" id="submit"  value="Encrypt" />-->
+<!--
+<input type="button" id="alertContent"  value="Decrypt Current Page" /><br />
+<input type="button" id="generateWarc"  value="Generate WARCX" />
+</form>
+-->
+<!--<form method="get" action="foo.html">
+<input type="checkbox" name="encrypt" id="encrypt" /><label for="encrypt">Encrypt</label><br />
+<input type="button" name="encodeImages" id="encodeImages" value="Encode Images" /><br />
+<fieldset>
+	<legend>Key</legend>
+	<input type="password" id="key" name="key" />
+</fieldset>
+<input type="checkbox" name="memento" id="memento" /><label for="memento">Memento Compatible</label><br />-->
+<div id="buttonContainer">
+<!--<input type="button" id="generateWarc"  value="Generate WARCY" />
+<input type="button" id="clearLocalStorage" value="Clear LocalStorage" />-->
+	
+</div>
+
+
+<!-- *** Downloadify *** -->
+<!--<form>
+<p>
+	<label for="filename">Filename</label><br />
+	<input type="text" name="filename" value="testfile.txt" id="filename" />
+</p>
+<p>
+	<label for="data">File Contents</label><br />
+<textarea cols="60" rows="10" name="data" id="data">
+Whatever you put in this text box will be downloaded and saved in the file. If you leave it blank, no file will be downloaded</textarea>
+</p>
+<p id="downloadify">
+	You must have Flash 10 installed to download this file.
+</p>
+</form>-->
+		
+		
+<!--<input type="button" id="generateWarc"  value="Begin Recording (capture forwards)" disabled="disabled" />-->
+<!--</form>-->
+
+<!--<input type="button" value="Upload" id="uploader" disabled="disabled" />-->
+
+<p id="urlHeaderCount" style="display: none;"></p>
+</body>
+</html>
