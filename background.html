@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<!--<script type="text/javascript">
+	//not allowed with version 2 manifest
+	localStorage["paiheaders_uris"] = "";
+	localStorage["paiheaders_data"] = "";
+	</script>-->
+	<script type="text/javascript" src="js/jquery-1.7.min.js"></script>
+	<!--<script type="text/javascript" src="js/jquery.getimagedata.min.js"></script>--> <!-- FAILED EXPERIMENT: To overcome Same Origin Policy -->
+	<script src="base64.js"></script>
+	<script src="warcGenerator.js"></script>
+    <script src="code.js"></script>
+	<!--<script src="encryptPage.js"></script>-->
+	
+	
+	<!--
+	//likely unused but not allowed with manifest v2 anyway
+	<script>
+	
+	
+	
+	
+	function adjustImage(src) {
+		var img = new Image();
+		img.onload = function() {
+				chrome.tabs.getSelected(null, function(tab) { 
+					var canvas = document.createElement("canvas");
+				
+					chrome.tabs.sendRequest(tab.id, {cmd: "replace", data: canvas.toDataURL()});
+				});
+		};
+		img.src = src;
+	}
+		
+	
+	</script>-->
+  </head>
+  <body><iframe id="data" src=""></iframe></body>
+</html>

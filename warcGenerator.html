@@ -1,0 +1,132 @@
+<html>
+<head>
+<script src="date.js"></script>
+<script type="text/javascript">
+
+//from http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
+function guidGenerator() {
+    var S4 = function() {
+       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    };
+    return "&lt;urn:uuid:"+(S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4())+"&gt;";
+}
+
+var CRLF = "\r\n";
+var now = new Date().toISOString();
+var nowHttp = new Date().toString("ddd dd MMM yyyy HH:mm:ss")+" GMT";
+var fileName = "MY_FABRICATED_WARC.warc";
+//var targetURI = "http://cs.odu.edu/~mkelly/semester/2011_fall/index_encrypted.html";
+var targetURI = location.href;
+
+var warcHeaderContent = 
+	"software: Personal Archive Interpreter/0.3.2 http://pai.matkelly.com" +CRLF + 
+	"ip: 207.241.235.32" + CRLF + 
+	"hostname: crawling113.us.archive.org" + CRLF +
+	"format: WARC File Format 1.0" + CRLF +
+	"conformsTo: http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf" + CRLF +
+	"description: recurrence=ANNUAL, maxDuration=432000, maxDocumentCount=1000000, isTestCrawl=false, seedCount=61, accountId=89" + CRLF +
+	"robots: classic" + CRLF +
+	//"http-header-user-agent: Mozilla/5.0 (compatible;archive.org_bot; Archive-It; +http://archive-it.org/files/site-owners.html) Firefox/0.0" + CRLF +
+	"http-header-user-agent: "+ navigator.userAgent + CRLF + 
+	"http-header-from: pai@matkelly.com" + CRLF;
+
+var warcHeader = 
+	"WARC/1.0" + CRLF +
+	"WARC-Type: warcinfo " +CRLF +
+	"WARC-Date: "+ now + CRLF +
+	"WARC-Filename: "+ fileName + CRLF + 
+	"WARC-Record-ID: " + guidGenerator() + CRLF +
+	"Content-Type: application/warc-fields" +CRLF +
+	"Content-Length: "+ warcHeaderContent.length + CRLF;
+	
+	
+var warcRequest = 
+	"GET /~mkelly/semester/2011_fall/index_encrypted.html HTTP/1.1" + CRLF +
+	"Host: cs.odu.edu" + CRLF +
+	"Connection: close" + CRLF +
+	"User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.9) Gecko/2008052906 Firefox/3.0" + CRLF +
+	"Accept-Encoding: gzip" + CRLF +
+	"Accept-Charset: ISO-8859-1,UTF-8;q=0.7,*;q=0.7" + CRLF +
+	"Cache-Control: no-cache" + CRLF +
+	"Accept-Language: de,en;q=0.7,en-us;q=0.3" + CRLF +
+	"Referer: http://web-sniffer.net/" + CRLF;
+	
+var warcConcurrentTo = guidGenerator();
+var warcRequestHeader = 
+	"WARC/1.0 " + CRLF +
+	"WARC-Type: request" + CRLF +
+	"WARC-Target-URI: "+ targetURI + CRLF +
+	"WARC-Date: " + now + CRLF +
+	"WARC-Concurrent-To: " + warcConcurrentTo + CRLF +
+	"WARC-Record-ID: " + guidGenerator() + CRLF +
+	"Content-Type: application/http; msgtype=request" +CRLF +
+	"Content-Length: " + warcRequest.length + CRLF;
+	
+var warcMetadata =
+	"via: http://v9.lscache8.c.youtube.com/videoplayback?sparams=id,expire,ip,ipbits,itag,algorithm,burst,factor,oc:U0dYTFlNVF9FSkNNOF9RR1hB&fexp=910604,907605,906402&algorithm=throttle-factor&itag=34&ipbits=0&burst=40&sver=3&signature=3935D92847AF656717E45B149720731AD24ED1A6.2DFC6000398FDA3359E62CFD8009C1B255D91A1E&expire=1297926000&key=yt1&ip=0.0.0.0&factor=1.25&id=de0f48a932d4040f" + CRLF +
+	"hopsFromSeed: XXR" + CRLF +
+	"sourceTag: http://www.youtube.com/watch?v=SrSQTKMfr9M" + CRLF +
+	"fetchTimeMs: 33533" + CRLF +
+	"outlink: "+ targetURI + CRLF;
+
+	
+var warcMetadataHeader =
+	"WARC/1.0" + CRLF +
+	"WARC-Type: metadata" + CRLF +
+	"WARC-Target-URI: " + targetURI + CRLF +
+	"WARC-Date: " + now + CRLF +
+	"WARC-Concurrent-To: <urn:uuid:dddc4ba2-c1e1-459b-8d0d-a98a20b87e96>" + CRLF +
+	"WARC-Record-ID: <urn:uuid:6fef2a49-a9ba-4b40-9f4a-5ca5db1fd5c6>" + CRLF +
+	"Content-Type: application/warc-fields" + CRLF +
+	"Content-Length: " + warcMetadata.length + CRLF;	
+
+var warcResponse =
+	"HTTP/1.1 200 OK" + CRLF +
+	"Content-Type: text/html" + CRLF +
+	"Date: " + nowHttp + CRLF +
+	"Last-Modified: " + nowHttp + CRLF +
+	"Server: Apache/2.2.17 (Unix) PHP/5.3.5 mod_ssl/2.2.17 OpenSSL/0.9.8q" + CRLF +
+	"Accept-Ranges: bytes" + CRLF +
+	"Content-Type: text/html" + CRLF +
+	CRLF +
+	"f5f134b408ee65746b7ca6bf63b6df321a2e4d12e25dc56a78d8800435d739d6d39ff9a5fa3931" + CRLF;
+	
+var warcResponseHeader =
+	"WARC/1.0" + CRLF +
+	"WARC-Type: response" + CRLF +
+	"WARC-Target-URI: " + targetURI + CRLF +
+	"WARC-Date: " + now + CRLF +
+	"WARC-Record-ID: "+ guidGenerator() + CRLF +
+	"Content-Type: application/http; msgtype=response" + CRLF +
+	"Content-Length: " + warcResponse.length + CRLF;
+	
+var warc =
+	warcHeader + CRLF +
+	warcHeaderContent + CRLF + CRLF + CRLF +
+	warcRequestHeader + CRLF + 
+	warcRequest + CRLF + CRLF + CRLF +
+	warcMetadataHeader + CRLF +
+	warcMetadata + CRLF + CRLF + CRLF +
+	warcResponseHeader + CRLF +
+	warcResponse + CRLF + CRLF + CRLF;
+//document.write("<pre>"+warc+"</pre>");
+
+var warcAsURIString = warc;
+warcAsURIString = warcAsURIString.replace(/\r\n/g,"%0D%0A");
+warcAsURIString = warcAsURIString.replace(/&lt;/g,"%3C");
+warcAsURIString = warcAsURIString.replace(/&gt;/g,"%3E");
+//window.location = "data:text/plain,"+warcAsURIString;
+
+window.location = "data:Application/octet-stream,"+warcAsURIString;
+chrome.tabs.create();
+/*
+
+
+
+
+
+*/
+
+</script>
+</head>
+<body></body></html>
