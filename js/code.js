@@ -119,107 +119,28 @@ function generate_Warc(){
 				var datum = [];
 				
 				chrome.tabs.getSelected(null, function(tab) {	
-					chrome.pageAction.setIcon({path:"icon-running.png",tabId:tab.id});
+					console.log('getselected');
+					//chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id});
 					var port = chrome.tabs.connect(tab.id,{name: "pai"});	//create a persistent connection
 					port.postMessage({url: tab.url, method: 'getHTML'});	//fetch the html of the page, in content.js
 					
 					var imageDataFilledTo = -1;
-										
-					port.onMessage.addListener(function(msg){
-						console.log("> 2");
-						if(msg.method != "error"){return;}
-						chrome.pageAction.setIcon({path:"icon-alert.png",tabId:tab.id});
-						console.log("Method in code.js: "+msg.method);
-						$("#errorText").text("XAMPP not installed!");
-						$("#errorText").attr("href","http://matkelly.com/warcreate/xampp");
-						$("#errorText").css("display","block");
-
-					});
-					
-					port.onMessage.addListener(function(msg) {
-						if(msg.method != "changeStatus"){return;}
-						$("#status").css("display","block");
-						$("#status").attr("value",msg.str+" imgs processed");
-							
-					});
-					
+						
 					//perform the first listener, populate the binary image data
+					console.log("adding listener");
 					port.onMessage.addListener(function(msg) {	//get image base64 data
-						if(msg.method != "relayToImages"){return;}
-						console.log("code.js: received relayToImages post");
-						var cssDataIn = "";
-						var cssFiles = msg.cssURIs;				// a single CSS file
-
-						if(cssFiles.indexOf("|||") != -1){
-							var css = msg.cssURIs.split("|||");	//multiple CSS files represented as a ||| flattened delimited array
-										 
-							for(var cssFile=0; cssFile<css.length; cssFile++){
-								var reqX=new XMLHttpRequest(); 
-								try{	
-									reqX.open("GET", server+"/getThatText.php?url="+css[cssFile], false);									
-									reqX.send(null);  
-									cssDataIn += "|||"+ reqX.responseText;									
-								}catch (e){
-									console.log("Problem with CSS file fetch "+cssFile);
-									//alert("There was an error trying to fetch the CSS file ");
-								}
-								
-							}
-						}//else {alert("fi");}
-					
 						console.log("About to generateWARC(). Next should be callback.");
 						var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,"") + ".warc";
-						chrome.extension.sendRequest({url: tab.url, method: 'generateWarc', cssURIs: cssFiles, cssData: cssDataIn, docHtml: msg.html, uris: msg.uris, datum: msg.data, imgData: msg.data, file: fileName},
+						chrome.extension.sendRequest({url: tab.url, method: 'generateWarc', docHtml: msg.html, file: fileName},
 						 function(response) {	//the callback to sendRequest
 							console.log("generateWARC callback executed");
-							/*
-							var dlwarclink = document.getElementById('dlWarc');
-							if(dlwarclink == null){		//this hasn't been done before, create a new link
-								var a = document.createElement('a'); 
-							
-								a.id = "dlWarc";
-								a.appendChild(document.createTextNode("Download WARC"));
-								a.href = response;
-								$("body").append(a);
-							}else {//a link has already been created, just change the href
-								dlwarclink.href = response;
-								
-							}*/
-							
-							
-							//TODO: Can document.write directly from Javascript but below line keeps it in the context of the popup, we want it on a full page.
-							// Use this as a purely client side solution
-							//document.write(response);
-							
 							
 							var bb = new BlobBuilder;
 							bb.append(response.d);
 							saveAs(bb.getBlob("text/plain;charset=utf-8"), fileName);
-							/*
-							$.post(server+"/makewarc.php", {data: response.d},function(data){
-								if(data == "Cannot create file :("){
-									console.log(data);
-									return;
-								}
-								
-								chrome.tabs.create({url: server+"/"+data});
-								chrome.pageAction.setIcon({path:"icon-check.png",tabId:tab.id});	//change the warcreate icon to "completed" check.
-								//setTimeout(window.close,1000);
-								
-								//var cssFiles = data.cssFiles.split("|||");
-								//alert(data.cssFiles.split("|||"));
-								//alert(cssFiles[0]);
-								//chrome.tabs.create({url: cssFiles[0]},function(tab){
-								//	generate_Warc();
-									
-								//});
-							}							
-							,"text");*/
+		
 							console.log("Done!");
-							chrome.pageAction.setIcon({path:"icon-check.png",tabId:tab.id});
-							//chrome.tabs.create({url: response});
-							//localStorage["paiheaders"] = "";
-							
+							chrome.pageAction.setIcon({path:"../icons/icon-check.png",tabId:tab.id});
 							
 						});	
 					});

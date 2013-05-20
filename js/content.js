@@ -6,7 +6,6 @@ chrome.extension.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(msg) {
 	if(msg.method == "getHTML"){
 		console.log("about to post getHTML message");
-		//port.postMessage({html: document.all[0].outerHTML, method: msg.method});port.postMessage({html: document.all[0].outerHTML, method: "relayToImages"});console.log("done posting getHTML message");}else if(msg.method == "getEncodedImageData"){
 		images = document.images;
 		var imageURIs = [];
 		var imageBase64Data = [];
@@ -30,30 +29,7 @@ chrome.extension.onConnect.addListener(function(port) {
 			var context = canvas.getContext("2d");
 			context.drawImage(image,0,0);
 			var dataURL;
-			var rawImageData;
-
-				var req=new XMLHttpRequest();          
-	
-     			try{	//hey, let's use the XAMPP suite to get the image data
-					console.log("Trying to get "+server+"/getThatImage.php?url="+image.src);
-					port.postMessage({method: "changeStatus", str: i+"/"+images.length});
-					req.open("GET", server+"/getThatImage.php?url="+image.src, false); 
-					                         
-					req.send(null);    
-				}catch (e){	//not-so suite
-					console.log("Cannot use XAMPP :(");
-					console.log("Error 2: "+e.message);
-					port.postMessage({method: 'error'});	//communicate back to code.js so the icon can be changed and any special handling done
-					return;
-				}
-				
-				dataURL = req.responseText;
-				//rawImageData = decodeURIComponent(escape(window.atob(req.responseText)));
-				//rawImageData = escape(window.atob(req.responseText));
-				rawImageData = window.atob(req.responseText);
-				var respHeaders = req.getAllResponseHeaders();
-				//return;
-			//}
+			
 			imageURIs[i] = images[i].src;
 			//imageBase64Data[i] = dataStr+dataURL;
 			imageBase64Data[i] = rawImageData;
@@ -65,9 +41,6 @@ chrome.extension.onConnect.addListener(function(port) {
 
 		
 		var cssFiles = new Array();
-		console.log("before");
-		console.log($().jquery);
-		console.log("After");
 		$(document.all[0]).find('link').each(function(){
 			var cssLoc = $(this).attr('href');
 			if(cssLoc.indexOf(".css") != -1){

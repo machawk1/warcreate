@@ -1,88 +1,5 @@
 //depends on date.js
 
-function getResponseHeaderFor(uri){
-	var xhr2 = new XMLHttpRequest();
-	//console.log(xhr2);
-	xhr2.open("GET", uri, true);
-	xhr2.send();
-	console.log("Trying to perform an AJAX request on "+uri);
-
-	console.log("first cond passed");
-	console.log(xhr2);
-	//console.log(xhr2.status + "");
-	console.log("second cond passed");
-	xhr2.addEventListener("load", function(e) {
-		var headers = xhr2.getAllResponseHeaders().split("\n");
-		var statusMeans = "";
-		//console.log("Getting response header for "+uri+":");
-		if(xhr2.status == 200){statusMeans = "OK";}
-		var respHeaderStr = "HTTP/1.1 "+xhr2.status+" "+statusMeans + "\n";
-		for(h in headers){
-			//console.log(" - "+headers[h]);
-			respHeaderStr += headers[h]+"\n";
-		}
-		//console.log("5");
-		return respHeaderStr;
-	}, false);
-	return;
-	
-	
-	if(xhr2.status == "200"){
-		var headers = xhr2.getAllResponseHeaders().split("\n");
-		var statusMeans = "";
-		console.log("getResponseHeaderFor 3.5");
-		if(xhr2.status == 200){statusMeans = "OK";}
-		var respHeaderStr = "HTTP/1.1 "+xhr2.status+" "+statusMeans + "\n";
-		console.log("getResponseHeaderFor 4");
-		for(h in headers){
-			respHeaderStr += headers[h]+"\n";
-		}
-		console.log("5");
-		return respHeaderStr;
-	}else {
-		console.log("request.status is "+request.status);
-	}
-	console.log("after conditional");
-	
-	return;
-		
-		//******************* obsolete code below *******************
-	/*	xhr.onreadystatechange = function() {
-			console.log("The XHR's ready state has changed to:"+xhr.status);
-			//if(xhr.readyState == 0){return "";}
-			
-			if (xhr.readyState == 4 && xhr.status == 200) {
-				//alert(xhr.status);
-				switch (xhr.status) {
-					//case 0:
-					//	console.log("case 0");
-					//	return "";
-					//		break;
-					case 200:
-						console.log("case 200");
-						var headers = xhr.getAllResponseHeaders().split("\n");
-						var statusMeans = "";
-						console.log("getResponseHeaderFor 3.5");
-						if(xhr.status == 200){statusMeans = "OK";}
-						var respHeaderStr = "HTTP/1.1 "+xhr.status+" "+statusMeans + "\n";
-						console.log("getResponseHeaderFor 4");
-						for(h in headers){
-							respHeaderStr += headers[h]+"\n";
-						}
-						console.log("5");
-						return respHeaderStr;
-						break;
-					
-					
-				}
-			}else {
-				console.log("XHR's readyState is "+xhr.readyState);
-			}	
-	}
-	xhr.send();*/
-}
-
-
 function generateWarc(o_request, o_sender, f_callback){
 	if(o_request.method != "generateWarc"){return; }
 	console.log("Running generateWarc code");
@@ -179,7 +96,7 @@ function generateWarc(o_request, o_sender, f_callback){
 			"Content-Length: " + (unescape(encodeURIComponent(resp)).length) + CRLF;	
 		return xx;
 	}
-	
+
 	var warcResponseHeader = makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse);	
 		
 	var warc =
@@ -207,16 +124,21 @@ function generateWarc(o_request, o_sender, f_callback){
 	
 	var warcAsURIString = warc;
 	
-	/*for(var responseHeader in responseHeaders){
-		warcAsURIString += makeWarcRequestHeaderWith(responseHeaders[responseHeaders], now, warcConcurrentTo, smallHeader[0]) + CRLF + CRLF;
+	for(var requestHeader in requestHeaders){
+		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF + CRLF;
+	}
+	
+	for(var responseHeader in responseHeaders){
+		warcAsURIString += makeWarcResponseHeaderWith(responseHeader, now, warcConcurrentTo, responseHeaders[responseHeader]) + CRLF;
+	}
+	
 
-		warcAsURIString += makeWarcResponseHeaderWith(uriAry[i], now, warcConcurrentTo, warcResponseNew) + CRLF;
-		warcAsURIString += warcResponseNew + CRLF + CRLF;
-	}*/
 	
 
 	console.log(warcAsURIString);
-	f_callback({d: warcAsURIString, cssFiles: o_request.cssURIs});
+	//requestHeaders = null; requestHeaders = new Array();
+	//responseHeaders = null; responseHeaders = new Array();
+	f_callback({d: warcAsURIString});
 }
 
 
