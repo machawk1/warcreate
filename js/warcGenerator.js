@@ -84,20 +84,26 @@ function getResponseHeaderFor(uri){
 
 
 function generateWarc(o_request, o_sender, f_callback){
+    console.log("generateWarc()");
+    
 	if(o_request.method != "generateWarc"){return; }
-	console.log("Running generateWarc code");
 	
 	var CRLF = "\r\n";
-	
+	console.log("XXX");
+	for(var reqHeader in requestHeaders){
+		console.log(reqHeader+": "+requestHeaders[reqHeader]);
+	}
+	return;
 	var uriAry =   o_request.uris.split('|||');
 
 	var datumAry = o_request.datum.split('|||');
 	var imageData = o_request.imgData.split('|||');
+	console.log(uriAry);
+console.log(requestHeaders);
+    //chrome.extension.sendRequest({
+    return;
 
 
-	//TODO: get rid of this hard-code, set for testing
-	console.log("Hard-coded data");
-	console.log("datum len: "+datumAry.length);
 	
 	// *** Remake associative array
 	var headerInfo = new Array();
@@ -192,7 +198,8 @@ function generateWarc(o_request, o_sender, f_callback){
 			"Accept-Encoding: gzip" + CRLF +
 			"Accept-Charset: ISO-8859-1,UTF-8;q=0.7,*;q=0.7" + CRLF +
 			"Cache-Control: no-cache" + CRLF +
-			"Accept-Language: de,en;q=0.7,en-us;q=0.3";
+			"Accept-Language: de,en;q=0.7,en-us;q=0.3" + CRLF +
+			"Debugging: " + uriComponents + "XX" + targetURI;
 		return x;
 	}
 		
@@ -274,6 +281,7 @@ function generateWarc(o_request, o_sender, f_callback){
 
 	var pattern = /\r\n(.*)\r\n----------------/g;
 	var myArray = pattern.exec(o_request.headers);
+	console.log("X"+o_request.headers);
 	var str = "";
 	while(myArray != null){
 		str += myArray[1];
