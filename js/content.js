@@ -31,18 +31,9 @@ chrome.extension.onConnect.addListener(function(port) {
 			context.drawImage(image,0,0);
 			var dataURL;
 			var rawImageData;
-			
-			//try{
-			//	dataURL = canvas.toDataURL("image/png"); //this is problematic re: security exception
-			//	console.log("Successfully converted the image to a data URL in content.js");
-			//}catch(err){
-				//console.log("Error 1: "+err.message);
+
 				var req=new XMLHttpRequest();          
-				//console.log("hey, let's use the XAMPP suite to get the image data");  
-				//try {
-				//	window.btoa(
-				//}
-				
+	
      			try{	//hey, let's use the XAMPP suite to get the image data
 					console.log("Trying to get "+server+"/getThatImage.php?url="+image.src);
 					port.postMessage({method: "changeStatus", str: i+"/"+images.length});
