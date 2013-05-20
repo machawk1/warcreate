@@ -129,11 +129,6 @@ function generate_Warc(){
 						console.log("> 2");
 						if(msg.method != "error"){return;}
 						chrome.pageAction.setIcon({path:"icon-alert.png",tabId:tab.id});
-						console.log("Method in code.js: "+msg.method);
-						$("#errorText").text("XAMPP not installed!");
-						$("#errorText").attr("href","http://matkelly.com/warcreate/xampp");
-						$("#errorText").css("display","block");
-
 					});
 					
 					port.onMessage.addListener(function(msg) {
