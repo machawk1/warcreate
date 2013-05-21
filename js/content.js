@@ -2,19 +2,20 @@
 var server = "http://warcreate.com";
 
 chrome.extension.onConnect.addListener(function(port) {
-  //console.assert(port.name == "pai");
   port.onMessage.addListener(function(msg) {
 	if(msg.method == "getHTML"){
 		console.log("about to post getHTML message");
 		images = document.images;
+		
 		var imageURIs = [];
 		var imageBase64Data = [];
 		//image conversion code
-/* ******************************************* */
+
 		
-		console.log("Converting image data, "+images.length+" to convert");
-		imagesI = 0;
+		//console.log("Converting image data, "+images.length+" to convert");
+		//imagesI = 0;
 		for(var i = 0; i< images.length; i++){
+			console.log(images[i].src);
 			var image = images[i];
 			if(!(image.src)){console.log("Image "+i+" had no src. Continuing to encode the others"); continue;}
 			console.log("About to convert image "+(i+1)+"/"+images.length+": "+images[i].src);
@@ -23,19 +24,18 @@ chrome.extension.onConnect.addListener(function(port) {
 			canvas.width = image.width;
 			canvas.height = image.height;
 			
-			var dataStr = "data:image/png;base64,";
-			if(images[i].src.indexOf("jpeg") > 0 || images[i].src.indexOf("jpg") > 0){dataStr = "data:image/jpeg;base64,";}
+			var dataurl = canvas.toDataURL();
+			var datastartpos = dataurl.match(",").index+1;
+			var dd = dataurl.substring(datastartpos);
 			
-			var context = canvas.getContext("2d");
-			context.drawImage(image,0,0);
-			var dataURL;
+			imageURIs.push(images[i].src);
+			imageBase64Data.push(dd);
 			
-			imageURIs[i] = images[i].src;
-			//imageBase64Data[i] = dataStr+dataURL;
-			imageBase64Data[i] = rawImageData;
-			//console.log("Image "+(i+1)+"/"+images.length+" put into data array, len: "+dataURL);
+			var binaryImageData = window.atob(dd);
+			
+		
 		}
-/* ******************************************* */
+
 		var imageDataSerialized = imageBase64Data.join('|||');
 		var imageURIsSerialized = imageURIs.join('|||');
 
@@ -48,8 +48,8 @@ chrome.extension.onConnect.addListener(function(port) {
 			}
 		});
 		console.log("content.js: sending relayToImagesPost");
-		port.postMessage({html: document.all[0].outerHTML, cssURIs: cssFiles.join("|||"), method: "relayToImages",data: imageDataSerialized, uris: imageURIsSerialized});	//communicate back to code.js ~130 with image data
-		port.postMessage({data: imageDataSerialized, method: msg.method, uris: imageURIsSerialized});	//communicate back to code.js ~130 with image data
+		port.postMessage({html: document.all[0].outerHTML, data: imageDataSerialized, method: msg.method, uris: imageURIsSerialized});	//communicate back to code.js ~130 with image data
+		//port.postMessage({data: imageDataSerialized, method: msg.method, uris: imageURIsSerialized});	//communicate back to code.js ~130 with image data
 	}else {
 		//alert("method is unsupported: "+msg.method);
 	}

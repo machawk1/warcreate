@@ -124,18 +124,32 @@ function generateWarc(o_request, o_sender, f_callback){
 	
 	var warcAsURIString = warc;
 	
+	var imgURIs = o_request.imgURIs.split("|||");
+	var imgData = o_request.imgData.split("|||");
+	console.log(imgURIs);
+	console.log(imgData);
+
 	for(var requestHeader in requestHeaders){
 		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF + CRLF;
+		//console.log(responseHeaders[requestHeader]);
+		warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader]) + CRLF;
+		if(
+			responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 && //isA image
+			imgData[imgURIs.indexOf(requestHeader)] != null
+		){
+			console.log(requestHeader);
+			warcAsURIString += window.atob(imgData[imgURIs.indexOf(requestHeader)]) + CRLF + CRLF;
+		}
 	}
-	
+	/*
 	for(var responseHeader in responseHeaders){
 		warcAsURIString += makeWarcResponseHeaderWith(responseHeader, now, warcConcurrentTo, responseHeaders[responseHeader]) + CRLF;
-	}
+	}*/
 	
 
 	
 
-	console.log(warcAsURIString);
+	//console.log(warcAsURIString);
 	//requestHeaders = null; requestHeaders = new Array();
 	//responseHeaders = null; responseHeaders = new Array();
 	f_callback({d: warcAsURIString});

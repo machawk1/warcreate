@@ -121,7 +121,7 @@ function generate_Warc(){
 				chrome.tabs.getSelected(null, function(tab) {	
 					console.log('getselected');
 					//chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id});
-					var port = chrome.tabs.connect(tab.id,{name: "pai"});	//create a persistent connection
+					var port = chrome.tabs.connect(tab.id,{name: "warcreate"});	//create a persistent connection
 					port.postMessage({url: tab.url, method: 'getHTML'});	//fetch the html of the page, in content.js
 					
 					var imageDataFilledTo = -1;
@@ -129,9 +129,13 @@ function generate_Warc(){
 					//perform the first listener, populate the binary image data
 					console.log("adding listener");
 					port.onMessage.addListener(function(msg) {	//get image base64 data
+						//msg.html = html
+						//msg.uris: imageURIsSerialized
+						//msg.data: imageDataSerialized
+					
 						console.log("About to generateWARC(). Next should be callback.");
 						var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,"") + ".warc";
-						chrome.extension.sendRequest({url: tab.url, method: 'generateWarc', docHtml: msg.html, file: fileName},
+						chrome.extension.sendRequest({url: tab.url, method: 'generateWarc', docHtml: msg.html, file: fileName, imgURIs: msg.uris, imgData: msg.data},
 						 function(response) {	//the callback to sendRequest
 							console.log("generateWARC callback executed");
 							
@@ -217,17 +221,17 @@ chrome.webRequest.onHeadersReceived.addListener(
 		responseHeaders[resp.url] = "";
 		responseHeaders[resp.url] += resp.statusLine + CRLF;
 
-		console.log("--------------Response Headers--------------");
+		//console.log("--------------Response Headers--------------");
 		for (var key in resp.responseHeaders) {
 			responseHeaders[resp.url] += resp.responseHeaders[key].name+": "+resp.responseHeaders[key].value + CRLF;
 		}
-		console.log(responseHeaders[resp.url]);
+		//console.log(responseHeaders[resp.url]);
 	}
 , { urls:["http://*/*", "https://*/*"], }, ['responseHeaders','blocking']);
 chrome.webRequest.onBeforeSendHeaders.addListener(
 	function(req){
 		//console.log(req);
-		console.log("--------------Request Headers--------------");
+		//console.log("--------------Request Headers--------------");
 		requestHeaders[req.url] = "";
 
 		var path = req.url.substring(req.url.match(/[a-zA-Z0-9]\//).index + 1);
@@ -236,13 +240,23 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 		for (var key in req.requestHeaders) {
 			requestHeaders[req.url] += req.requestHeaders[key].name+": "+req.requestHeaders[key].value + CRLF;
 		}
-		console.log(requestHeaders[req.url]);
+		//console.log(requestHeaders[req.url]);
 	}
 , { urls:["http://*/*", "https://*/*"], }, ['requestHeaders','blocking']);
 
 
 //chrome.webRequest.onResponseStarted.addListener(
-//	function(r){
+//	function(details){
+//		console.log("responsestarted");
+//		console.log(details);
+//		console.log(details.valueOf());
+//}, { urls:["http://*/*", "https://*/*"], }, ['responseHeaders']);
+
+//chrome.webRequest.onResponseStarted.addListener(
+//	function(details){
+//		console.log(details);
+//	}, { urls:["http://*/*", "https://*/*"], }, ['responseHeaders']);
+//
 //		chrome.tabs.getSelected(null,function(tab){
 //			if(tab.url.indexOf(".warc") > 0){
 //	  			chrome.pageAction.setIcon({path:"icon-viewing.png",tabId:tab.id});
