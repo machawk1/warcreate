@@ -11,7 +11,9 @@ chrome.extension.onConnect.addListener(function(port) {
 		var imageBase64Data = [];
 		//image conversion code
 
-		
+	//*********************************	
+	// Convert images to something portal and text-y
+	//*********************************
 		//console.log("Converting image data, "+images.length+" to convert");
 		//imagesI = 0;
 		for(var i = 0; i< images.length; i++){
@@ -39,16 +41,36 @@ chrome.extension.onConnect.addListener(function(port) {
 		var imageDataSerialized = imageBase64Data.join('|||');
 		var imageURIsSerialized = imageURIs.join('|||');
 
+	//*********************************	
+	// Re-fetch CSS (limitation of webRequest, need to be able to get content on response, functionality unavailable, requires refetch)
+	//*********************************
+		//a better way to get all stylesheets but we cannot get them as text but instead an object with ruleslist
+		var styleSheetURLs = [];
+		var styleSheetData = [];
+		for(var ss=0; ss<document.styleSheets.length; ss++){
+			styleSheetURLs.push(document.styleSheets[ss].href);
+			$.ajax({
+				url: document.styleSheets[ss].href,
+				dataType: "text",
+				async: false
+			}).done(function(cssText){
+				styleSheetData.push(cssText);		
+			});
+		}
 		
-		var cssFiles = new Array();
-		$(document.all[0]).find('link').each(function(){
-			var cssLoc = $(this).attr('href');
-			if(cssLoc.indexOf(".css") != -1){
-				cssFiles.push(cssLoc);
-			}
-		});
+		
+		var cssDataSerialized = styleSheetData.join('|||');
+		var cssURIsSerialized = styleSheetURLs.join('|||');
+		
 		console.log("content.js: sending relayToImagesPost");
-		port.postMessage({html: document.all[0].outerHTML, data: imageDataSerialized, method: msg.method, uris: imageURIsSerialized});	//communicate back to code.js ~130 with image data
+		port.postMessage({
+			html: document.all[0].outerHTML, 
+			uris: imageURIsSerialized,
+			data: imageDataSerialized, 
+			cssuris: cssURIsSerialized,
+			cssdata: cssDataSerialized,
+			method: msg.method
+			});	//communicate back to code.js ~130 with image data
 		//port.postMessage({data: imageDataSerialized, method: msg.method, uris: imageURIsSerialized});	//communicate back to code.js ~130 with image data
 	}else {
 		//alert("method is unsupported: "+msg.method);

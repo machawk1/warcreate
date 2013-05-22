@@ -132,10 +132,20 @@ function generate_Warc(){
 						//msg.html = html
 						//msg.uris: imageURIsSerialized
 						//msg.data: imageDataSerialized
-					
+						//msg.cssuris: cssURIsSerialized
+						//msg.cssdata: cssDataSerialized
+						
 						console.log("About to generateWARC(). Next should be callback.");
 						var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,"") + ".warc";
-						chrome.extension.sendRequest({url: tab.url, method: 'generateWarc', docHtml: msg.html, file: fileName, imgURIs: msg.uris, imgData: msg.data},
+						chrome.extension.sendRequest({
+							url: tab.url, 
+							method: 'generateWarc', 
+							docHtml: msg.html, 
+							file: fileName, 
+							imgURIs: msg.uris, 
+							imgData: msg.data,
+							cssURIs: msg.cssuris,
+							cssData: msg.cssdata},
 						 function(response) {	//the callback to sendRequest
 							console.log("generateWARC callback executed");
 							

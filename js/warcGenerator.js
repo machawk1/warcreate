@@ -126,6 +126,8 @@ function generateWarc(o_request, o_sender, f_callback){
 	
 	var imgURIs = o_request.imgURIs.split("|||");
 	var imgData = o_request.imgData.split("|||");
+	var cssURIs = o_request.cssURIs.split("|||");
+	var cssData = o_request.cssData.split("|||");
 	console.log(imgURIs);
 	console.log(imgData);
 
@@ -133,12 +135,29 @@ function generateWarc(o_request, o_sender, f_callback){
 		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF + CRLF;
 		//console.log(responseHeaders[requestHeader]);
 		warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader]) + CRLF;
+		console.log("Checking URI "+requestHeader);
+		
 		if(
-			responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 && //isA image
-			imgData[imgURIs.indexOf(requestHeader)] != null
+		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 && //isA image
+		  imgData[imgURIs.indexOf(requestHeader)] != null
 		){
-			console.log(requestHeader);
+			console.log(" (o) Binary data for "+requestHeader+" found and should be incldued in the WARC");
 			warcAsURIString += window.atob(imgData[imgURIs.indexOf(requestHeader)]) + CRLF + CRLF;
+		}else if(responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 ){
+			console.log(" (X) Binary data for "+requestHeader+" not found. :(");
+			warcAsURIString += "Missing binary data. :(" + CRLF + CRLF;
+		}else if(responseHeaders[requestHeader].indexOf("Content-Type: text/css") > -1)
+		{
+			//console.log(responseHeaders[requestHeader]);
+			//console.log(" (X) "+requestHeader+" is not an image.");
+			for(var cc=0; cc<cssURIs.length; cc++){
+				if(requestHeader == cssURIs[cc]){
+					warcAsURIString += cssData[cssURIs.indexOf(requestHeader)] + CRLF + CRLF
+					break;
+				}
+			}
+		}else {
+			//console.log(" (X) "+requestHeader+" is not an image or CSS file.");
 		}
 	}
 	/*
