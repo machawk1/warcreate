@@ -133,7 +133,10 @@ function generateWarc(o_request, o_sender, f_callback){
 
 	console.log("localstorage");
 	console.log(localStorage['imagesInDOM']);
+	var seedURL = true;
 	for(var requestHeader in requestHeaders){
+		if(seedURL){seedURL = false; continue;} //ignore the first headers, as they've already been included. The 'more better' way to do it would be to have the seed content added here instead of heard coded above.
+		
 		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF + CRLF;
 		//console.log(responseHeaders[requestHeader]);
 		warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader]) + CRLF;
