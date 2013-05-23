@@ -27,8 +27,9 @@ function generateWarc(o_request, o_sender, f_callback){
 		"software: WARCreate/"+version+" http://warcreate.com" +CRLF + 
 		"format: WARC File Format 1.0" + CRLF +
 		"conformsTo: http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf" + CRLF +
-		"description: recurrence=ANNUAL, maxDuration=432000, maxDocumentCount=1000000, isTestCrawl=false, seedCount=61, accountId=89" + CRLF +
-		"robots: classic" + CRLF +
+		"isPartOf: basic" + CRLF +
+		"description: Crawl initiated from the WARCreate Google Chrome extension"+ CRLF +
+		"robots: ignore" + CRLF +
 		"http-header-user-agent: "+ navigator.userAgent + CRLF + 
 		"http-header-from: warcreate@matkelly.com" + CRLF;
 
@@ -102,7 +103,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		
 	var warc =
 		warcHeader + CRLF +
-		warcHeaderContent + CRLF + CRLF +
+		warcHeaderContent + CRLF + CRLF + CRLF +
 		warcRequestHeader + CRLF + 
 		warcMetadataHeader + CRLF +
 		warcMetadata + CRLF + CRLF  +
@@ -154,7 +155,9 @@ function generateWarc(o_request, o_sender, f_callback){
 		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 ){
 			console.log(" (X) Binary data for "+requestHeader+" not found. :(");
 			warcAsURIString += "Missing binary data. :(" + CRLF + CRLF;
-		}else if(responseHeaders[requestHeader].indexOf("Content-Type: text/css") > -1)
+		}else if(
+		  responseHeaders[requestHeader] &&
+		  responseHeaders[requestHeader].indexOf("Content-Type: text/css") > -1)
 		{
 			//console.log(responseHeaders[requestHeader]);
 			//console.log(" (X) "+requestHeader+" is not an image.");
@@ -168,15 +171,7 @@ function generateWarc(o_request, o_sender, f_callback){
 			//console.log(" (X) "+requestHeader+" is not an image or CSS file.");
 		}
 	}
-	/*
-	for(var responseHeader in responseHeaders){
-		warcAsURIString += makeWarcResponseHeaderWith(responseHeader, now, warcConcurrentTo, responseHeaders[responseHeader]) + CRLF;
-	}*/
-	
 
-	
-
-	//console.log(warcAsURIString);
 	//requestHeaders = null; requestHeaders = new Array();
 	//responseHeaders = null; responseHeaders = new Array();
 	f_callback({d: warcAsURIString});
