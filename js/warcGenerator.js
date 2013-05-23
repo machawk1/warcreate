@@ -104,7 +104,6 @@ function generateWarc(o_request, o_sender, f_callback){
 		warcHeader + CRLF +
 		warcHeaderContent + CRLF + CRLF +
 		warcRequestHeader + CRLF + 
-		warcRequest + CRLF + CRLF  +
 		warcMetadataHeader + CRLF +
 		warcMetadata + CRLF + CRLF  +
 		warcResponseHeader + CRLF +
