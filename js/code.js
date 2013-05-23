@@ -117,15 +117,13 @@ function generate_Warc(){
 				console.log("date.js loaded");
 				var uris = [];
 				var datum = [];
-				
 				chrome.tabs.getSelected(null, function(tab) {	
-					console.log('getselected');
 					//chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id});
 					var port = chrome.tabs.connect(tab.id,{name: "warcreate"});	//create a persistent connection
 					port.postMessage({url: tab.url, method: 'getHTML'});	//fetch the html of the page, in content.js
 					
 					var imageDataFilledTo = -1;
-						
+
 					//perform the first listener, populate the binary image data
 					console.log("adding listener");
 					port.onMessage.addListener(function(msg) {	//get image base64 data
@@ -225,9 +223,15 @@ var responseHeaders = new Array();
 var requestHeaders = new Array();
 var CRLF = "\r\n";
 
+var currentTabId = -1;
+chrome.tabs.getSelected(null, function(tab){ 
+	currentTabId=tab.id;
+	console.log("tab id in getselected "+currentTabId);
+});
+
+
 chrome.webRequest.onHeadersReceived.addListener(
 	function(resp){
-		//console.log(resp);
 		responseHeaders[resp.url] = "";
 		responseHeaders[resp.url] += resp.statusLine + CRLF;
 
@@ -237,7 +241,7 @@ chrome.webRequest.onHeadersReceived.addListener(
 		}
 		//console.log(responseHeaders[resp.url]);
 	}
-, { urls:["http://*/*", "https://*/*"], }, ['responseHeaders','blocking']);
+, { urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['responseHeaders','blocking']);
 chrome.webRequest.onBeforeSendHeaders.addListener(
 	function(req){
 		//console.log(req);
@@ -252,7 +256,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 		}
 		//console.log(requestHeaders[req.url]);
 	}
-, { urls:["http://*/*", "https://*/*"], }, ['requestHeaders','blocking']);
+, { urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['requestHeaders','blocking']);
 
 
 //chrome.webRequest.onResponseStarted.addListener(

@@ -57,7 +57,8 @@ function generateWarc(o_request, o_sender, f_callback){
 			"WARC-Concurrent-To: " + warcConcurrentTo + CRLF +
 			"WARC-Record-ID: " + guidGenerator() + CRLF +
 			"Content-Type: application/http; msgtype=request" +CRLF +
-			"Content-Length: " + (warcRequest.length + 2) + CRLF + CRLF;
+			"Content-Length: " + (warcRequest.length + 2) + CRLF + CRLF +
+			warcRequest;
 			return x;
 	}
 	
@@ -131,6 +132,8 @@ function generateWarc(o_request, o_sender, f_callback){
 	console.log(imgURIs);
 	console.log(imgData);
 
+	console.log("localstorage");
+	console.log(localStorage['imagesInDOM']);
 	for(var requestHeader in requestHeaders){
 		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF + CRLF;
 		//console.log(responseHeaders[requestHeader]);
@@ -138,12 +141,15 @@ function generateWarc(o_request, o_sender, f_callback){
 		console.log("Checking URI "+requestHeader);
 		
 		if(
+		  responseHeaders[requestHeader] &&
 		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 && //isA image
 		  imgData[imgURIs.indexOf(requestHeader)] != null
 		){
-			console.log(" (o) Binary data for "+requestHeader+" found and should be incldued in the WARC");
+			console.log(" (o) Binary data for "+requestHeader+" found and will be included in the WARC");
 			warcAsURIString += window.atob(imgData[imgURIs.indexOf(requestHeader)]) + CRLF + CRLF;
-		}else if(responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 ){
+		}else if(
+		  responseHeaders[requestHeader] &&
+		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 ){
 			console.log(" (X) Binary data for "+requestHeader+" not found. :(");
 			warcAsURIString += "Missing binary data. :(" + CRLF + CRLF;
 		}else if(responseHeaders[requestHeader].indexOf("Content-Type: text/css") > -1)

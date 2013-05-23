@@ -10,7 +10,6 @@ chrome.extension.onConnect.addListener(function(port) {
 		var imageURIs = [];
 		var imageBase64Data = [];
 		//image conversion code
-
 	//*********************************	
 	// Convert images to something portal and text-y
 	//*********************************
@@ -37,16 +36,17 @@ chrome.extension.onConnect.addListener(function(port) {
 			
 		
 		}
-
+		
 		var imageDataSerialized = imageBase64Data.join('|||');
 		var imageURIsSerialized = imageURIs.join('|||');
-
+		localStorage['imagesInDOM'] = imageURIsSerialized;
 	//*********************************	
 	// Re-fetch CSS (limitation of webRequest, need to be able to get content on response, functionality unavailable, requires refetch)
 	//*********************************
 		//a better way to get all stylesheets but we cannot get them as text but instead an object with ruleslist
 		var styleSheetURLs = [];
 		var styleSheetData = [];
+		console.log(document.styleSheets[0]);
 		for(var ss=0; ss<document.styleSheets.length; ss++){
 			styleSheetURLs.push(document.styleSheets[ss].href);
 			$.ajax({
@@ -71,7 +71,6 @@ chrome.extension.onConnect.addListener(function(port) {
 			cssdata: cssDataSerialized,
 			method: msg.method
 			});	//communicate back to code.js ~130 with image data
-		//port.postMessage({data: imageDataSerialized, method: msg.method, uris: imageURIsSerialized});	//communicate back to code.js ~130 with image data
 	}else {
 		//alert("method is unsupported: "+msg.method);
 	}
