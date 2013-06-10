@@ -51,7 +51,7 @@ function generateWarc(o_request, o_sender, f_callback){
 	function makeWarcRequestHeaderWith(targetURI, now, warcConcurrentTo, warcRequest){
 		var CRLF = "\r\n";
 		var x = 
-			"WARC/1.0 " + CRLF +
+			"WARC/1.0" + CRLF +
 			"WARC-Type: request" + CRLF +
 			"WARC-Target-URI: "+ targetURI + CRLF +
 			"WARC-Date: " + now + CRLF +
@@ -154,7 +154,25 @@ function generateWarc(o_request, o_sender, f_callback){
 		  responseHeaders[requestHeader] &&
 		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 ){
 			console.log(" (X) Binary data for "+requestHeader+" not found. :(");
-			warcAsURIString += "Missing binary data. :(" + CRLF + CRLF;
+			var acquiredData = "Never replaced";
+			$.ajax({
+				url: requestHeader,
+				async: false
+			}).done(function(data){
+				console.log("Re-queried, here's data: ");
+				console.log(data);
+				acquiredData = "We have new data!"
+				//acquiredData = window.btoa(data);
+				acquiredData = data;
+				//warcAsURIString += data + CRLF + CRLF;
+			}).error(function(data){
+				acquiredData = "Missing binary data. :(";
+				//warcAsURIString += "Missing binary data. :(" + CRLF + CRLF;
+			});
+			console.log("Acquired data: "+acquiredData+"X");
+			warcAsURIString += acquiredData + CRLF + CRLF;
+			//warcAsURIString += "Missing binary data. :(" + CRLF + CRLF;
+			
 		}else if(
 		  responseHeaders[requestHeader] &&
 		  responseHeaders[requestHeader].indexOf("Content-Type: text/css") > -1)

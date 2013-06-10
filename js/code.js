@@ -259,12 +259,13 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 , { urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['requestHeaders','blocking']);
 
 
-//chrome.webRequest.onResponseStarted.addListener(
-//	function(details){
-//		console.log("responsestarted");
-//		console.log(details);
+
+chrome.webRequest.onResponseStarted.addListener(
+	function(details){
+		console.log("responsestarted");
+		console.log(details);
 //		console.log(details.valueOf());
-//}, { urls:["http://*/*", "https://*/*"], }, ['responseHeaders']);
+}, { urls:["http://*/*", "https://*/*"], }, ['responseHeaders']);
 
 //chrome.webRequest.onResponseStarted.addListener(
 //	function(details){
