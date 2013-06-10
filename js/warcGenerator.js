@@ -160,10 +160,11 @@ function generateWarc(o_request, o_sender, f_callback){
 		  responseHeaders[requestHeader].indexOf("Content-Type: text/css") > -1)
 		{
 			//console.log(responseHeaders[requestHeader]);
+			warcAsURIString += responseHeaders[requestHeader] + CRLF + CRLF;
 			//console.log(" (X) "+requestHeader+" is not an image.");
 			for(var cc=0; cc<cssURIs.length; cc++){
 				if(requestHeader == cssURIs[cc]){
-					warcAsURIString += cssData[cssURIs.indexOf(requestHeader)] + CRLF + CRLF
+					warcAsURIString += cssData[cssURIs.indexOf(requestHeader)] + CRLF + CRLF;
 					break;
 				}
 			}
