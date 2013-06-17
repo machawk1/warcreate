@@ -149,6 +149,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		  imgData[imgURIs.indexOf(requestHeader)] != null
 		){
 			console.log(" (o) Binary data for "+requestHeader+" found and will be included in the WARC");
+			warcAsURIString += responseHeaders[requestHeader] + CRLF;
 			warcAsURIString += window.atob(imgData[imgURIs.indexOf(requestHeader)]) + CRLF + CRLF;
 		}else if(
 		  responseHeaders[requestHeader] &&
@@ -158,19 +159,26 @@ function generateWarc(o_request, o_sender, f_callback){
 			$.ajax({
 				url: requestHeader,
 				async: false
-			}).done(function(data){
+			}).done(function(data,t,x){
 				console.log("Re-queried, here's data: ");
 				console.log(data);
+				console.log(x);
+				console.log(x.getAllResponseHeaders());
 				acquiredData = "We have new data!"
 				//acquiredData = window.btoa(data);
-				acquiredData = data;
+				console.log(x);
+				console.log("above is jsxhr object");
+				httpResponseLine = "HTTP/1.1 " + x.statusText + CRLF;
+				acquiredData = httpResponseLine + x.getAllResponseHeaders() + CRLF +  x.responseText;
+				//console.log("XXXX"+warcAsURIString.length);
+				warcAsURIString += acquiredData + CRLF + CRLF;
 				//warcAsURIString += data + CRLF + CRLF;
 			}).error(function(data){
 				acquiredData = "Missing binary data. :(";
 				//warcAsURIString += "Missing binary data. :(" + CRLF + CRLF;
 			});
-			console.log("Acquired data: "+acquiredData+"X");
-			warcAsURIString += acquiredData + CRLF + CRLF;
+			//console.log("Acquired data: "+acquiredData+"X");
+			//warcAsURIString += acquiredData + CRLF + CRLF;
 			//warcAsURIString += "Missing binary data. :(" + CRLF + CRLF;
 			
 		}else if(

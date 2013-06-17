@@ -12,7 +12,7 @@ function checkForValidUrl(tabId, changeInfo, tab) {
 };
 
 function alertContent(){
-	chrome.tabs.executeScript(null, {file:"js/jquery-1.7.min.js"}, function() {
+	chrome.tabs.executeScript(null, {file:"js/jquery-2.0.2.min.js"}, function() {
 		chrome.tabs.executeScript(null, {file:"js/jquery.rc4.js"}, function() {
 			chrome.tabs.executeScript(null, { file: "js/alertContent.js" }, function(){
 			
@@ -63,7 +63,7 @@ function encodeImages(){
 function encrypt(){
 	var key = document.getElementById('key').value;
 	if(key == ""){alert("First enter a key for encryption."); return;}
-	chrome.tabs.executeScript(null, {file:"js/jquery-1.7.min.js"}, function() {
+	chrome.tabs.executeScript(null, {file:"js/jquery-2.0.2.min.js"}, function() {
 		chrome.tabs.executeScript(null, {file:"js/jquery.rc4.js"}, function() {
 			chrome.tabs.executeScript(null, {code: "var params = {k:'"+key+"'};"}, function(){
 				chrome.tabs.executeScript(null, { file: "js/encryptPage.js" }, function(){
@@ -109,7 +109,7 @@ function generate_Warc(){
 	var imageData = [];
 	var imageURIs = [];
 	console.log("generate_warc");
-	chrome.tabs.executeScript(null, {file:"js/jquery-1.7.min.js"}, function() {	/* Dependency for hash library and general goodness*/
+	chrome.tabs.executeScript(null, {file:"js/jquery-2.0.2.min.js"}, function() {	/* Dependency for hash library and general goodness*/
 		console.log("jquery loaded");
 		chrome.tabs.executeScript(null, {file:"js/jquery.rc4.js"}, function() {	/* Hash library */
 			console.log("jquery rc4 loaded");
