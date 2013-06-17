@@ -168,7 +168,7 @@ function generateWarc(o_request, o_sender, f_callback){
 				//acquiredData = window.btoa(data);
 				console.log(x);
 				console.log("above is jsxhr object");
-				httpResponseLine = "HTTP/1.1 " + x.statusText + CRLF;
+				httpResponseLine = "HTTP/1.1 " + x.status + " " + x.statusText + CRLF;
 				acquiredData = httpResponseLine + x.getAllResponseHeaders() + CRLF +  x.responseText;
 				//console.log("XXXX"+warcAsURIString.length);
 				warcAsURIString += acquiredData + CRLF + CRLF;
