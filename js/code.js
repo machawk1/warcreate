@@ -204,15 +204,17 @@ window.onload = function(){
 	
 	
 	var gwButton = document.getElementById('generateWarc');
-	var ulButton = document.getElementById('uploader');
+	gwButton.onclick = generate_Warc;
+	
 	var clsButton = document.getElementById('clearLocalStorage');
+	
+	//future implementation for NEH HD-51670-13
+	// https://securegrants.neh.gov/publicquery/main.aspx?f=1&gn=HD-51670-13
+	var ulButton = document.getElementById('uploader');
 	var caButton = document.getElementById('generateCohesiveWARC');
 	$(ulButton).css("display","none");
 	$(caButton).css("display","none");
-	
-	gwButton.onclick = generate_Warc;
 	caButton.onclick = sequential_generate_Warc;
-	
 };
 // Listen for any changes to the URL of any tab.
 chrome.tabs.onUpdated.addListener(checkForValidUrl);
