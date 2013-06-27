@@ -1,7 +1,7 @@
 /* FileSaver.js
  * A saveAs() FileSaver implementation.
- * 2012-12-11
- * 
+ * 2013-01-23
+ *
  * By Eli Grey, http://eligrey.com
  * License: X11/MIT
  *   See LICENSE.md
@@ -14,7 +14,7 @@
 /*! @source http://purl.eligrey.com/github/FileSaver.js/blob/master/FileSaver.js */
 
 var saveAs = saveAs
-  || (navigator.msSaveOrOpenBlob && navigator.msSaveOrOpenBlob.bind(navigator))
+  || (navigator.msSaveBlob && navigator.msSaveBlob.bind(navigator))
   || (function(view) {
 	"use strict";
 	var
@@ -32,7 +32,7 @@ var saveAs = saveAs
 				"click", true, false, view, 0, 0, 0, 0, 0
 				, false, false, false, false, 0, null
 			);
-			return node.dispatchEvent(event); // false if event was cancelled
+			node.dispatchEvent(event);
 		}
 		, webkit_req_fs = view.webkitRequestFileSystem
 		, req_fs = view.requestFileSystem || webkit_req_fs || view.mozRequestFileSystem
@@ -92,7 +92,11 @@ var saveAs = saveAs
 					if (blob_changed || !object_url) {
 						object_url = get_object_url(blob);
 					}
-					target_view.location.href = object_url;
+					if (target_view) {
+						target_view.location.href = object_url;
+					} else {
+                        window.open(object_url, "_blank");
+                    }
 					filesaver.readyState = filesaver.DONE;
 					dispatch_all();
 				}
@@ -114,11 +118,10 @@ var saveAs = saveAs
 				object_url = get_object_url(blob);
 				save_link.href = object_url;
 				save_link.download = name;
-				if (click(save_link)) {
-					filesaver.readyState = filesaver.DONE;
-					dispatch_all();
-					return;
-				}
+				click(save_link);
+				filesaver.readyState = filesaver.DONE;
+				dispatch_all();
+				return;
 			}
 			// Object and web filesystem URLs have a problem saving in Google Chrome when
 			// viewed in a tab, so I force save with application/octet-stream
@@ -136,8 +139,6 @@ var saveAs = saveAs
 			}
 			if (type === force_saveable_type || webkit_req_fs) {
 				target_view = view;
-			} else {
-				target_view = view.open();
 			}
 			if (!req_fs) {
 				fs_error();
@@ -200,7 +201,7 @@ var saveAs = saveAs
 	FS_proto.readyState = FS_proto.INIT = 0;
 	FS_proto.WRITING = 1;
 	FS_proto.DONE = 2;
-	
+
 	FS_proto.error =
 	FS_proto.onwritestart =
 	FS_proto.onprogress =
@@ -209,7 +210,7 @@ var saveAs = saveAs
 	FS_proto.onerror =
 	FS_proto.onwriteend =
 		null;
-	
+
 	view.addEventListener("unload", process_deletion_queue, false);
 	return saveAs;
 }(self));

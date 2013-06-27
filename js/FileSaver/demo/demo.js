@@ -1,5 +1,5 @@
 /* FileSaver.js demo script
- * 2011-08-02
+ * 2012-01-23
  * 
  * By Eli Grey, http://eligrey.com
  * License: X11/MIT
@@ -18,9 +18,9 @@ var
 		return document.getElementById(id);
 	}
 	, session = view.sessionStorage
-	// only get URL when necessary in case BlobBuilder.js hasn't defined it yet
-	, get_blob_builder = function() {
-		return view.BlobBuilder || view.WebKitBlobBuilder || view.MozBlobBuilder;
+	// only get URL when necessary in case Blob.js hasn't defined it yet
+	, get_blob = function() {
+		return view.Blob;
 	}
 
 	, canvas = $("canvas")
@@ -146,6 +146,7 @@ canvas_clear_button.addEventListener("click", function() {
 		0;
 }, false);
 canvas.addEventListener("mousedown", function(event) {
+	event.preventDefault();
 	drawing = true;
 	add_point(event.pageX - canvas.offsetLeft, event.pageY - canvas.offsetTop, false);
 	draw();
@@ -171,11 +172,12 @@ canvas_options_form.addEventListener("submit", function(event) {
 
 text_options_form.addEventListener("submit", function(event) {
 	event.preventDefault();
-	var BB = get_blob_builder();
-	var bb = new BB;
-	bb.append(text.value || text.placeholder);
+	var BB = get_blob();
 	saveAs(
-		  bb.getBlob("text/plain;charset=" + document.characterSet)
+		  new BB(
+			  [text.value || text.placeholder]
+			, {type: "text/plain;charset=" + document.characterSet}
+		)
 		, (text_filename.value || text_filename.placeholder) + ".txt"
 	);
 }, false);
@@ -183,14 +185,15 @@ text_options_form.addEventListener("submit", function(event) {
 html_options_form.addEventListener("submit", function(event) {
 	event.preventDefault();
 	var
-		  BB = get_blob_builder()
-		, bb = new BB
+		  BB = get_blob()
 		, xml_serializer = new XMLSerializer
 		, doc = create_html_doc(html)
 	;
-	bb.append(xml_serializer.serializeToString(doc));
 	saveAs(
-		  bb.getBlob("application/xhtml+xml;charset=" + document.characterSet)
+		  new BB(
+			  [xml_serializer.serializeToString(doc)]
+			, {type: "application/xhtml+xml;charset=" + document.characterSet}
+		)
 		, (html_filename.value || html_filename.placeholder) + ".xhtml"
 	);
 }, false);

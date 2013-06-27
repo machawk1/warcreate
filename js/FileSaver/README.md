@@ -13,12 +13,29 @@ Supported Browsers
 ------------------
 
 * Internet Explorer 10+
-* Firefox 4+
+  * Up to 600 MiB per blob
+  * **Supports filenames**
+* Firefox
+  * Up to 800 MiB per blob
+  * **Supports filenames**
 * Google Chrome
-* Opera 11+
+  * Up to 345 MiB per blob
+  * **Supports filenames**
+* Google Chrome for Android Beta
+  * **Supports filenames**
+* Opera Next
+  * **Supports filenames**
 * Safari 5+
+  * Requires [Blob.js](https://github.com/eligrey/Blob.js)
+  * Does not support filenames
+* Opera ≤15
+  * Requires [Blob.js](https://github.com/eligrey/Blob.js)
+  * Does not support filenames
+* Firefox <4
+  * Requires [Blob.js](https://github.com/eligrey/Blob.js)
+  * Does not support filenames
 
-Unlisted versions of browsers (e.g. Firefox 3.6) will probably work too; I just haven't
+Unlisted future versions of browsers will probably work too; I just haven't
 tested them.
 
 Syntax
@@ -31,12 +48,11 @@ Examples
 
 ### Saving text
 
-    var bb = new BlobBuilder;
-    bb.append("Hello, world!");
-    saveAs(bb.getBlob("text/plain;charset=utf-8"), "hello world.txt");
+    var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "hello world.txt");
 
-The standard W3C File API [`BlobBuilder`][3] interface is not available in all browsers.
-[BlobBuilder.js][4] is a cross-browser `BlobBuilder` implementation that solves this.
+The standard W3C File API [`Blob`][3] interface is not available in all browsers.
+[Blob.js][4] is a cross-browser `Blob` implementation that solves this.
 
 ### Saving a canvas
 
@@ -50,16 +66,7 @@ Note: The standard HTML5 `canvas.toBlob()` method is not available in all browse
 [canvas-toBlob.js][5] is a cross-browser `canvas.toBlob()` implementation that solves
 this.
 
-### Doing something after a file is saved
-
-    var filesaver = saveAs(blob, "secret stuff that you won't send to a server.truecrypt");
-    filesaver.onwriteend = function() {
-		// file saved, do something here
-    };
-
 ### Aborting a save
-
-Note that Internet Explorer cannot abort saves, so 
 
     var filesaver = saveAs(blob, "whatever");
     cancel_button.addEventListener("click", function() {
@@ -70,10 +77,10 @@ Note that Internet Explorer cannot abort saves, so
 
 This isn't that useful unless you're saving very large files (e.g. generated video).
 
-![Tracking image](//in.getclicky.com/212712ns.gif)
+![Tracking image](https://in.getclicky.com/212712ns.gif)
 
   [1]: http://www.w3.org/TR/file-writer-api/#the-filesaver-interface
-  [2]: http://oftn.org/projects/FileSaver.js/demo/
-  [3]: http://www.w3.org/TR/file-writer-api/#the-blobbuilder-interface
-  [4]: https://github.com/eligrey/BlobBuilder.js
+  [2]: http://eligrey.com/demos/FileSaver.js/
+  [3]: https://developer.mozilla.org/en-US/docs/DOM/Blob
+  [4]: https://github.com/eligrey/Blob.js
   [5]: https://github.com/eligrey/canvas-toBlob.js

@@ -1,6 +1,6 @@
 {
   "name": "WARCreate",
-  "version": "0.2013.6.17",
+  "version": "0.2013.6.27",
   "manifest_version": 2,
   
   "description": "Create Wayback-Consumable WARC Files from Any Webpage",
@@ -34,7 +34,6 @@
 	 "*://*/*"
   ],
   "options_page": "html/options.html",
-  "update_url": "http://warcreate/updates.xml",
   
   
   "content_security_policy": "script-src 'self'; object-src 'self'",
