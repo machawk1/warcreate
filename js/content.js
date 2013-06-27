@@ -1,11 +1,23 @@
 //var server = "http://localhost:8080";
 var server = "http://warcreate.com";
+var outlinks = [];
 
 chrome.extension.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(msg) {
+  	console.log("in content.js with method: "+msg.method);
 	if(msg.method == "getHTML"){
 		console.log("about to post getHTML message");
 		images = document.images;
+		
+		console.log("LINKS:");
+		//console.log($("a"));
+		
+		outlinks = [];
+		$("a").each(function ()
+		{
+		   console.log("FOUND LINK: "+$(this).attr("href"));
+		   outlinks.push($(this).attr("href"));
+		});
 		
 		var imageURIs = [];
 		var imageBase64Data = [];
@@ -61,7 +73,8 @@ chrome.extension.onConnect.addListener(function(port) {
 		
 		var cssDataSerialized = styleSheetData.join('|||');
 		var cssURIsSerialized = styleSheetURLs.join('|||');
-		
+		var outlinksSerialized = outlinks.join('|||');
+				
 		console.log("content.js: sending relayToImagesPost");
 		port.postMessage({
 			html: document.all[0].outerHTML, 
@@ -69,9 +82,11 @@ chrome.extension.onConnect.addListener(function(port) {
 			data: imageDataSerialized, 
 			cssuris: cssURIsSerialized,
 			cssdata: cssDataSerialized,
+			outlinks: outlinksSerialized,
 			method: msg.method
 			});	//communicate back to code.js ~130 with image data
 	}else {
+		console.log("Method unsupported in content.js: "+msg.method);
 		//alert("method is unsupported: "+msg.method);
 	}
    

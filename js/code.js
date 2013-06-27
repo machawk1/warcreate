@@ -110,11 +110,11 @@ function generate_Warc(){
 	var imageURIs = [];
 	console.log("generate_warc");
 	chrome.tabs.executeScript(null, {file:"js/jquery-2.0.2.min.js"}, function() {	/* Dependency for hash library and general goodness*/
-		console.log("jquery loaded");
+		//console.log("jquery loaded");
 		chrome.tabs.executeScript(null, {file:"js/jquery.rc4.js"}, function() {	/* Hash library */
-			console.log("jquery rc4 loaded");
+			//console.log("jquery rc4 loaded");
 			chrome.tabs.executeScript(null, {file:"js/date.js"}, function() {		/* Good date formatting library */
-				console.log("date.js loaded");
+				//console.log("date.js loaded");
 				var uris = [];
 				var datum = [];
 				chrome.tabs.getSelected(null, function(tab) {	
@@ -143,7 +143,8 @@ function generate_Warc(){
 							imgURIs: msg.uris, 
 							imgData: msg.data,
 							cssURIs: msg.cssuris,
-							cssData: msg.cssdata},
+							cssData: msg.cssdata,
+							outlinks: msg.outlinks},
 						 function(response) {	//the callback to sendRequest
 							console.log("generateWARC callback executed");
 							

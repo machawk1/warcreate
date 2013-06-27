@@ -66,9 +66,18 @@ function generateWarc(o_request, o_sender, f_callback){
 	
 	var warcRequestHeader = makeWarcRequestHeaderWith(initURI, now, warcConcurrentTo, warcRequest);
 	
-	var warcMetadata =
-		"outlink: "+ initURI + CRLF;
 
+	var outlinks = o_request.outlinks.split("|||");
+	var outlinkStr = "";
+	for(var outlink in outlinks){
+		var href = outlinks[outlink];
+		if(href.substr(0,1) != "h"){href = initURI + href;} //resolve fragment and internal links
+		outlinkStr += "outlink: " + href + CRLF;
+	}
+	
+	var warcMetadata =
+		"outlink: "+ initURI + CRLF + outlinkStr;
+	
 		
 	var warcMetadataHeader =
 		"WARC/1.0" + CRLF +
