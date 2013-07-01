@@ -44,10 +44,7 @@ function encodeImages(){
 
 	try {
 		var base64  = canvas.toDataURL(fileType);
-	//	alert(base64);
 		img.src = base64;
-		//alert(base64);
-		//img.src = base64;//"https://www.google.com/intl/en_com/images/srpr/logo3w.png";
 		
 		//chrome.extension.sendRequest({url: img.src});
 		//chrome.extension.getBackgroundPage().adjustImage(img.src);
@@ -154,7 +151,11 @@ function generate_Warc(){
 		
 							console.log("Done!");
 							chrome.pageAction.setIcon({path:"../icons/icon-check.png",tabId:tab.id});
-							
+							responseHeaders = new Array();
+							requestHeaders = new Array();
+							imageData = new Array();
+							var imageURIs = new Array();
+							msg = null;
 						});	
 					});
 				
@@ -265,8 +266,8 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 
 chrome.webRequest.onResponseStarted.addListener(
 	function(details){
-		console.log("responsestarted");
-		console.log(details);
+		//console.log("responsestarted");
+		//console.log(details);
 //		console.log(details.valueOf());
 }, { urls:["http://*/*", "https://*/*"], }, ['responseHeaders']);
 

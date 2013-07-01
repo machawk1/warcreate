@@ -71,6 +71,8 @@ function generateWarc(o_request, o_sender, f_callback){
 	var outlinkStr = "";
 	for(var outlink in outlinks){
 		var href = outlinks[outlink];
+		if(href.indexOf("mailto:") > -1){continue;}
+		
 		if(href.substr(0,1) != "h"){href = initURI + href;} //resolve fragment and internal links
 		outlinkStr += "outlink: " + href + CRLF;
 	}
@@ -169,14 +171,14 @@ function generateWarc(o_request, o_sender, f_callback){
 				url: requestHeader,
 				async: false
 			}).done(function(data,t,x){
-				console.log("Re-queried, here's data: ");
+				console.log(" > Re-queried, here's data: ");
 				console.log(data);
-				console.log(x);
-				console.log(x.getAllResponseHeaders());
+				//console.log(x);
+				//console.log(x.getAllResponseHeaders());
 				acquiredData = "We have new data!"
 				//acquiredData = window.btoa(data);
-				console.log(x);
-				console.log("above is jsxhr object");
+				//console.log(x);
+				//console.log("above is jsxhr object");
 				httpResponseLine = "HTTP/1.1 " + x.status + " " + x.statusText + CRLF;
 				acquiredData = httpResponseLine + x.getAllResponseHeaders() + CRLF +  x.responseText;
 				//console.log("XXXX"+warcAsURIString.length);
