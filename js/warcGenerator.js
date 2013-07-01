@@ -115,11 +115,11 @@ function generateWarc(o_request, o_sender, f_callback){
 	var warc =
 		warcHeader + CRLF +
 		warcHeaderContent + CRLF + CRLF + CRLF +
-		warcRequestHeader + CRLF + 
+		//warcRequestHeader + CRLF + 
 		warcMetadataHeader + CRLF +
-		warcMetadata + CRLF + CRLF  +
-		warcResponseHeader + CRLF +
-		warcResponse + CRLF + CRLF;
+		warcMetadata + CRLF + CRLF;//  +
+		//warcResponseHeader + CRLF +
+		//warcResponse + CRLF + CRLF;
 
 	var pattern = /\r\n(.*)\r\n----------------/g;
 	var myArray = pattern.exec(o_request.headers);
@@ -143,11 +143,16 @@ function generateWarc(o_request, o_sender, f_callback){
 	console.log(imgURIs);
 	console.log(imgData);
 
-	console.log("localstorage");
-	console.log(localStorage['imagesInDOM']);
+	//console.log("localstorage");
+	//console.log(localStorage['imagesInDOM']);
+	//console.log("requestheaders:");
+	//console.log(requestHeaders);
 	var seedURL = true;
 	for(var requestHeader in requestHeaders){
-		if(seedURL){seedURL = false; continue;} //ignore the first headers, as they've already been included. The 'more better' way to do it would be to have the seed content added here instead of heard coded above.
+		//if(seedURL){console.log("Setting seed url at url = "+requestHeader);seedURL = false; continue;} //ignore the first headers, as they've already been included. The 'more better' way to do it would be to have the seed content added here instead of heard coded above.
+		
+		console.log("Response header for "+requestHeader+":");
+		console.log(responseHeaders[requestHeader]);
 		
 		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF + CRLF;
 		//console.log(responseHeaders[requestHeader]);
@@ -198,7 +203,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		{
 			//console.log(responseHeaders[requestHeader]);
 			warcAsURIString += responseHeaders[requestHeader] + CRLF + CRLF;
-			//console.log(" (X) "+requestHeader+" is not an image.");
+			console.log(" (X) "+requestHeader+" is not an image.");
 			for(var cc=0; cc<cssURIs.length; cc++){
 				if(requestHeader == cssURIs[cc]){
 					warcAsURIString += cssData[cssURIs.indexOf(requestHeader)] + CRLF + CRLF;
@@ -206,7 +211,21 @@ function generateWarc(o_request, o_sender, f_callback){
 				}
 			}
 		}else {
-			//console.log(" (X) "+requestHeader+" is not an image or CSS file.");
+			console.log(" (X) "+requestHeader+" is not an image or CSS file.");
+			if(responseHeaders[requestHeader].indexOf("text/html") > -1){
+				
+				if(responseHeaders[requestHeader].indexOf("200 OK") > -1){
+					warcAsURIString += warcResponse;
+				}else {
+					warcAsURIString += responseHeaders[requestHeader];
+				}
+				warcAsURIString += CRLF + CRLF;
+				console.log("Adding content from else");
+			}
+			/*console.log("response:");
+			console.log(responseHeaders[requestHeader]);
+			console.log("request");
+			console.log(requestHeaders[requestHeader]);*/
 		}
 	}
 

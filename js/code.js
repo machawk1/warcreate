@@ -239,20 +239,21 @@ chrome.webRequest.onHeadersReceived.addListener(
 		responseHeaders[resp.url] = "";
 		responseHeaders[resp.url] += resp.statusLine + CRLF;
 
-		//console.log("--------------Response Headers--------------");
+		console.log("--------------Response Headers for "+resp.url+" --------------");
 		for (var key in resp.responseHeaders) {
 			responseHeaders[resp.url] += resp.responseHeaders[key].name+": "+resp.responseHeaders[key].value + CRLF;
 		}
-		//console.log(responseHeaders[resp.url]);
+		console.log(responseHeaders[resp.url]);
 	}
 , { urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['responseHeaders','blocking']);
 chrome.webRequest.onBeforeSendHeaders.addListener(
 	function(req){
 		//console.log(req);
-		//console.log("--------------Request Headers--------------");
+		//console.log("--------------Request Headers for "+req.url+" --------------");
 		requestHeaders[req.url] = "";
-
+		//console.log(req);
 		var path = req.url.substring(req.url.match(/[a-zA-Z0-9]\//).index + 1);
+		//console.log("Deduced path: "+path);
 		var FABRICATED_httpVersion = "HTTP/1.1";
 		requestHeaders[req.url] += req.method + " " + path + " " + FABRICATED_httpVersion + CRLF;
 		for (var key in req.requestHeaders) {
@@ -270,6 +271,18 @@ chrome.webRequest.onResponseStarted.addListener(
 		//console.log(details);
 //		console.log(details.valueOf());
 }, { urls:["http://*/*", "https://*/*"], }, ['responseHeaders']);
+
+chrome.webRequest.onBeforeRedirect.addListener(function(resp){
+	responseHeaders[resp.url] = "";
+	responseHeaders[resp.url] += resp.statusLine + CRLF;
+
+	console.log("--------------Redirect Response Headers for "+resp.url+" --------------");
+	for (var key in resp.responseHeaders) {
+		responseHeaders[resp.url] += resp.responseHeaders[key].name+": "+resp.responseHeaders[key].value + CRLF;
+	}
+	console.log(responseHeaders[resp.url]);
+}, { urls:["http://*/*", "https://*/*"], }, ['responseHeaders']);
+
 
 //chrome.webRequest.onResponseStarted.addListener(
 //	function(details){
