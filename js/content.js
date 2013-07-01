@@ -76,8 +76,18 @@ chrome.extension.onConnect.addListener(function(port) {
 		var outlinksSerialized = outlinks.join('|||');
 				
 		console.log("content.js: sending relayToImagesPost");
+		//all of this nonsense just to get the doctype to prepend!
+		var node = document.doctype;
+		var dtstr = "<!DOCTYPE "
+				 + node.name
+				 + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
+				 + (!node.publicId && node.systemId ? ' SYSTEM' : '') 
+				 + (node.systemId ? ' "' + node.systemId + '"' : '')
+				 + '>';
+		if(!dtstr){dtstr = "";}
+		
 		port.postMessage({
-			html: document.all[0].outerHTML, 
+			html: dtstr + document.all[0].outerHTML, 
 			uris: imageURIsSerialized,
 			data: imageDataSerialized, 
 			cssuris: cssURIsSerialized,

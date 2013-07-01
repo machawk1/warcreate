@@ -99,6 +99,15 @@ function generateWarc(o_request, o_sender, f_callback){
 
 	
 	function makeWarcResponseHeaderWith(targetURI, now, warcConcurrentTo, resp){
+		var httpHeader = resp.substring(0,resp.indexOf("\r\n\r\n"));
+		if(httpHeader == ""){httpHeader = resp;}
+		//console.log("http header:");
+		//console.log(httpHeader);
+		//console.log("full response:");
+		//console.log(resp);
+		var countCorrect = httpHeader.match(/\r\n/g).length;//number of lines in xx below
+		//console.log("Correct count: "+countCorrect);
+		
 		var xx =
 			"WARC/1.0" + CRLF +
 			"WARC-Type: response" + CRLF +
@@ -106,7 +115,7 @@ function generateWarc(o_request, o_sender, f_callback){
 			"WARC-Date: " + now + CRLF +
 			"WARC-Record-ID: "+ guidGenerator() + CRLF +
 			"Content-Type: application/http; msgtype=response" + CRLF +
-			"Content-Length: " + (unescape(encodeURIComponent(resp)).length) + CRLF;	
+			"Content-Length: " + (unescape(encodeURIComponent(resp)).length + countCorrect) + CRLF;	
 		return xx;
 	}
 
@@ -115,11 +124,11 @@ function generateWarc(o_request, o_sender, f_callback){
 	var warc =
 		warcHeader + CRLF +
 		warcHeaderContent + CRLF + CRLF + CRLF +
-		//warcRequestHeader + CRLF + 
+		warcRequestHeader + CRLF + 
 		warcMetadataHeader + CRLF +
-		warcMetadata + CRLF + CRLF;//  +
-		//warcResponseHeader + CRLF +
-		//warcResponse + CRLF + CRLF;
+		warcMetadata + CRLF + CRLF  +
+		warcResponseHeader + CRLF +
+		warcResponse + CRLF + CRLF;
 
 	var pattern = /\r\n(.*)\r\n----------------/g;
 	var myArray = pattern.exec(o_request.headers);
@@ -213,19 +222,12 @@ function generateWarc(o_request, o_sender, f_callback){
 		}else {
 			console.log(" (X) "+requestHeader+" is not an image or CSS file.");
 			if(responseHeaders[requestHeader].indexOf("text/html") > -1){
-				
-				if(responseHeaders[requestHeader].indexOf("200 OK") > -1){
-					warcAsURIString += warcResponse;
-				}else {
-					warcAsURIString += responseHeaders[requestHeader];
-				}
-				warcAsURIString += CRLF + CRLF;
-				console.log("Adding content from else");
+				warcAsURIString += responseHeaders[requestHeader] + CRLF + CRLF;
 			}
-			/*console.log("response:");
+			console.log("response:");
 			console.log(responseHeaders[requestHeader]);
 			console.log("request");
-			console.log(requestHeaders[requestHeader]);*/
+			console.log(requestHeaders[requestHeader]);
 		}
 	}
 
