@@ -175,7 +175,9 @@ function generateWarc(o_request, o_sender, f_callback){
 		){
 			console.log(" (o) Binary data for "+requestHeader+" found and will be included in the WARC");
 			warcAsURIString += responseHeaders[requestHeader] + CRLF;
-			warcAsURIString += window.atob(imgData[imgURIs.indexOf(requestHeader)]) + CRLF + CRLF;
+			warcAsURIString += //window.atob(imgData[imgURIs.indexOf(requestHeader)]) + CRLF + CRLF;
+				//imgData[imgURIs.indexOf(requestHeader)] + CRLF + CRLF;
+				b64_to_utf8(imgData[imgURIs.indexOf(requestHeader)]) + CRLF + CRLF;
 		}else if(
 		  responseHeaders[requestHeader] &&
 		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 ){
@@ -234,6 +236,15 @@ function generateWarc(o_request, o_sender, f_callback){
 	//requestHeaders = null; requestHeaders = new Array();
 	//responseHeaders = null; responseHeaders = new Array();
 	f_callback({d: warcAsURIString});
+}
+
+//from https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
+function utf8_to_b64( str ) {
+    return window.btoa(unescape(encodeURIComponent( str )));
+}
+
+function b64_to_utf8( str ) {
+    return decodeURIComponent(escape(window.atob( str )));
 }
 
 

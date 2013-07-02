@@ -45,7 +45,7 @@ function encodeImages(){
 	try {
 		var base64  = canvas.toDataURL(fileType);
 		img.src = base64;
-		
+		console.log("Replaced image "+request.url+" with its base64 encoded form per canvas");
 		//chrome.extension.sendRequest({url: img.src});
 		//chrome.extension.getBackgroundPage().adjustImage(img.src);
 	}
@@ -283,6 +283,15 @@ chrome.webRequest.onBeforeRedirect.addListener(function(resp){
 	console.log(responseHeaders[resp.url]);
 }, { urls:["http://*/*", "https://*/*"], }, ['responseHeaders']);
 
+
+//from https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
+function utf8_to_b64( str ) {
+    return window.btoa(unescape(encodeURIComponent( str )));
+}
+
+function b64_to_utf8( str ) {
+    return decodeURIComponent(escape(window.atob( str )));
+}
 
 //chrome.webRequest.onResponseStarted.addListener(
 //	function(details){

@@ -41,10 +41,10 @@ chrome.extension.onConnect.addListener(function(port) {
 			var datastartpos = dataurl.match(",").index+1;
 			var dd = dataurl.substring(datastartpos);
 			
-			imageURIs.push(images[i].src);
-			imageBase64Data.push(dd);
+			//imageURIs.push(images[i].src);
+			//imageBase64Data.push(dd);
 			
-			var binaryImageData = window.atob(dd);
+			//var binaryImageData = window.atob(dd);
 			
 		
 		}
@@ -106,6 +106,15 @@ chrome.extension.onConnect.addListener(function(port) {
   });
 });
 
+
+//from https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
+function utf8_to_b64( str ) {
+    return window.btoa(unescape(encodeURIComponent( str )));
+}
+
+function b64_to_utf8( str ) {
+    return decodeURIComponent(escape(window.atob( str )));
+}
 
 function base64ArrayBuffer(arrayBuffer) {
   var base64    = ''
