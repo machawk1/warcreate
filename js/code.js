@@ -149,6 +149,9 @@ function generate_Warc(){
 							bb.append(response.d);
 							saveAs(bb.getBlob("text/plain;charset=utf-8"), fileName);
 		
+							//var blob = new Blob([response.d],{type: 'text/plain;charset=utf-8'});
+							//saveAs(blob, fileName);
+							
 							console.log("Done!");
 							chrome.pageAction.setIcon({path:"../icons/icon-check.png",tabId:tab.id});
 							responseHeaders = new Array();
