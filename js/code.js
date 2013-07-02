@@ -143,7 +143,7 @@ function generate_Warc(){
 							cssData: msg.cssdata,
 							outlinks: msg.outlinks},
 						 function(response) {	//the callback to sendRequest
-							console.log("generateWARC callback executed");
+							console.log("generateWARC callback executed, about to write to file");
 							
 							var bb = new BlobBuilder;
 							bb.append(response.d);
@@ -219,6 +219,8 @@ window.onload = function(){
 	var caButton = document.getElementById('generateCohesiveWARC');
 	$(ulButton).css("display","none");
 	$(caButton).css("display","none");
+	
+	$(clsButton).css("display","none"); //clear local storage, used in debugging
 	caButton.onclick = sequential_generate_Warc;
 };
 // Listen for any changes to the URL of any tab.

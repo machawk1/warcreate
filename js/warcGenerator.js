@@ -231,7 +231,7 @@ function generateWarc(o_request, o_sender, f_callback){
 			
 		}else {
 			console.log(" (X) "+requestHeader+" is not an image or CSS file.");
-			if(responseHeaders[requestHeader].indexOf("text/html") > -1){
+			if(responseHeaders[requestHeader] && responseHeaders[requestHeader].indexOf("text/html") > -1){
 				warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader]) + CRLF;
 				warcAsURIString += responseHeaders[requestHeader] + CRLF + CRLF;
 			}
