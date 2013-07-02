@@ -164,8 +164,8 @@ function generateWarc(o_request, o_sender, f_callback){
 		console.log(responseHeaders[requestHeader]);
 		
 		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF + CRLF;
-		//console.log(responseHeaders[requestHeader]);
-		warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader]) + CRLF;
+		//warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader]+acquiredData) + CRLF;
+		
 		console.log("Checking URI "+requestHeader);
 		
 		if(
@@ -198,6 +198,8 @@ function generateWarc(o_request, o_sender, f_callback){
 				httpResponseLine = "HTTP/1.1 " + x.status + " " + x.statusText + CRLF;
 				acquiredData = httpResponseLine + x.getAllResponseHeaders() + CRLF +  x.responseText;
 				//console.log("XXXX"+warcAsURIString.length);
+				warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader]+acquiredData) + CRLF;
+				
 				warcAsURIString += acquiredData + CRLF + CRLF;
 				//warcAsURIString += data + CRLF + CRLF;
 			}).error(function(data){
@@ -213,17 +215,24 @@ function generateWarc(o_request, o_sender, f_callback){
 		  responseHeaders[requestHeader].indexOf("Content-Type: text/css") > -1)
 		{
 			//console.log(responseHeaders[requestHeader]);
-			warcAsURIString += responseHeaders[requestHeader] + CRLF + CRLF;
+			
+			var respHeader = responseHeaders[requestHeader] + CRLF + CRLF;
+			var respContent;
+			//warcAsURIString += responseHeaders[requestHeader] + CRLF + CRLF;
 			console.log(" (X) "+requestHeader+" is not an image.");
 			for(var cc=0; cc<cssURIs.length; cc++){
 				if(requestHeader == cssURIs[cc]){
-					warcAsURIString += cssData[cssURIs.indexOf(requestHeader)] + CRLF + CRLF;
+					respContent += cssData[cssURIs.indexOf(requestHeader)] + CRLF + CRLF;
 					break;
 				}
 			}
+			warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, respHeader+respContent) + CRLF;
+			warcAsURIString += respHeader+respContent;
+			
 		}else {
 			console.log(" (X) "+requestHeader+" is not an image or CSS file.");
 			if(responseHeaders[requestHeader].indexOf("text/html") > -1){
+				warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader]) + CRLF;
 				warcAsURIString += responseHeaders[requestHeader] + CRLF + CRLF;
 			}
 			console.log("response:");
