@@ -159,6 +159,7 @@ function generate_Warc(){
 							imageData = new Array();
 							var imageURIs = new Array();
 							msg = null;
+							console.log("fooxxxx");
 						});	
 					});
 				
@@ -275,7 +276,7 @@ chrome.webRequest.onResponseStarted.addListener(
 		//console.log("responsestarted");
 		//console.log(details);
 //		console.log(details.valueOf());
-}, { urls:["http://*/*", "https://*/*"], }, ['responseHeaders']);
+}, { urls:["http://*/*", "https://*/*"]}, ['responseHeaders']);
 
 chrome.webRequest.onBeforeRedirect.addListener(function(resp){
 	responseHeaders[resp.url] = "";
@@ -286,7 +287,7 @@ chrome.webRequest.onBeforeRedirect.addListener(function(resp){
 		responseHeaders[resp.url] += resp.responseHeaders[key].name+": "+resp.responseHeaders[key].value + CRLF;
 	}
 	console.log(responseHeaders[resp.url]);
-}, { urls:["http://*/*", "https://*/*"], }, ['responseHeaders']);
+}, { urls:["http://*/*", "https://*/*"], tabId: currentTabId}, ['responseHeaders']);
 
 
 //from https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
