@@ -54,6 +54,36 @@ function checkURI(uri){
 }
 
 window.onload = function(){
+	$('#postGeneration_save').on('click',function(){
+		$('#uploadTo').attr("disabled","disabled");
+	});
+	$('#postGeneration_upload').on('click',function(){
+		$('#uploadTo').removeAttr("disabled");
+	});
+	$("#restoreDefaults").on('click',function(){
+		$("#uploadTo").val("http://warcreate.com/warcs").attr("disabled","disabled");
+		$('#postGeneration_save').prop("checked","checked");
+		$('#postGeneration_upload').removeAttr("checked");
+	});
+	$('#save').on("click",function(){
+		var uploadToURI;
+		if($('#postGeneration_upload').prop("checked")){
+			uploadToURI = $("#uploadTo").val();
+		}else {
+			uploadToURI = "";
+		}
+
+		localStorage['uploadTo'] = uploadToURI;
+	});
+	if(localStorage['uploadTo'] && localStorage['uploadTo'].length > 0){
+		$('#uploadTo').removeAttr("disabled");
+		$('#postGeneration_upload').prop("checked","checked");
+		$('#postGeneration_save').removeAttr("checked");
+	}
+	
+	return;
+	
+	//below is old functionality
 	document.getElementById('body').click = restore_options;
 	document.getElementById('save').click = save_options;
 	document.getElementById('clear').click = clear_options;

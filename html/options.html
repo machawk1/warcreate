@@ -2,7 +2,8 @@
 <head>
 <title>WARCreate Options</title>
 <style type="text/css">
-#contact{ bottom: 5px; left: 5px;}
+h1 {font-style: underline;}
+#contact{ bottom: 5px; left: 5px; position: absolute;}
 input#waybackWarcSource {width: 50%;}
 .check {font-style: italic;}
 .green {font-style: normal; color: green;}
@@ -10,23 +11,27 @@ input#waybackWarcSource {width: 50%;}
 .orange {font-style: normal; color: orange;}
 #preflightCheck {list-style-type: none; margin: 0; padding: 0 0 0 1.0em;}
 
+input#uploadTo {width: 50%; margin-left: 1.0em;}
+
 </style>
 </head>
+<script type="text/javascript" src="../js/jquery-2.0.2.min.js"></script>
 <script type="text/javascript" src="../js/options.js"></script>
 <body id="body">
 
+<h1>WARCreate options</h1>
+<!--<label for="waybackWarcSource">Wayback WARC Source folder:</label><br /><input type="text" id="waybackWarcSource" value="C:\xampp\tomcat\webapps\ROOT\files1\"/><br />-->
 
-<!--
-<label for="waybackWarcSource">Wayback WARC Source folder:</label><br /><input type="text" id="waybackWarcSource" value="C:\xampp\tomcat\webapps\ROOT\files1\"/><br />
-<button id="save">Save</button><button id="clear">Clear</button><br />
 <h3>Handle generated WARCs by:</h3>
-<input type="radio" name="output" id="output_save" value="output_save" /><label for="output_save">Saving to downloads folder</label><br />
-<input type="radio" name="output" id="output_save_warc" value="output_save_warc" disabled="disabled" /><label for="output_save">Saving to Wayback-Accessible folder</label><br />
-<input type="radio" name="output" id="output_display" value="output_display" checked="checked" /><label for="output_display">Opening contents in a new tab</label>
-
+<input type="radio" name="postGeneration" id="postGeneration_save" value="postGeneration_save" checked="checked" /><label for="output_save">Saving to downloads folder</label><br />
+<!--<input type="radio" name="output" id="output_save_warc" value="output_save_warc" disabled="disabled" /><label for="output_save">Saving to Wayback-Accessible folder</label><br />-->
+<input type="radio" name="postGeneration" id="postGeneration_upload" value="postGeneration_upload" /><label for="output_display">Uploading to</label>: <input type="text" id="uploadTo" value="http://warcreate.com/warcs" disabled="disabled" />
+<br /><button id="restoreDefaults">Restore Defaults</button><button id="save">Save Changes</button><br />
+<!--
 <h3>Images</h3>
 <input type="radio" name="images" id="images_inline" value="image_inline"  /><label for="images_inline">Convert image data to inline data</label><br />
 <input type="radio" name="images" id="images_separate" value="images_separate"  checked="checked" /><label for="images_images_separate">Archive images as separate resources</label><br />
+
 
 <h3>Additional Support</h3>
 <input type="checkbox" name="memento" id="memento" disabled="disabled" /><label for="memento">Add Memento Support to HTTP Headers</label><br />
@@ -39,8 +44,15 @@ input#waybackWarcSource {width: 50%;}
 	<li class="check" id="check_MementoSupport" title="http://localhost:81">Memento Support</li>
 	<li class="check" id="check_localWaybackInstance" title="http://localhost:8080/wayback/">Local Wayback Instance &bull; <a href="http://matkelly.com/warcreate/xampp">Get help</a></li>
 </ul>
+
+<p>After generating a WARC:</p>
+<form id="options">
+<input type="radio" checked="checked" name="postWARC" id="save" value="save" /><label for="save">Just save it to my computer"</label><br />
+<input type="radio" name="postWARC" id="upload" value="upload" /><label for="upload">Upload it to:</label><input type="text" id="uploadTo" value="http://warcreate.com/warcs" />
+<br />
+<input type="button" value="Restore Defaults" /><input type="submit" id="submit" />
+</form>
 -->
-<p>This page will be used for WARCreate options but we have disabled this functionality for the initial release in favor of refining the core functionality.</p>
 <p id="contact">For support or to report a bug, contact <a href="mailto:warcreate@matkelly.com">Mat Kelly</a>.</p>
 </body>
 </html>
