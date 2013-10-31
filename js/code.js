@@ -157,8 +157,30 @@ function generate_Warc(){
 							
 							var bb = new BlobBuilder;
 							bb.append(response.d);
-							saveAs(bb.getBlob("text/plain;charset=utf-8"), fileName);
-		
+							function XXXX(d,t,j){
+								console.log("Upload succeeded!");
+							}
+							
+							function YYY(x,t,e){
+								console.log("There was an error uploading the file.");
+							}
+							
+							
+							if(!localStorage['uploadTo'] || localStorage['uploadTo'].length == 0){
+								saveAs(bb.getBlob("text/plain;charset=utf-8"), fileName);
+							} else {
+								console.log("Uploading!");
+								$.ajax({
+								  type: "POST",
+								  url: localStorage['uploadTo'],
+								  data: bb.getBlob("text/plain;charset=utf-8"),
+								  success: XXXX,
+								  error: YYY,
+								  timeout: 3000,
+								  dataType: "text/html"
+								});
+							}
+							
 							//var blob = new Blob([response.d],{type: 'text/plain;charset=utf-8'});
 							//saveAs(blob, fileName);
 							
