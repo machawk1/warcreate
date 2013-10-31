@@ -1,6 +1,6 @@
 {
   "name": "WARCreate",
-  "version": "0.2013.7.8",
+  "version": "0.2013.10.31",
   "manifest_version": 2,
   
   "description": "Create Wayback-Consumable WARC Files from Any Webpage",

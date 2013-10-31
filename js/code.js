@@ -1,14 +1,19 @@
+/**
+ * WARCreate for Google Chrome
+ * "Create WARC files from any webpage"
+ * by Mat Kelly <wail@matkelly.com>
+ *
+ * See included LICENSE file for reuse information
+ *
+*/
+
 
 //var server = "http://localhost:8080";
 var server = "http://warcreate.com";
 
 // Called when the url of a tab changes.
 function checkForValidUrl(tabId, changeInfo, tab) {
-  // If the letter 'g' is found in the tab's URL...
-  //if (tab.url.indexOf('g') > -1) {
-    // ... show the page action.
     chrome.pageAction.show(tabId);
-  //}
 };
 
 function alertContent(){
@@ -19,9 +24,12 @@ function alertContent(){
 			});
 		});
 	});
-	//add listener here
 }
 
+
+/**
+ * Converts images on the webpage into a binary string
+*/
 function encodeImages(){
 	var images = document.getElementsByTagName('img');
 	var img = new Image();
@@ -31,7 +39,6 @@ function encodeImages(){
 	canvas.height = img.height;
 	var context = canvas.getContext("2d");
 
-	//context.drawImage(img,0,0);
 	console.log(i+": "+images[i].src+"  file type: "+fileType);
 	var fileType = images[i].src.substr(images[i].src.length - 4).toLowerCase();
 	if(fileType == ".jpg" || fileType == "jpeg"){fileType = "image/jpeg";}
@@ -46,8 +53,6 @@ function encodeImages(){
 		var base64  = canvas.toDataURL(fileType);
 		img.src = base64;
 		console.log("Replaced image "+request.url+" with its base64 encoded form per canvas");
-		//chrome.extension.sendRequest({url: img.src});
-		//chrome.extension.getBackgroundPage().adjustImage(img.src);
 	}
 	catch(e){
 		alert('Encoding of inline binary content failed!')
@@ -57,6 +62,9 @@ function encodeImages(){
 	$(images[i]).replaceWith(img);
 }
 
+/**
+ * UNUSED: Desired functionality is to provide facilities to encrypt data in resulting WARC
+*/
 function encrypt(){
 	var key = document.getElementById('key').value;
 	if(key == ""){alert("First enter a key for encryption."); return;}
@@ -72,14 +80,15 @@ function encrypt(){
 }
 
 
+/**
+ * TODO: Provide 'sequential archiving' wherein a site's hierarchy is referenced
+ * and all pages referenced in the hierarchy are captured
+*/
 function sequential_generate_Warc(){
-	
 	var urls = [];
 	$(localStorage['spec']).find("url").each(function(index){
 		urls.push($(this).text());
 	});
-	console.log("URLSXX");
-	console.log(urls);
 	var uu = 0;
 	function generateWarcFromNextURL(nextUrl){
 		chrome.tabs.create({url: nextUrl, active: true},
@@ -100,6 +109,10 @@ function sequential_generate_Warc(){
 	generateWarcFromNextURL(urls[uu]);
 }
 
+/**
+ * Calls and aggregates the results of the functions that progressively create a 
+ * string representative of the contents of the WARC file being generated.
+*/
 function generate_Warc(){
 	console.log("generate_warc start");
 	
@@ -107,11 +120,8 @@ function generate_Warc(){
 	var imageURIs = [];
 	console.log("generate_warc");
 	chrome.tabs.executeScript(null, {file:"js/jquery-2.0.2.min.js"}, function() {	/* Dependency for hash library and general goodness*/
-		//console.log("jquery loaded");
 		chrome.tabs.executeScript(null, {file:"js/jquery.rc4.js"}, function() {	/* Hash library */
-			//console.log("jquery rc4 loaded");
 			chrome.tabs.executeScript(null, {file:"js/date.js"}, function() {		/* Good date formatting library */
-				//console.log("date.js loaded");
 				var uris = [];
 				var datum = [];
 				chrome.tabs.getSelected(null, function(tab) {	
@@ -170,6 +180,9 @@ function generate_Warc(){
 }
 
 
+/**
+ * Sets up the popup activated when the extensions's icon is clicked.
+*/
 window.onload = function(){
 	var background = chrome.extension.getBackgroundPage();
 
@@ -193,16 +206,12 @@ window.onload = function(){
 	var errorText = document.createElement("a"); errorText.id = "errorText"; errorText.target = "_blank";
 	var status = document.createElement("input"); status.id = "status"; status.type = "text"; status.value = ""; 
 	
-	//modify text of gwButton if website is in spec
-	//fetchSpec();
-	//if(localStorage["spec"].length > 0){gwButtonDOM.value = "Generate WARC for page";}
 	if(!buttonContainer){return;}
 	
 	//add buttons to DOM
 	buttonContainer.appendChild(gwButtonDOM);
-	//if(localStorage["spec"].length > 0){
-		buttonContainer.appendChild(caButtonDOM);
-	//}
+	buttonContainer.appendChild(caButtonDOM);
+
 	buttonContainer.appendChild(clsButtonDOM);
 	buttonContainer.appendChild(status);
 	$(buttonContainer).prepend(errorText);
@@ -240,6 +249,9 @@ chrome.tabs.getSelected(null, function(tab){
 });
 
 
+/**
+ * Stores HTTP response headers into an object array with URI as key.
+*/
 chrome.webRequest.onHeadersReceived.addListener(
 	function(resp){
 		responseHeaders[resp.url] = "";
@@ -252,32 +264,39 @@ chrome.webRequest.onHeadersReceived.addListener(
 		console.log(responseHeaders[resp.url]);
 	}
 , { urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['responseHeaders','blocking']);
+
+/**
+ * Stores HTTP request headers into an object array with URI as key.
+*/
 chrome.webRequest.onBeforeSendHeaders.addListener(
 	function(req){
-		//console.log(req);
-		//console.log("--------------Request Headers for "+req.url+" --------------");
 		requestHeaders[req.url] = "";
-		//console.log(req);
+
 		var path = req.url.substring(req.url.match(/[a-zA-Z0-9]\//).index + 1);
-		//console.log("Deduced path: "+path);
+
 		var FABRICATED_httpVersion = "HTTP/1.1";
 		requestHeaders[req.url] += req.method + " " + path + " " + FABRICATED_httpVersion + CRLF;
 		for (var key in req.requestHeaders) {
 			requestHeaders[req.url] += req.requestHeaders[key].name+": "+req.requestHeaders[key].value + CRLF;
 		}
-		//console.log(requestHeaders[req.url]);
 	}
 , { urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['requestHeaders','blocking']);
 
 
-
+/**
+ * UNUSED: A means of capturing any particular values that are only present in
+ * this handler.
+*/
 chrome.webRequest.onResponseStarted.addListener(
 	function(details){
-		//console.log("responsestarted");
-		//console.log(details);
-//		console.log(details.valueOf());
 }, { urls:["http://*/*", "https://*/*"]}, ['responseHeaders']);
 
+
+
+/**
+ * Captures information about redirects that otherwise would be transparent to 
+ * the browser.
+*/
 chrome.webRequest.onBeforeRedirect.addListener(function(resp){
 	responseHeaders[resp.url] = "";
 	responseHeaders[resp.url] += resp.statusLine + CRLF;
@@ -290,11 +309,18 @@ chrome.webRequest.onBeforeRedirect.addListener(function(resp){
 }, { urls:["http://*/*", "https://*/*"], tabId: currentTabId}, ['responseHeaders']);
 
 
-//from https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
+/**
+ * From https://developer.mozilla.org/en-US/docs/Web/API/window.btoa 
+ * Converts UTF-8 to base 64 data
+*/
 function utf8_to_b64( str ) {
     return window.btoa(unescape(encodeURIComponent( str )));
 }
 
+/**
+ * From https://developer.mozilla.org/en-US/docs/Web/API/window.btoa 
+ * Converts base 64 data to UTF-8
+*/
 function b64_to_utf8( str ) {
     return decodeURIComponent(escape(window.atob( str )));
 }
