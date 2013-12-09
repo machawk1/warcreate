@@ -157,28 +157,33 @@ function generate_Warc(){
 							
 							var bb = new BlobBuilder;
 							bb.append(response.d);
+							localStorage['data'] = response.d;
+							
 							function XXXX(d,t,j){
-								console.log("Upload succeeded!");
+								console.log("XXXXXXXXXXXUpload succeeded!");
+								console.log(d);
+								console.log(t);
+								console.log(j);
 							}
 							
 							function YYY(x,t,e){
 								console.log("There was an error uploading the file.");
 							}
 							
-							
+
 							if(!localStorage['uploadTo'] || localStorage['uploadTo'].length == 0){
 								saveAs(bb.getBlob("text/plain;charset=utf-8"), fileName);
 							} else {
 								console.log("Uploading!");
-								$.ajax({
-								  type: "POST",
-								  url: localStorage['uploadTo'],
-								  data: bb.getBlob("text/plain;charset=utf-8"),
-								  success: XXXX,
-								  error: YYY,
-								  timeout: 3000,
-								  dataType: "text/html"
-								});
+								$.post(
+									localStorage['uploadTo'],
+									{
+										data:"dragons"//localStorage['data']
+									}
+								  //	bb.getBlob("text/plain;charset=utf-8")
+								  )
+								.done(XXXX)
+								.fail(YYY);
 							}
 							
 							//var blob = new Blob([response.d],{type: 'text/plain;charset=utf-8'});
@@ -306,16 +311,6 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 
 
 /**
- * UNUSED: A means of capturing any particular values that are only present in
- * this handler.
-*/
-chrome.webRequest.onResponseStarted.addListener(
-	function(details){
-}, { urls:["http://*/*", "https://*/*"]}, ['responseHeaders']);
-
-
-
-/**
  * Captures information about redirects that otherwise would be transparent to 
  * the browser.
 */
@@ -330,6 +325,15 @@ chrome.webRequest.onBeforeRedirect.addListener(function(resp){
 	console.log(responseHeaders[resp.url]);
 }, { urls:["http://*/*", "https://*/*"], tabId: currentTabId}, ['responseHeaders']);
 
+
+
+
+
+/* ************************************************************
+ 
+ UTILITY FUNCTIONS
+ 
+************************************************************ */
 
 /**
  * From https://developer.mozilla.org/en-US/docs/Web/API/window.btoa 
@@ -347,16 +351,16 @@ function b64_to_utf8( str ) {
     return decodeURIComponent(escape(window.atob( str )));
 }
 
-//chrome.webRequest.onResponseStarted.addListener(
-//	function(details){
-//		console.log(details);
-//	}, { urls:["http://*/*", "https://*/*"], }, ['responseHeaders']);
-//
-//		chrome.tabs.getSelected(null,function(tab){
-//			if(tab.url.indexOf(".warc") > 0){
-//	  			chrome.pageAction.setIcon({path:"icon-viewing.png",tabId:tab.id});
-//			}
-//		});
-//	}
-//, { urls: ['http://*/*'] }, ['responseHeaders']);
 
+
+
+
+
+
+/**
+ * UNUSED: A means of capturing any particular values that are only present in
+ * this handler.
+*/
+chrome.webRequest.onResponseStarted.addListener(
+	function(details){
+}, { urls:["http://*/*", "https://*/*"]}, ['responseHeaders']);

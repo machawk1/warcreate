@@ -100,13 +100,13 @@ function generateWarc(o_request, o_sender, f_callback){
 	
 	function makeWarcResponseHeaderWith(targetURI, now, warcConcurrentTo, resp){
 		var httpHeader = resp.substring(0,resp.indexOf("\r\n\r\n"));
-		if(httpHeader == ""){httpHeader = resp;}
-		//console.log("http header:");
-		//console.log(httpHeader);
-		//console.log("full response:");
-		//console.log(resp);
+		
+		if(httpHeader == ""){
+			httpHeader = resp;
+		}
+
 		var countCorrect = httpHeader.match(/\r\n/g).length;//number of lines in xx below
-		//console.log("Correct count: "+countCorrect);
+
 		
 		var xx =
 			"WARC/1.0" + CRLF +
@@ -152,20 +152,13 @@ function generateWarc(o_request, o_sender, f_callback){
 	console.log(imgURIs);
 	console.log(imgData);
 
-	//console.log("localstorage");
-	//console.log(localStorage['imagesInDOM']);
-	//console.log("requestheaders:");
-	//console.log(requestHeaders);
 	var seedURL = true;
 	for(var requestHeader in requestHeaders){
-		//if(seedURL){console.log("Setting seed url at url = "+requestHeader);seedURL = false; continue;} //ignore the first headers, as they've already been included. The 'more better' way to do it would be to have the seed content added here instead of heard coded above.
-		
 		console.log("Response header for "+requestHeader+":");
 		console.log(responseHeaders[requestHeader]);
 		
 		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF + CRLF;
-		//warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader]+acquiredData) + CRLF;
-		
+			
 		console.log("Checking URI "+requestHeader);
 		
 		if(
@@ -189,26 +182,15 @@ function generateWarc(o_request, o_sender, f_callback){
 			}).done(function(data,t,x){
 				console.log(" > Re-queried, here's data: ");
 				console.log(data);
-				//console.log(x);
-				//console.log(x.getAllResponseHeaders());
 				acquiredData = "We have new data!"
-				//acquiredData = window.btoa(data);
-				//console.log(x);
-				//console.log("above is jsxhr object");
 				httpResponseLine = "HTTP/1.1 " + x.status + " " + x.statusText + CRLF;
 				acquiredData = httpResponseLine + x.getAllResponseHeaders() + CRLF +  x.responseText;
-				//console.log("XXXX"+warcAsURIString.length);
 				warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader]+acquiredData) + CRLF;
 				
 				warcAsURIString += acquiredData + CRLF + CRLF;
-				//warcAsURIString += data + CRLF + CRLF;
 			}).error(function(data){
 				acquiredData = "Missing binary data. :(";
-				//warcAsURIString += "Missing binary data. :(" + CRLF + CRLF;
 			});
-			//console.log("Acquired data: "+acquiredData+"X");
-			//warcAsURIString += acquiredData + CRLF + CRLF;
-			//warcAsURIString += "Missing binary data. :(" + CRLF + CRLF;
 			
 		}else if(
 		  responseHeaders[requestHeader] &&
@@ -247,6 +229,12 @@ function generateWarc(o_request, o_sender, f_callback){
 	f_callback({d: warcAsURIString});
 }
 
+/* ************************************************************
+ 
+ UTILITY FUNCTIONS
+ 
+************************************************************ */
+
 //from https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
 function utf8_to_b64( str ) {
     return window.btoa(unescape(encodeURIComponent( str )));
@@ -268,5 +256,12 @@ function getVersion(callback) {
 }
 var version;
 getVersion(function (ver) { version = ver; });
+
+
+/* ************************************************************
+ 
+ INITIAL RUNTIME EXECUTION
+ 
+************************************************************ */
 
 chrome.extension.onRequest.addListener(generateWarc);

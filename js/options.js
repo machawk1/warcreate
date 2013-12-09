@@ -7,11 +7,14 @@ function save_options() {
   localStorage["warcSRC"] = waybackWarcSource;
   localStorage["handlingMethod"] = handling;
   // Update status to let user know options were saved.
-  var status = document.getElementById("status");
-  status.innerHTML = "Options Saved.";
+  var status = $("#status");
+  alert("status saved!");
+  status.html("Options Saved.");
+  status.css("display","block");
   setTimeout(function() {
-    status.innerHTML = "";
+  	$("#status").fadeOut();
   }, 750);
+  
 }
 // Restores select box state to saved value from localStorage.
 function restore_options() {
