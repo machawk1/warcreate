@@ -142,6 +142,13 @@ function generate_Warc(){
 						
 						console.log("About to generateWARC(). Next should be callback.");
 						var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,"") + ".warc";
+						
+						//If the user has specified a custom filename format, apply it here
+						if(localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0){
+							fileName = moment().format(localStorage['filenameScheme'])+".warc";
+						}
+
+						
 						chrome.extension.sendRequest({
 							url: tab.url, 
 							method: 'generateWarc', 
@@ -157,16 +164,16 @@ function generate_Warc(){
 							
 							var bb = new BlobBuilder;
 							bb.append(response.d);
-							localStorage['data'] = response.d;
+							//localStorage['data'] = response.d;
 							
-							function XXXX(d,t,j){
-								console.log("XXXXXXXXXXXUpload succeeded!");
+							function uploadSuccess(d,t,j){
+								console.log("* Upload succeeded! Three call variables follow this message.");
 								console.log(d);
 								console.log(t);
 								console.log(j);
 							}
 							
-							function YYY(x,t,e){
+							function uploadFail(x,t,e){
 								console.log("There was an error uploading the file.");
 							}
 							
@@ -178,12 +185,12 @@ function generate_Warc(){
 								$.post(
 									localStorage['uploadTo'],
 									{
-										data:"dragons"//localStorage['data']
+										data:"dragons"//localStorage['data'] //testing file upload
 									}
 								  //	bb.getBlob("text/plain;charset=utf-8")
 								  )
-								.done(XXXX)
-								.fail(YYY);
+								.done(uploadSuccess)
+								.fail(uploadFail);
 							}
 							
 							//var blob = new Blob([response.d],{type: 'text/plain;charset=utf-8'});

@@ -180,9 +180,7 @@ function generateWarc(o_request, o_sender, f_callback){
 				url: requestHeader,
 				async: false
 			}).done(function(data,t,x){
-				console.log(" > Re-queried, here's data: ");
-				console.log(data);
-				acquiredData = "We have new data!"
+				console.log(" > Re-requested resource, appending to WARC string");
 				httpResponseLine = "HTTP/1.1 " + x.status + " " + x.statusText + CRLF;
 				acquiredData = httpResponseLine + x.getAllResponseHeaders() + CRLF +  x.responseText;
 				warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader]+acquiredData) + CRLF;

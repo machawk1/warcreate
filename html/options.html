@@ -14,9 +14,14 @@ input#waybackWarcSource {width: 50%;}
 input#uploadTo {width: 50%; margin-left: 1.0em;}
 
 #status {display: none;}
+#filenameSchemeElements {font-size: 0.75em; margin-left: 1.5em;}
+#filenameSchemeElements label {margin-right: 0.5em;}
+#filenameSchemeElements input {width: 25%;}
+#filenameSchemeElements #exampleFileName {margin-left: 1.0em;}
 </style>
 </head>
 <script type="text/javascript" src="../js/jquery-2.0.2.min.js"></script>
+<script type="text/javascript" src="../js/moment-with-langs.min.js"></script>
 <script type="text/javascript" src="../js/options.js"></script>
 <body id="body">
 
@@ -25,6 +30,7 @@ input#uploadTo {width: 50%; margin-left: 1.0em;}
 
 <h3>Handle generated WARCs by:</h3>
 <input type="radio" name="postGeneration" id="postGeneration_save" value="postGeneration_save" checked="checked" /><label for="output_save">Saving to downloads folder</label><br />
+<div id="filenameSchemeElements"><label for="filenameScheme">&gt; Filename Scheme</label><input type="text" name="filenameScheme" id="filenameScheme" value="YYYYMMDDHHMMssSSS" /><span id="exampleFileName"></span></div>
 <!--<input type="radio" name="output" id="output_save_warc" value="output_save_warc" disabled="disabled" /><label for="output_save">Saving to Wayback-Accessible folder</label><br />-->
 <input type="radio" name="postGeneration" id="postGeneration_upload" value="postGeneration_upload" /><label for="output_display">Uploading to</label>: <input type="text" id="uploadTo" value="http://warcreate.com/warcs" disabled="disabled" />
 <br /><button id="restoreDefaults">Restore Defaults</button><button id="save">Save Changes</button><p id="status">Changes Saved!</p><br />

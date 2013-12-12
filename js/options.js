@@ -21,7 +21,7 @@ function restore_options() {
   var warcSRC = localStorage["warcSRC"];
   var waybackWarcSource = document.getElementById("waybackWarcSource");
   if (!warcSRC || warcSRC == "") {
-	waybackWarcSource.value = "C:\\xampp\\tomcat\\webapps\\ROOT\\files1\\";
+	waybackWarcSource.value = "C:\\xampp\\tomcat\\webapps\\ROOT\\files1\\"; //TODO, remove this obsolete code!
     return;
   }
   
@@ -59,31 +59,55 @@ function checkURI(uri){
 window.onload = function(){
 	$('#postGeneration_save').on('click',function(){
 		$('#uploadTo').attr("disabled","disabled");
+		$('#filenameScheme').removeAttr("disabled");
+		$("#exampleFileName").show();
 	});
 	$('#postGeneration_upload').on('click',function(){
 		$('#uploadTo').removeAttr("disabled");
+		$('#filenameScheme').attr("disabled","disabled");
+		$("#exampleFileName").hide();
+		
 	});
 	$("#restoreDefaults").on('click',function(){
 		$("#uploadTo").val("http://warcreate.com/warcs").attr("disabled","disabled");
 		$('#postGeneration_save').prop("checked","checked");
 		$('#postGeneration_upload').removeAttr("checked");
+		$('#filenameScheme').val("YYYYMMDDHHMMssSSS");
 	});
 	$('#save').on("click",function(){
 		var uploadToURI;
+		var filenameScheme;
 		if($('#postGeneration_upload').prop("checked")){
 			uploadToURI = $("#uploadTo").val();
+			filenameScheme = "";
 		}else {
 			uploadToURI = "";
+			filenameScheme = $("#filenameScheme").val();
 		}
 
 		localStorage['uploadTo'] = uploadToURI;
+		localStorage['filenameScheme'] = filenameScheme;
 	});
+	$('#filenameScheme').on("keyup",showFilenameExample); //bind example display to text field change
+	
+	function showFilenameExample(){ //when the file format scheme changes, update the example
+		$("#exampleFileName").html("Example: "+moment().format($("#filenameScheme").val())+".warc");
+	};
+	
 	if(localStorage['uploadTo'] && localStorage['uploadTo'].length > 0){
 		$('#uploadTo').removeAttr("disabled");
 		$('#postGeneration_upload').prop("checked","checked");
 		$('#postGeneration_save').removeAttr("checked");
+		
+		// hide/disable the "save to downloads" options if the user's current setting is "upload to"
+		$('#filenameScheme').attr("disabled","disabled");
+		$('#exampleFileName').hide();
+	}else if(localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0){
+		$('#filenameScheme').val(localStorage['filenameScheme']);
 	}
 	
+	
+	showFilenameExample(); //fire the keyup event onload
 	return;
 	
 	//below is old functionality
