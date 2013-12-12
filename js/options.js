@@ -56,6 +56,29 @@ function checkURI(uri){
 	}
 }
 
+var lastSavedStateString = ""; //string representation of the last saved state of the form inputs
+function setSaveChangesButtonEnabledBasedOnOptionsChange(){
+	if(lastSavedStateString != ""){
+		var currentSavedState = $("#filenameScheme").val()+$("#uploadTo").val()+$("#postGeneration_save").is(':checked')+$("#postGeneration_upload").is(':checked');
+		console.log(currentSavedState);
+		if(lastSavedStateString == currentSavedState){
+			$("#save").attr("disabled","disabled");
+			console.log("disabling");
+		}else {
+			$("#save").removeAttr("disabled");
+			console.log("enabling");
+		}
+		console.log("foo");
+	}else{	//set the initial state
+		lastSavedStateString = $("#filenameScheme").val()+$("#uploadTo").val()+$("#postGeneration_save").is(':checked')+$("#postGeneration_upload").is(':checked');
+		$("#save").attr("disabled","disabled");
+		$("#filenameScheme").on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$("#uploadTo").on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$("#postGeneration_save").on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$("#postGeneration_upload").on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
+	}
+}
+
 window.onload = function(){
 	$('#postGeneration_save').on('click',function(){
 		$('#uploadTo').attr("disabled","disabled");
@@ -87,6 +110,7 @@ window.onload = function(){
 
 		localStorage['uploadTo'] = uploadToURI;
 		localStorage['filenameScheme'] = filenameScheme;
+		//TODO: give feedback that options have been saved
 	});
 	$('#filenameScheme').on("keyup",showFilenameExample); //bind example display to text field change
 	
@@ -106,7 +130,7 @@ window.onload = function(){
 		$('#filenameScheme').val(localStorage['filenameScheme']);
 	}
 	
-	
+	setSaveChangesButtonEnabledBasedOnOptionsChange(); //set enabled status of the save button initially
 	showFilenameExample(); //fire the keyup event onload
 	return;
 	
