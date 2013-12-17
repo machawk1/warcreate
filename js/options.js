@@ -94,6 +94,7 @@ window.onload = function(){
 		$('#postGeneration_upload').removeAttr("checked");
 		$('#filenameScheme').val("YYYYMMDDHHMMssSSS");
 		showFilenameExample();
+		setSaveChangesButtonEnabledBasedOnOptionsChange();
 	});
 	$('#save').on("click",function(){
 		var uploadToURI;
