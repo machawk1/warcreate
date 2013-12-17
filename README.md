@@ -14,3 +14,5 @@ opens the door to
 WARCreate is currently in active development though has gone through various release and retraction periods due to changes in the Google Chrome extension API and rules controlling extension distribution.
 
 The original idea and prototype was [published](http://dl.acm.org/citation.cfm?id=2232930) in the Joint Conference on Digital Libraries 2012 (JCDL '12) Proceedings.
+
+The latest stable binary can be [downloaded from the Chrome Web Store](https://chrome.google.com/webstore/detail/warcreate/kenncghfghgolcbmckhiljgaabnpcaaa?hl=en&gl=US).
