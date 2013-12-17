@@ -60,15 +60,12 @@ var lastSavedStateString = ""; //string representation of the last saved state o
 function setSaveChangesButtonEnabledBasedOnOptionsChange(){
 	if(lastSavedStateString != ""){
 		var currentSavedState = $("#filenameScheme").val()+$("#uploadTo").val()+$("#postGeneration_save").is(':checked')+$("#postGeneration_upload").is(':checked');
-		console.log(currentSavedState);
+
 		if(lastSavedStateString == currentSavedState){
 			$("#save").attr("disabled","disabled");
-			console.log("disabling");
 		}else {
 			$("#save").removeAttr("disabled");
-			console.log("enabling");
 		}
-		console.log("foo");
 	}else{	//set the initial state
 		lastSavedStateString = $("#filenameScheme").val()+$("#uploadTo").val()+$("#postGeneration_save").is(':checked')+$("#postGeneration_upload").is(':checked');
 		$("#save").attr("disabled","disabled");
@@ -96,6 +93,7 @@ window.onload = function(){
 		$('#postGeneration_save').prop("checked","checked");
 		$('#postGeneration_upload').removeAttr("checked");
 		$('#filenameScheme').val("YYYYMMDDHHMMssSSS");
+		showFilenameExample();
 	});
 	$('#save').on("click",function(){
 		var uploadToURI;
