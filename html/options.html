@@ -18,10 +18,22 @@ input#uploadTo {width: 50%; margin-left: 1.0em;}
 #filenameSchemeElements label {margin-right: 0.5em;}
 #filenameSchemeElements input {width: 25%;}
 #filenameSchemeElements #exampleFileName {margin-left: 1.0em;}
+
+fieldset {display: inline-block; font-size: 0.75em; float: left;}
+ul#sections {display: inline; vertical-align: top; margin: 0; list-style-type: none; font-size: 0.75em; font-family: Segoe UI, Tahoma, sans-serif; letter-spacing: 0.1em; }
+ul#sections li {margin-bottom: 2px; min-width:1500px; width: auto !important; width: 1250px;}
+ul#sections li span {background: linear-gradient(to bottom, #6666ff 0%, #2222ff 80%, #0000ff 100%); color: white; border: 1px solid #666ff; border-radius: 10px; padding: 2px 4px 2px 4px;  }
+ul#sections li span.name {border-top-right-radius: 0px; border-bottom-right-radius: 0px; width: auto !important; min-width: 100px; display: block; margin: 0 1px 0 0; float: left; text-align: right; border-right: 2px solid #3333ff; text-transform: uppercase;}
+ul#sections li span.url {border-top-left-radius: 0px; border-bottom-left-radius: 0px; border-left: 2px solid #3333ff; width: 500px; display: inline-block; }
+
+#sequentialArchivingSource {width: 300px; float: left;}
+#supportedSequentialArchivingSites {}
+label#sequentialArchivingSourceLabel, #sequentialArchivingAvailableHierarchiesLabel {width: 70px; float: left; display: block;}
 </style>
 </head>
 <script type="text/javascript" src="../js/jquery-2.0.2.min.js"></script>
 <script type="text/javascript" src="../js/moment-with-langs.min.js"></script>
+<script type="text/javascript" src="../js/xml2json.js"></script>
 <script type="text/javascript" src="../js/options.js"></script>
 <body id="body">
 
@@ -34,6 +46,23 @@ input#uploadTo {width: 50%; margin-left: 1.0em;}
 <!--<input type="radio" name="output" id="output_save_warc" value="output_save_warc" disabled="disabled" /><label for="output_save">Saving to Wayback-Accessible folder</label><br />-->
 <input type="radio" name="postGeneration" id="postGeneration_upload" value="postGeneration_upload" /><label for="output_display">Uploading to</label>: <input type="text" id="uploadTo" value="http://warcreate.com/warcs" disabled="disabled" />
 <br /><button id="restoreDefaults">Restore Defaults</button><button id="save">Save Changes</button><p id="status">Changes Saved!</p><br />
+
+<h3>"Sequential Archiving"</h3>
+<input type="checkbox" name="sequentialArchiving" id="sequentialArchiving" /><label for="sequentialArchiving">Attempt to capture all sections of current website into one WARC</label>
+<br />
+<fieldset>
+  <legend>Known website hierarchies</legend>
+  	<label for="sequentialArchivingSource" id="sequentialArchivingSourceLabel">Source: </label><input type="text" name="sequentialArchivingSource" id="sequentialArchivingSource" value="http://spec.socialstandard.org" /><br />
+	<label for="supportedSequentialArchivingSitese" id="sequentialArchivingAvailableHierarchiesLabel">Available<br />Hierarchies:</label>
+	<select multiple id="supportedSequentialArchivingSites"></select>
+	<!--<select multiple id="supportedSequentialArchivingSites"></select>-->
+	<!--<label for="sequentialArchivingSource" id="sequentialArchivingSourceLabel">Source: </label><input type="text" name="sequentialArchivingSource" id="sequentialArchivingSource" value="http://spec.socialstandard.org" /><br />-->
+
+</fieldset>
+<ul id="sections"></ul>
+
+
+
 <!--
 <h3>Images</h3>
 <input type="radio" name="images" id="images_inline" value="image_inline"  /><label for="images_inline">Convert image data to inline data</label><br />

@@ -131,17 +131,46 @@ window.onload = function(){
 	
 	setSaveChangesButtonEnabledBasedOnOptionsChange(); //set enabled status of the save button initially
 	showFilenameExample(); //fire the keyup event onload
-	return;
 	
-	//below is old functionality
-	document.getElementById('body').click = restore_options;
-	document.getElementById('save').click = save_options;
-	document.getElementById('clear').click = clear_options;
-	var checks = document.getElementsByClassName('check');
-	for(var i=0; i<checks.length; i++){
-		if(checkURI(checks[i].title) == 200){checks[i].className += " green"; checks[i].innerHTML = "&#x2713; " + checks[i].innerHTML}
-		else if(checkURI(checks[i].title) == 403){checks[i].className += " orange"; checks[i].innerHTML = "? " + checks[i].innerHTML}
-		else{checks[i].className += " red"; checks[i].innerHTML = "&#x2717; " + checks[i].innerHTML}
-	}
+	//fetch socialstandard data
+	$.ajax({
+		url: $("#sequentialArchivingSource").val()
+	})
+	.done(function(data){
+		console.log("Done fetching base spec!");	
+		var specs = [];
+		for(var homepage=0; homepage < $(data).children().children().children("homepage").length; homepage++){
+			//convert the XML spec to JS objects. This is ridiculously verbose. There has to be a cleaner way.
+			var str = $(data).children().children()[homepage];
+			var chiln = $(str).children();
+			var obj = new Object();
+			for(var ii=0; ii<chiln.length; ii++){
+				obj[chiln[ii].tagName] = chiln[ii].textContent;
+			}
+			specs.push(obj);
 
+			$("#supportedSequentialArchivingSites").append("<option title=\""+obj.specification+"\">"+obj.homepage+"</option>");
+		}
+		//attempt to fetch and parse a site-specific hierarchy specification so the section of the website can be extracted and used as the basis of a crawl
+		$("#supportedSequentialArchivingSites").change(function(){
+			var specURI = $("#supportedSequentialArchivingSites option:selected").attr("title");
+			console.log(specURI);
+			$.ajax({
+				url: specURI
+			})
+			.done(function(data2){
+				var specAsObj = jQuery.parseJSON(xml2json(data2,""));
+				var siteSections = specAsObj.socialMediaWebsite.sections.socialMediaWebsiteSection;
+				$("#sections").empty(); //Kill the children (of the section list)
+				for(var sectionI=0; sectionI<siteSections.length; sectionI++){
+					console.log(siteSections[sectionI].name + " " +siteSections[sectionI].url);
+					$("#sections").append("<li><span class=\"name\">"+siteSections[sectionI].name+"</span><span class=\"url\">"+siteSections[sectionI].url+"</span>");
+				}
+				
+			});	
+		});		
+	})
+	.error(function(data){
+		console.log("There was an error in fetching the spec.");
+	});	
 };
