@@ -180,17 +180,13 @@ function generate_Warc(){
 								$.ajax({
 									type: "POST",
 									url: localStorage['uploadTo'],
-									data: {data: localStorage['data']} //testing file upload
-									//dataType: "text"
+									data: {data: response.d}//localStorage['data']} //testing file upload
 									}
-								  //	bb.getBlob("text/plain;charset=utf-8")
 								  )
 								.done(uploadSuccess)
 								.fail(uploadFail);
 							}
 							
-							//var blob = new Blob([response.d],{type: 'text/plain;charset=utf-8'});
-							//saveAs(blob, fileName);
 							
 							console.log("Done!");
 							chrome.pageAction.setIcon({path:"../icons/icon-check.png",tabId:tab.id});
