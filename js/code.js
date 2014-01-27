@@ -1,7 +1,7 @@
 /**
  * WARCreate for Google Chrome
  * "Create WARC files from any webpage"
- * by Mat Kelly <wail@matkelly.com>
+ * by Mat Kelly <warcreate@matkelly.com>
  *
  * See included LICENSE file for reuse information
  *
@@ -133,13 +133,7 @@ function generate_Warc(){
 
 					//perform the first listener, populate the binary image data
 					console.log("adding listener");
-					port.onMessage.addListener(function(msg) {	//get image base64 data
-						//msg.html = html
-						//msg.uris: imageURIsSerialized
-						//msg.data: imageDataSerialized
-						//msg.cssuris: cssURIsSerialized
-						//msg.cssdata: cssDataSerialized
-						
+					port.onMessage.addListener(function(msg) {	//get image base64 data					
 						console.log("About to generateWARC(). Next should be callback.");
 						var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,"") + ".warc";
 						
@@ -181,11 +175,13 @@ function generate_Warc(){
 							if(!localStorage['uploadTo'] || localStorage['uploadTo'].length == 0){
 								saveAs(bb.getBlob("text/plain;charset=utf-8"), fileName);
 							} else {
-								console.log("Uploading!");
-								$.post(
-									localStorage['uploadTo'],
-									{
-										data:"dragons"//localStorage['data'] //testing file upload
+								console.log("Uploading!"+localStorage['uploadTo']);
+								
+								$.ajax({
+									type: "POST",
+									url: localStorage['uploadTo'],
+									data: {data: localStorage['data']} //testing file upload
+									//dataType: "text"
 									}
 								  //	bb.getBlob("text/plain;charset=utf-8")
 								  )

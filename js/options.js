@@ -76,7 +76,7 @@ function setSaveChangesButtonEnabledBasedOnOptionsChange(){
 	}
 }
 
-window.onload = function(){
+function setupButtonFunctionalityAndVisibility(){
 	$('#postGeneration_save').on('click',function(){
 		$('#uploadTo').attr("disabled","disabled");
 		$('#filenameScheme').removeAttr("disabled");
@@ -89,7 +89,7 @@ window.onload = function(){
 		
 	});
 	$("#restoreDefaults").on('click',function(){
-		$("#uploadTo").val("http://warcreate.com/warcs").attr("disabled","disabled");
+		$("#uploadTo").val("http://warcreate.com/warcs/").attr("disabled","disabled");
 		$('#postGeneration_save').prop("checked","checked");
 		$('#postGeneration_upload').removeAttr("checked");
 		$('#filenameScheme').val("YYYYMMDDHHMMssSSS");
@@ -111,28 +111,10 @@ window.onload = function(){
 		localStorage['filenameScheme'] = filenameScheme;
 		//TODO: give feedback that options have been saved
 	});
-	$('#filenameScheme').on("keyup",showFilenameExample); //bind example display to text field change
 	
-	function showFilenameExample(){ //when the file format scheme changes, update the example
-		$("#exampleFileName").html("Example: "+moment().format($("#filenameScheme").val())+".warc");
-	};
-	
-	if(localStorage['uploadTo'] && localStorage['uploadTo'].length > 0){
-		$('#uploadTo').removeAttr("disabled");
-		$('#postGeneration_upload').prop("checked","checked");
-		$('#postGeneration_save').removeAttr("checked");
-		
-		// hide/disable the "save to downloads" options if the user's current setting is "upload to"
-		$('#filenameScheme').attr("disabled","disabled");
-		$('#exampleFileName').hide();
-	}else if(localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0){
-		$('#filenameScheme').val(localStorage['filenameScheme']);
-	}
-	
-	setSaveChangesButtonEnabledBasedOnOptionsChange(); //set enabled status of the save button initially
-	showFilenameExample(); //fire the keyup event onload
-	
-	//fetch socialstandard data
+}
+
+function fetchSocialStandardSpecification(){
 	$.ajax({
 		url: $("#sequentialArchivingSource").val()
 	})
@@ -173,4 +155,46 @@ window.onload = function(){
 	.error(function(data){
 		console.log("There was an error in fetching the spec.");
 	});	
+}
+
+
+//this doesn't work but I wanted to use it for debugging
+// ties up the browser for some reason
+function displayLocalStorageData(){
+	console.log("Local Storage, ho!");
+	var XX = "";
+	for (i=0; i<localStorage.length; i++)   {
+    	XX+=localStorage.key(i)+"=["+localStorage.getItem(localStorage.key(i))+"]";
+    	break;
+	}
+	console.log(XX);
+
+}
+
+window.onload = function(){
+	setupButtonFunctionalityAndVisibility();
+	$('#filenameScheme').on("keyup",showFilenameExample); //bind example display to text field change
+	
+	function showFilenameExample(){ //when the file format scheme changes, update the example
+		$("#exampleFileName").html("Example: "+moment().format($("#filenameScheme").val())+".warc");
+	};
+	
+	if(localStorage['uploadTo'] && localStorage['uploadTo'].length > 0){
+		$('#uploadTo').removeAttr("disabled");
+		$('#postGeneration_upload').prop("checked","checked");
+		$('#postGeneration_save').removeAttr("checked");
+		$('#uploadTo').val(localStorage['uploadTo']);
+		
+		// hide/disable the "save to downloads" options if the user's current setting is "upload to"
+		$('#filenameScheme').attr("disabled","disabled");
+		$('#exampleFileName').hide();
+	}else if(localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0){
+		$('#filenameScheme').val(localStorage['filenameScheme']);
+	}
+	
+	setSaveChangesButtonEnabledBasedOnOptionsChange(); //set enabled status of the save button initially
+	showFilenameExample(); //fire the keyup event onload
+	
+	//fetch socialstandard data
+	fetchSocialStandardSpecification();
 };
