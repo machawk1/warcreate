@@ -31,7 +31,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		"description: Crawl initiated from the WARCreate Google Chrome extension"+ CRLF +
 		"robots: ignore" + CRLF +
 		"http-header-user-agent: "+ navigator.userAgent + CRLF + 
-		"http-header-from: warcreate@matkelly.com" + CRLF;
+		"http-header-from: warcreate@matkelly.com" + CRLF + CRLF;
 
 	var warcHeader = 
 		"WARC/1.0" + CRLF +
@@ -59,7 +59,7 @@ function generateWarc(o_request, o_sender, f_callback){
 			"WARC-Record-ID: " + guidGenerator() + CRLF +
 			"Content-Type: application/http; msgtype=request" +CRLF +
 			"Content-Length: " + (warcRequest.length + 2) + CRLF + CRLF +
-			warcRequest;
+			warcRequest + CRLF + CRLF;
 			return x;
 	}
 	
