@@ -115,7 +115,8 @@ function generateWarc(o_request, o_sender, f_callback){
 			"WARC-Date: " + now + CRLF +
 			"WARC-Record-ID: "+ guidGenerator() + CRLF +
 			"Content-Type: application/http; msgtype=response" + CRLF +
-			"Content-Length: " + (unescape(encodeURIComponent(resp)).length + countCorrect) + CRLF;	
+			//"Content-Length: " + (unescape(encodeURIComponent(resp)).length + countCorrect) + CRLF;	 //11260 len
+			"Content-Length: " + (resp.length) + CRLF;// + countCorrect) + CRLF;	
 		return xx;
 	}
 
@@ -123,7 +124,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		
 	var warc =
 		warcHeader + CRLF +
-		warcHeaderContent + CRLF + CRLF + CRLF +
+		warcHeaderContent + CRLF + CRLF +
 		warcRequestHeader + CRLF + 
 		warcMetadataHeader + CRLF +
 		warcMetadata + CRLF + CRLF  +
@@ -157,7 +158,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		console.log("Response header for "+requestHeader+":");
 		console.log(responseHeaders[requestHeader]);
 		
-		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF + CRLF;
+		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF;
 			
 		console.log("Checking URI "+requestHeader);
 		
