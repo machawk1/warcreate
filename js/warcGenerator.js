@@ -208,7 +208,7 @@ function generateWarc(o_request, o_sender, f_callback){
 				}
 			}
 			warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, respHeader+respContent) + CRLF;
-			warcAsURIString += respHeader+respContent;
+			warcAsURIString += respHeader+respContent+CRLF+CRLF;
 			
 		}else {
 			console.log(" (X) "+requestHeader+" is not an image or CSS file.");

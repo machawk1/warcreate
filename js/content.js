@@ -100,7 +100,6 @@ chrome.extension.onConnect.addListener(function(port) {
 			});	//communicate back to code.js ~130 with image data
 	}else {
 		console.log("Method unsupported in content.js: "+msg.method);
-		//alert("method is unsupported: "+msg.method);
 	}
    
   });
