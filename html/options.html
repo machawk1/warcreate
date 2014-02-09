@@ -29,6 +29,10 @@ ul#sections li span.url {border-top-left-radius: 0px; border-bottom-left-radius:
 #sequentialArchivingSource {width: 300px; float: left;}
 #supportedSequentialArchivingSites {}
 label#sequentialArchivingSourceLabel, #sequentialArchivingAvailableHierarchiesLabel {width: 70px; float: left; display: block;}
+
+h3#collections {clear: both; padding-top: 1.0em;}
+#collectionMetadata label {width: 70px; float: left; display: block;}
+#collectionMetadata span {font-style: italic; margin-left: 0.5em;}
 </style>
 </head>
 <script type="text/javascript" src="../js/jquery-2.0.2.min.js"></script>
@@ -61,7 +65,13 @@ label#sequentialArchivingSourceLabel, #sequentialArchivingAvailableHierarchiesLa
 </fieldset>
 <ul id="sections"></ul>
 
-
+<h3 id="collections">Collections</h3>
+<input type="checkbox" name="addCollectionMetadata" id="addCollectionMetadataCheckbox" /><label for="addCollectionMetadataCheckbox">Add Collection Metadata</label>
+<br />
+<fieldset id="collectionMetadata">
+<label for="collectionId">Collection ID:</label><input type="text" name="collectionId" id="collectionId"/><span>e.g., 1234</span><br />
+<label for="collectionName">Collection Name:</label><input type="text" name="collectionName" id="collectionName" /><span>e.g., My Archived Pages</span>
+</fieldset>
 
 <!--
 <h3>Images</h3>

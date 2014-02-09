@@ -21,14 +21,19 @@ function generateWarc(o_request, o_sender, f_callback){
 	var fileName = o_request.file;
 	var initURI = o_request.url;
 	
-	
+	var warcInfoDescription =  "Crawl initiated from the WARCreate Google Chrome extension";
+	var isPartOf = "basic";
+	if(localStorage.getItem("collectionId") || localStorage.getItem("collectionName")){
+		warcInfoDescription = "collectionId=" +localStorage.getItem("collectionId")+", collectionName=\""+localStorage.getItem("collectionName")+"\"";
+		isPartOf = localStorage.getItem("collectionId");
+	}
 	
 	var warcHeaderContent = 
 		"software: WARCreate/"+version+" http://warcreate.com" +CRLF + 
 		"format: WARC File Format 1.0" + CRLF +
 		"conformsTo: http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf" + CRLF +
-		"isPartOf: basic" + CRLF +
-		"description: Crawl initiated from the WARCreate Google Chrome extension"+ CRLF +
+		"isPartOf: " + isPartOf + CRLF +
+		"description: "+ warcInfoDescription + CRLF +
 		"robots: ignore" + CRLF +
 		"http-header-user-agent: "+ navigator.userAgent + CRLF + 
 		"http-header-from: warcreate@matkelly.com" + CRLF + CRLF;
@@ -168,7 +173,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		  imgData[imgURIs.indexOf(requestHeader)] != null
 		){
 			console.log(" (o) Binary data for "+requestHeader+" found and will be included in the WARC");
-			warcAsURIString += responseHeaders[requestHeader] + CRLF;
+			warcAsURIString += responseHeaders[requestHeader] +"|"+b64_to_utf8(imgData[imgURIs.indexOf(requestHeader)]).length+"|"+CRLF;
 			warcAsURIString += //window.atob(imgData[imgURIs.indexOf(requestHeader)]) + CRLF + CRLF;
 				//imgData[imgURIs.indexOf(requestHeader)] + CRLF + CRLF;
 				b64_to_utf8(imgData[imgURIs.indexOf(requestHeader)]) + CRLF + CRLF;

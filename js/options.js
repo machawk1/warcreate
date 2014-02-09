@@ -1,14 +1,25 @@
 // Saves options to localStorage.
 function save_options() {
-  var waybackWarcSource = document.getElementById('waybackWarcSource').value;
+  //var waybackWarcSource = document.getElementById('waybackWarcSource').value;
   var handling;
-  if(document.getElementById('output_save').checked == "checked"){handling = "save";}
-  else if(document.getElementById('output_display').checked == "checked"){handling = "display";}
-  localStorage["warcSRC"] = waybackWarcSource;
+  //if(document.getElementById('output_save').checked == "checked"){handling = "save";}
+  //else if(document.getElementById('output_display').checked == "checked"){handling = "display";}
+  //localStorage["warcSRC"] = waybackWarcSource;
   localStorage["handlingMethod"] = handling;
+  
+  console.log(localStorage);
+  
+  if(document.getElementById('addCollectionMetadataCheckbox').checked){
+  	localStorage["collectionId"] = $("#collectionId").val();
+  	localStorage["collectionName"] = $("#collectionName").val();
+  }else {
+    localStorage.removeItem("collectionId");
+  	localStorage.removeItem("collectionName");
+  }
+    
   // Update status to let user know options were saved.
   var status = $("#status");
-  alert("status saved!");
+  //alert("status saved!");
   status.html("Options Saved.");
   status.css("display","block");
   setTimeout(function() {
@@ -18,12 +29,14 @@ function save_options() {
 }
 // Restores select box state to saved value from localStorage.
 function restore_options() {
-  var warcSRC = localStorage["warcSRC"];
+  /*var warcSRC = localStorage["warcSRC"];
   var waybackWarcSource = document.getElementById("waybackWarcSource");
   if (!warcSRC || warcSRC == "") {
 	waybackWarcSource.value = "C:\\xampp\\tomcat\\webapps\\ROOT\\files1\\"; //TODO, remove this obsolete code!
     return;
-  }
+  }*/
+  console.log("Restoring options");
+  console.log(localStorage);
   
   var handling;
   if(localStorage["handlingMethod"] == "save"){
@@ -35,8 +48,17 @@ function restore_options() {
 	document.getElementById('output_display').checked = "checked";
   }
   
+  console.log(localStorage);
   
-  waybackWarcSource.value = warcSRC;
+  if(localStorage.getItem("collectionId") || localStorage.getItem("collectionName")){
+  	console.log("Restoring collection options!");
+    $("#collectionId").val(localStorage["collectionId"]);
+  	$("#collectionName").val(localStorage["collectionName"]);	
+  	$("#addCollectionMetadataCheckbox").attr("checked","checked");
+  }
+  
+  
+  //waybackWarcSource.value = warcSRC;
 }
 
 function clear_options(){
@@ -59,7 +81,14 @@ function checkURI(uri){
 var lastSavedStateString = ""; //string representation of the last saved state of the form inputs
 function setSaveChangesButtonEnabledBasedOnOptionsChange(){
 	if(lastSavedStateString != ""){
-		var currentSavedState = $("#filenameScheme").val()+$("#uploadTo").val()+$("#postGeneration_save").is(':checked')+$("#postGeneration_upload").is(':checked');
+		var currentSavedState = $("#filenameScheme").val() + 
+								$("#uploadTo").val() + 
+								$("#collectionId").val() +
+								$("#collectionName").val() +
+								$("#postGeneration_save").is(':checked') + 
+								$("#postGeneration_upload").is(':checked') +
+								$("#addCollectionMetadataCheckbox").is(':checked')
+								;
 
 		if(lastSavedStateString == currentSavedState){
 			$("#save").attr("disabled","disabled");
@@ -67,12 +96,24 @@ function setSaveChangesButtonEnabledBasedOnOptionsChange(){
 			$("#save").removeAttr("disabled");
 		}
 	}else{	//set the initial state
-		lastSavedStateString = $("#filenameScheme").val()+$("#uploadTo").val()+$("#postGeneration_save").is(':checked')+$("#postGeneration_upload").is(':checked');
+		lastSavedStateString = 	$("#filenameScheme").val() + 
+								$("#uploadTo").val() + 
+								$("#collectionId").val() +
+								$("#collectionName").val() +
+								$("#postGeneration_save").is(':checked') + 
+								$("#postGeneration_upload").is(':checked') +
+								$("#addCollectionMetadataCheckbox").is(':checked')
+								;
+								
 		$("#save").attr("disabled","disabled");
 		$("#filenameScheme").on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
 		$("#uploadTo").on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
 		$("#postGeneration_save").on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
 		$("#postGeneration_upload").on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
+		
+		$("#addCollectionMetadataCheckbox").on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$("#collectionId").on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$("#collectionName").on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
 	}
 }
 
@@ -93,6 +134,9 @@ function setupButtonFunctionalityAndVisibility(){
 		$('#postGeneration_save').prop("checked","checked");
 		$('#postGeneration_upload').removeAttr("checked");
 		$('#filenameScheme').val("YYYYMMDDHHMMssSSS");
+		$('#collectionId').val("");
+		$('#collectionName').val("");
+		$("#addCollectionMetadataCheckbox").removeAttr("checked");
 		showFilenameExample();
 		setSaveChangesButtonEnabledBasedOnOptionsChange();
 	});
@@ -109,7 +153,12 @@ function setupButtonFunctionalityAndVisibility(){
 
 		localStorage['uploadTo'] = uploadToURI;
 		localStorage['filenameScheme'] = filenameScheme;
+		
+		localStorage['collectionId'] = $("#collectionId").val();
+		localStorage['collectionName'] = $("#collectionName").val();
+		
 		//TODO: give feedback that options have been saved
+		save_options();
 	});
 	
 }
@@ -171,13 +220,14 @@ function displayLocalStorageData(){
 
 }
 
+function showFilenameExample(){ //when the file format scheme changes, update the example
+	$("#exampleFileName").html("Example: "+moment().format($("#filenameScheme").val())+".warc");
+};
+
 window.onload = function(){
 	setupButtonFunctionalityAndVisibility();
 	$('#filenameScheme').on("keyup",showFilenameExample); //bind example display to text field change
 	
-	function showFilenameExample(){ //when the file format scheme changes, update the example
-		$("#exampleFileName").html("Example: "+moment().format($("#filenameScheme").val())+".warc");
-	};
 	
 	if(localStorage['uploadTo'] && localStorage['uploadTo'].length > 0){
 		$('#uploadTo').removeAttr("disabled");
@@ -192,8 +242,14 @@ window.onload = function(){
 		$('#filenameScheme').val(localStorage['filenameScheme']);
 	}
 	
+	$('#collectionId').on('input', function (event) { 	//require the collection id to only contain numbers
+		this.value = this.value.replace(/[^0-9]/g, '');
+	});
+	
 	setSaveChangesButtonEnabledBasedOnOptionsChange(); //set enabled status of the save button initially
 	showFilenameExample(); //fire the keyup event onload
+	
+	restore_options();
 	
 	//fetch socialstandard data
 	fetchSocialStandardSpecification();
