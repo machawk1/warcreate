@@ -13,11 +13,31 @@ chrome.extension.onConnect.addListener(function(port) {
 		//console.log($("a"));
 		
 		outlinks = [];
-		$("a").each(function ()
-		{
-		   console.log("FOUND LINK: "+$(this).attr("href"));
-		   outlinks.push($(this).attr("href"));
+		
+		// outlinks as images [embedded resource], there are probably other types
+		$(images).each(function (){
+			outlinks.push($(this).attr("src")+" E =EMBED_MISC");
 		});
+		
+		// outlinks as CSS //TODO, E =EMBED_MISC was made-up. Is this right?
+		$(document.styleSheets).each(function (){
+		   outlinks.push($(this).attr("href")+" E =EMBED_MISC");
+		});
+		
+		// outlinks as JavaScripts
+		$(document.scripts).each(function (){
+		   if($(this).attr("href")){ // Only include the externally embedded JS, not the inline
+		   		outlinks.push($(this).attr("href")+" E script/@src");
+		   	}
+		});
+		
+		// outlinks as external links on page
+		$("a").each(function (){
+		   outlinks.push($(this).attr("href")+" L a/@href");
+		});
+		
+		
+		
 		
 		var imageURIs = [];
 		var imageBase64Data = [];

@@ -82,8 +82,8 @@ function generateWarc(o_request, o_sender, f_callback){
 		outlinkStr += "outlink: " + href + CRLF;
 	}
 	
-	var warcMetadata =
-		"outlink: "+ initURI + CRLF + outlinkStr;
+	//includes initial URI var warcMetadata = "outlink: "+ initURI + CRLF + outlinkStr;
+	var warcMetadata = outlinkStr;
 	
 		
 	var warcMetadataHeader =
