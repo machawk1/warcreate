@@ -17,6 +17,8 @@ function generateWarc(o_request, o_sender, f_callback){
 
 	
 	var now = new Date().toISOString();
+	now = now.substr(0,now.indexOf("."))+"Z";
+	
 	var nowHttp = new Date().toString("ddd dd MMM yyyy HH:mm:ss")+" GMT";
 	var fileName = o_request.file;
 	var initURI = o_request.url;
