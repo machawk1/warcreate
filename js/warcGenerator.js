@@ -163,6 +163,9 @@ function generateWarc(o_request, o_sender, f_callback){
 		console.log("Response header for "+requestHeader+":");
 		console.log(responseHeaders[requestHeader]);
 		
+		//DEBUG, skip image WARCs
+		if(responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1){continue;}
+		
 		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF;
 			
 		console.log("Checking URI "+requestHeader);
@@ -203,7 +206,7 @@ function generateWarc(o_request, o_sender, f_callback){
 			//console.log(responseHeaders[requestHeader]);
 			
 			var respHeader = responseHeaders[requestHeader] + CRLF + CRLF;
-			var respContent;
+			var respContent = "";
 			//warcAsURIString += responseHeaders[requestHeader] + CRLF + CRLF;
 			console.log(" (X) "+requestHeader+" is not an image.");
 			for(var cc=0; cc<cssURIs.length; cc++){
