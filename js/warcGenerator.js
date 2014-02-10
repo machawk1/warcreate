@@ -167,6 +167,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		
 		//DEBUG, skip image WARCs
 		if(responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1){continue;}
+		if(requestHeader == initURI){continue;} //the 'seed' will not have a body, we handle this above, skip
 		
 		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF;
 			
