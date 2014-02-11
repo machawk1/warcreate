@@ -113,7 +113,15 @@ function generateWarc(o_request, o_sender, f_callback){
 		}
 
 		var countCorrect = httpHeader.match(/\r\n/g).length;//number of lines in xx below
-
+		
+		if(targetURI.indexOf(".png") > -1){
+			console.log("Data for .png (for test):");
+			console.log(resp);
+			console.log("len "+resp.length);
+		}
+		
+		console.log(resp +" has a length of "+resp.length);
+		console.log("alternatively: "+(encodeURI(resp).split(/%..|./).length - 1));
 		
 		var xx =
 			"WARC/1.0" + CRLF +
@@ -123,7 +131,9 @@ function generateWarc(o_request, o_sender, f_callback){
 			"WARC-Record-ID: "+ guidGenerator() + CRLF +
 			"Content-Type: application/http; msgtype=response" + CRLF +
 			//"Content-Length: " + (unescape(encodeURIComponent(resp)).length + countCorrect) + CRLF;	 //11260 len
-			"Content-Length: " + (resp.length) + CRLF;// + countCorrect) + CRLF;	
+			//"Content-Length: " + (resp.length) + CRLF;// + countCorrect) + CRLF;	
+			"Content-Length: " + (encodeURI(resp).split(/%..|./).length - 1) + CRLF;
+			
 		return xx;
 	}
 
@@ -166,27 +176,30 @@ function generateWarc(o_request, o_sender, f_callback){
 		console.log(responseHeaders[requestHeader]);
 		
 		//DEBUG, skip image WARCs
-		if(responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1){continue;}
+		//if(responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1){continue;}
 		if(requestHeader == initURI){continue;} //the 'seed' will not have a body, we handle this above, skip
 		
 		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF;
 			
 		console.log("Checking URI "+requestHeader);
 		
-		if(
+		/*if(
 		  responseHeaders[requestHeader] &&
 		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 && //isA image
 		  imgData[imgURIs.indexOf(requestHeader)] != null
 		){
+			console.log(
 			console.log(" (o) Binary data for "+requestHeader+" found and will be included in the WARC");
 			warcAsURIString += responseHeaders[requestHeader] +"|"+b64_to_utf8(imgData[imgURIs.indexOf(requestHeader)]).length+"|"+CRLF;
 			warcAsURIString += //window.atob(imgData[imgURIs.indexOf(requestHeader)]) + CRLF + CRLF;
 				//imgData[imgURIs.indexOf(requestHeader)] + CRLF + CRLF;
 				b64_to_utf8(imgData[imgURIs.indexOf(requestHeader)]) + CRLF + CRLF;
-		}else if(
+		}else */
+		if(
 		  responseHeaders[requestHeader] &&
 		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 ){
-			console.log(" (X) Binary data for "+requestHeader+" not found. :(");
+			//console.log(" (X) Binary data for "+requestHeader+" not found. :(");
+			console.log(requestHeader+" is an imagefile");
 			var acquiredData = "Never replaced";
 			$.ajax({
 				url: requestHeader,
@@ -195,7 +208,10 @@ function generateWarc(o_request, o_sender, f_callback){
 				console.log(" > Re-requested resource, appending to WARC string");
 				httpResponseLine = "HTTP/1.1 " + x.status + " " + x.statusText + CRLF;
 				acquiredData = httpResponseLine + x.getAllResponseHeaders() + CRLF +  x.responseText;
-				warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader]+acquiredData) + CRLF;
+				//TODO: payload for image-based WARC response records is already calculated and wrong (nextline), bug #44(?)
+				console.log("HEADERS!");
+				console.log(responseHeaders[requestHeader]);
+				warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, acquiredData) + CRLF;
 				
 				warcAsURIString += acquiredData + CRLF + CRLF;
 			}).error(function(data){
@@ -207,7 +223,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		  responseHeaders[requestHeader].indexOf("Content-Type: text/css") > -1)
 		{
 			//console.log(responseHeaders[requestHeader]);
-			
+			console.log(requestHeader+" is a CSS file");
 			var respHeader = responseHeaders[requestHeader] + CRLF + CRLF;
 			var respContent = "";
 			//warcAsURIString += responseHeaders[requestHeader] + CRLF + CRLF;

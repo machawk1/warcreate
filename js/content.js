@@ -48,6 +48,7 @@ chrome.extension.onConnect.addListener(function(port) {
 		//console.log("Converting image data, "+images.length+" to convert");
 		//imagesI = 0;
 		for(var i = 0; i< images.length; i++){
+			// NOTE: image data is NOT fetched here, a subsequent Ajax call is made in warcGenerator.js 20130211 ~ line 188
 			console.log(images[i].src);
 			var image = images[i];
 			if(!(image.src)){console.log("Image "+i+" had no src. Continuing to encode the others"); continue;}
@@ -60,6 +61,12 @@ chrome.extension.onConnect.addListener(function(port) {
 			var dataurl = canvas.toDataURL();
 			var datastartpos = dataurl.match(",").index+1;
 			var dd = dataurl.substring(datastartpos);
+			
+			//console.log("url: "+images[i].src);
+			//console.log("reporting length of image data (bug #44): "+dd.length);
+			//console.log("atob(): "+atob(dd).length);
+			
+			//break; //for testing and to resolve bug #44
 			
 			//imageURIs.push(images[i].src);
 			//imageBase64Data.push(dd);
