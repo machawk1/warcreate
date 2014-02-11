@@ -176,7 +176,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		console.log(responseHeaders[requestHeader]);
 		
 		//DEBUG, skip image WARCs
-		//if(responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1){continue;}
+		if(responseHeaders[requestHeader] && responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1){continue;}
 		if(requestHeader == initURI){continue;} //the 'seed' will not have a body, we handle this above, skip
 		
 		warcAsURIString += makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF;
@@ -200,12 +200,20 @@ function generateWarc(o_request, o_sender, f_callback){
 		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 ){
 			//console.log(" (X) Binary data for "+requestHeader+" not found. :(");
 			console.log(requestHeader+" is an imagefile");
+			//TODO: extract content type to send to Ajax request
 			var acquiredData = "Never replaced";
 			$.ajax({
 				url: requestHeader,
-				async: false
+				async: false,
+				beforeSend: function(xhr) {
+					  xhr.overrideMimeType( "image/png" )
+				}
 			}).done(function(data,t,x){
 				console.log(" > Re-requested resource, appending to WARC string");
+				console.log("X:");
+				console.log(x);
+				console.log("data:");
+				console.log(data);
 				httpResponseLine = "HTTP/1.1 " + x.status + " " + x.statusText + CRLF;
 				acquiredData = httpResponseLine + x.getAllResponseHeaders() + CRLF +  x.responseText;
 				//TODO: payload for image-based WARC response records is already calculated and wrong (nextline), bug #44(?)
