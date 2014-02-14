@@ -243,13 +243,13 @@ function generateWarc(o_request, o_sender, f_callback){
 			};
 		
 			
-			var responseHeaderString = makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader] + CRLF,hexValueInt8Ary.length) + CRLF;
+			var responseHeaderString = makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader] + CRLF,hexValueInt8Ary.length + (CRLF + CRLF).length) + CRLF;
 
 			
 			arrayBuffers.push(str2ab(responseHeaderString));
 			arrayBuffers.push(str2ab(responseHeaders[requestHeader] + CRLF));
 			arrayBuffers.push(hexValueInt8Ary.buffer); //Now, add the image data
-			arrayBuffers.push(str2ab(CRLF + CRLF));
+			arrayBuffers.push(str2ab(CRLF + CRLF + CRLF + CRLF));
 			
 			/*
 			//TODO: extract content type to send to Ajax request
