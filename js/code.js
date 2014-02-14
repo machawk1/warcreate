@@ -140,8 +140,8 @@ function generate_Warc(){
 						//If the user has specified a custom filename format, apply it here
 						if(localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0){
 							fileName = moment().format(localStorage['filenameScheme'])+".warc";
-						}
-
+						}						
+						
 						
 						chrome.extension.sendRequest({
 							url: tab.url, 
@@ -154,10 +154,11 @@ function generate_Warc(){
 							cssData: msg.cssdata,
 							outlinks: msg.outlinks},
 						 function(response) {	//the callback to sendRequest
+						 	return;
 							console.log("generateWARC callback executed, about to write to file");
 							
-							var bb = new BlobBuilder;
-							bb.append(response.d);
+							//var bb = new BlobBuilder;
+							//bb.append(response.d);
 							//localStorage['data'] = response.d;
 							
 							function uploadSuccess(d,t,j){
@@ -171,9 +172,17 @@ function generate_Warc(){
 								console.log("There was an error uploading the file.");
 							}
 							
-
+							console.log("Here's the data that's to be written");
+							console.log(response.x);
+							return;
+						
 							if(!localStorage['uploadTo'] || localStorage['uploadTo'].length == 0){
-								saveAs(bb.getBlob("text/plain;charset=utf-8"), fileName);
+								//saveAs(bb.getBlob("text/plain;charset=utf-8"), fileName);
+								console.log("Responding!");
+								console.log(response.x);
+								console.log(JSON.parse(response.x).data);
+								//saveAs(JSON.parse(response.x).data, fileName);
+				
 							} else {
 								console.log("Uploading!"+localStorage['uploadTo']);
 								
@@ -269,9 +278,23 @@ var requestHeaders = new Array();
 var CRLF = "\r\n";
 
 var currentTabId = -1;
+
+
+
 chrome.tabs.getSelected(null, function(tab){ 
 	currentTabId=tab.id;
 	console.log("tab id in getselected "+currentTabId);
+	console.log(document.images);
+	var portX = chrome.tabs.connect(tab.id,{name: "getImageData"});	//create a persistent connection
+	portX.postMessage({url: tab.url, method: 'getImageData'});
+	portX.onMessage.addListener(function(msg) {
+		console.log("XXXXXXYX");
+		//console.log(msg.imageData);
+		//console.log(JSON.parse(msg.imageData));
+		localStorage["imageData"] = msg.imageData;
+	});
+	
+
 });
 
 

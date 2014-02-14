@@ -2,10 +2,81 @@
 var server = "http://warcreate.com";
 var outlinks = [];
 
+function fetchImage(u) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', u, true);
+    xhr.responseType = 'arraybuffer';
+
+    xhr.onload = function (e) {  
+        var uInt8Array = new Uint8Array(this.response);
+        delete imageUris[u];
+        console.log("Fetched "+u+"  "+Object.keys(imageUris).length+" urls left to fetch");
+        if(Object.keys(imageUris).length == 0){
+             console.log("Ok, now write the WARC");   
+        }
+    };
+
+    xhr.send();
+}
+
+function ab2str(buf) {
+    return String.fromCharCode.apply(null, new Uint16Array(buf));
+}
+
+
 chrome.extension.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(msg) {
   	console.log("in content.js with method: "+msg.method);
-	if(msg.method == "getHTML"){
+  	if(msg.method == "getImageData"){
+  		console.log("Getting image data");
+  		//console.log(document.images);
+  		function fetchImage(u) {
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', u, true);
+			xhr.responseType = 'arraybuffer';
+
+			xhr.onload = function (e) {  
+				var uInt8Array = new Uint8Array(this.response);
+				
+				var myString = uInt8Array;//"";
+				//for (var i=0; i<uInt8Array.length; i++) {
+				//	myString += String.fromCharCode(uInt8Array[i])
+				//}
+				
+				ret[u] = myString;
+				delete imgObjs[u];
+				
+				console.log(" Fetched "+u+"  "+Object.keys(imgObjs).length+" urls left to fetch");
+				if(Object.keys(imgObjs).length == 0){
+					 console.log("Ok, now postback image data");   
+					 port.postMessage({imageData: JSON.stringify(ret)},function(e){alert("done posting message");});
+				}
+			};
+
+			xhr.send();
+		}
+
+		function ab2str(buf) {
+			return String.fromCharCode.apply(null, new Uint16Array(buf));
+		}
+		
+		console.log(document.images);
+		
+		var imgObjs = {};
+		for(var image=0; image<document.images.length; image++){
+			imgObjs[document.images[image].src] = "foo";
+		}
+		
+		var ret = {};
+		
+		for(var uri in imgObjs){
+			fetchImage(uri);
+		}
+		
+  		
+  		
+  	}
+	else if(msg.method == "getHTML"){
 		console.log("about to post getHTML message");
 		images = document.images;
 		
