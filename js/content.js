@@ -39,9 +39,6 @@ chrome.extension.onConnect.addListener(function(port) {
 				var uInt8Array = new Uint8Array(this.response);
 				
 				var myString = uInt8Array;//"";
-				//for (var i=0; i<uInt8Array.length; i++) {
-				//	myString += String.fromCharCode(uInt8Array[i])
-				//}
 				
 				ret[u] = myString;
 				delete imgObjs[u];
@@ -49,7 +46,7 @@ chrome.extension.onConnect.addListener(function(port) {
 				console.log(" Fetched "+u+"  "+Object.keys(imgObjs).length+" urls left to fetch");
 				if(Object.keys(imgObjs).length == 0){
 					 console.log("Ok, now postback image data");   
-					 port.postMessage({imageData: JSON.stringify(ret)},function(e){alert("done posting message");});
+					 port.postMessage({imageData: JSON.stringify(ret)},function(e){});
 				}
 			};
 
@@ -63,9 +60,16 @@ chrome.extension.onConnect.addListener(function(port) {
 		console.log(document.images);
 		
 		var imgObjs = {};
+		//get the image URIs from the DOM
 		for(var image=0; image<document.images.length; image++){
-			imgObjs[document.images[image].src] = "foo";
+			imgObjs[document.images[image].src] = "foo"; //dummy data to-be-filled below programmatically
 		}
+		//get the image URIs embedded in CSS
+		var imagesInCSS = getallBgimages();
+		for(var imageInCSS=0; imageInCSS<imagesInCSS.length; imageInCSS++){
+			imgObjs[imagesInCSS[imageInCSS]] = "foo"; //dummy data to-be-filled below programmatically
+		}
+		
 		
 		var ret = {};
 		
@@ -74,7 +78,7 @@ chrome.extension.onConnect.addListener(function(port) {
 		}
 		
   		
-  		
+
   	}
 	else if(msg.method == "getHTML"){
 		console.log("about to post getHTML message");

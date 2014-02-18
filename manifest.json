@@ -16,7 +16,7 @@
   "content_scripts": [
 	{
 		"matches": ["http://*/*", "https://*/*"],
-		"js": ["js/content.js"]
+		"js": ["js/imagesFromCSSExtractor.js","js/content.js"]
 	}
    ],
   "page_action" :

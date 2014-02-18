@@ -209,7 +209,6 @@ function generate_Warc(){
 							imageData = new Array();
 							var imageURIs = new Array();
 							msg = null;
-							console.log("fooxxxx");
 						});	
 					});
 				
@@ -288,14 +287,11 @@ var currentTabId = -1;
 
 chrome.tabs.getSelected(null, function(tab){ 
 	currentTabId=tab.id;
-	console.log("tab id in getselected "+currentTabId);
-	console.log(document.images);
-	var portX = chrome.tabs.connect(tab.id,{name: "getImageData"});	//create a persistent connection
-	portX.postMessage({url: tab.url, method: 'getImageData'});
-	portX.onMessage.addListener(function(msg) {
-		console.log("XXXXXXYX");
-		//console.log(msg.imageData);
-		//console.log(JSON.parse(msg.imageData));
+	//console.log("tab id in getselected "+currentTabId);
+	//console.log(document.images);
+	var port = chrome.tabs.connect(tab.id,{name: "getImageData"});	//create a persistent connection
+	port.postMessage({url: tab.url, method: 'getImageData'});
+	port.onMessage.addListener(function(msg) {
 		localStorage["imageData"] = msg.imageData;
 	});
 	
@@ -311,7 +307,7 @@ chrome.webRequest.onHeadersReceived.addListener(
 		responseHeaders[resp.url] = "";
 		responseHeaders[resp.url] += resp.statusLine + CRLF;
 
-		console.log("--------------Response Headers for "+resp.url+" --------------");
+		console.log("--------------Response Headers for "+resp.url+" in tab "+resp.tabId+"--------------");
 		for (var key in resp.responseHeaders) {
 			responseHeaders[resp.url] += resp.responseHeaders[key].name+": "+resp.responseHeaders[key].value + CRLF;
 		}
