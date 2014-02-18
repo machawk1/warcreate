@@ -134,7 +134,8 @@ function generateWarc(o_request, o_sender, f_callback){
 
 		var countCorrect = httpHeader.match(/\r\n/g).length;//number of lines in xx below
 		
-		var contentLength = (encodeURI(resp).split(/%..|./).length - 1);
+		//var contentLength = (encodeURI(resp).split(/%..|./).length - 1);
+		var contentLength = lengthInUtf8Bytes(resp);
 		if(additionalContentLength){contentLength += additionalContentLength;} //(arraybuffer + string).length don't mix ;)
 				
 		var xx =
@@ -181,10 +182,14 @@ function generateWarc(o_request, o_sender, f_callback){
 	arrayBuffers.push(str2ab(warc));
 	
 	
-	var imgURIs = o_request.imgURIs.split("|||");
-	var imgData = o_request.imgData.split("|||");
-	var cssURIs = o_request.cssURIs.split("|||");
-	var cssData = o_request.cssData.split("|||");
+	var imgURIs, imgData, cssURIs, cssData, jsURIs, jsData;
+	
+	if(o_request.imgURIs) imgURIs = o_request.imgURIs.split("|||");
+	if(o_request.imgData) imgData = o_request.imgData.split("|||");
+	if(o_request.cssURIs) cssURIs = o_request.cssURIs.split("|||");
+	if(o_request.cssData) cssData = o_request.cssData.split("|||");
+	if(o_request.jsURIs ) jsURIs = o_request.jsURIs.split("|||");
+	if(o_request.jsData ) jsData = o_request.jsData.split("|||");
 	//console.log(imgURIs);
 //	console.log(imgData);
 
@@ -283,12 +288,10 @@ function generateWarc(o_request, o_sender, f_callback){
 		  responseHeaders[requestHeader] &&
 		  responseHeaders[requestHeader].indexOf("Content-Type: text/css") > -1)
 		{
-			//console.log(responseHeaders[requestHeader]);
 			console.log(requestHeader+" is a CSS file");
 			var respHeader = responseHeaders[requestHeader] + CRLF + CRLF;
 			var respContent = "";
-			//warcAsURIString += responseHeaders[requestHeader] + CRLF + CRLF;
-			console.log(" (X) "+requestHeader+" is not an image.");
+
 			for(var cc=0; cc<cssURIs.length; cc++){
 				if(requestHeader == cssURIs[cc]){
 					respContent += cssData[cssURIs.indexOf(requestHeader)] + CRLF + CRLF;
@@ -298,6 +301,26 @@ function generateWarc(o_request, o_sender, f_callback){
 
 			var cssResponseHeaderString = makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, respHeader+respContent) + CRLF;
 			arrayBuffers.push(str2ab(cssResponseHeaderString));
+			
+			arrayBuffers.push(str2ab(respHeader+respContent+CRLF+CRLF));
+			
+		}else if(
+		  responseHeaders[requestHeader] &&
+		  responseHeaders[requestHeader].indexOf("Content-Type: application/javascript") > -1)
+		{
+			console.log(requestHeader+" is a JS file");
+			var respHeader = responseHeaders[requestHeader] + CRLF + CRLF;
+			var respContent = "";
+
+			for(var jc=0; jc<jsURIs.length; jc++){
+				if(requestHeader == jsURIs[jc]){
+					respContent += jsData[jsURIs.indexOf(requestHeader)] + CRLF + CRLF;
+					break;
+				}
+			}
+
+			var jsResponseHeaderString = makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, respHeader+respContent) + CRLF;
+			arrayBuffers.push(str2ab(jsResponseHeaderString));
 			
 			arrayBuffers.push(str2ab(respHeader+respContent+CRLF+CRLF));
 			

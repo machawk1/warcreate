@@ -12,7 +12,7 @@ function fetchImage(u) {
         delete imageUris[u];
         console.log("Fetched "+u+"  "+Object.keys(imageUris).length+" urls left to fetch");
         if(Object.keys(imageUris).length == 0){
-             console.log("Ok, now write the WARC");   
+             console.log("All image data collected");   
         }
     };
 
@@ -133,18 +133,6 @@ chrome.extension.onConnect.addListener(function(port) {
 			var datastartpos = dataurl.match(",").index+1;
 			var dd = dataurl.substring(datastartpos);
 			
-			//console.log("url: "+images[i].src);
-			//console.log("reporting length of image data (bug #44): "+dd.length);
-			//console.log("atob(): "+atob(dd).length);
-			
-			//break; //for testing and to resolve bug #44
-			
-			//imageURIs.push(images[i].src);
-			//imageBase64Data.push(dd);
-			
-			//var binaryImageData = window.atob(dd);
-			
-		
 		}
 		
 		var imageDataSerialized = imageBase64Data.join('|||');
@@ -156,7 +144,7 @@ chrome.extension.onConnect.addListener(function(port) {
 		//a better way to get all stylesheets but we cannot get them as text but instead an object with ruleslist
 		var styleSheetURLs = [];
 		var styleSheetData = [];
-		console.log(document.styleSheets[0]);
+
 		for(var ss=0; ss<document.styleSheets.length; ss++){
 			styleSheetURLs.push(document.styleSheets[ss].href);
 			$.ajax({
@@ -167,10 +155,27 @@ chrome.extension.onConnect.addListener(function(port) {
 				styleSheetData.push(cssText);		
 			});
 		}
-		
+	//*********************************	
+	// Re-fetch JS
+	//*********************************
+		var JSURLs = [];
+		var JSData = [];
+
+		for(var scriptI=0; scriptI<document.scripts.length; scriptI++){
+			JSURLs.push(document.scripts[scriptI].src);
+			$.ajax({
+				url: document.scripts[scriptI].src,
+				dataType: "text",
+				async: false
+			}).done(function(jsText){
+				JSData.push(jsText);		
+			});
+		}		
 		
 		var cssDataSerialized = styleSheetData.join('|||');
 		var cssURIsSerialized = styleSheetURLs.join('|||');
+		var jsDataSerialized = JSData.join('|||');
+		var jsURIsSerialized = JSURLs.join('|||');
 		var outlinksSerialized = outlinks.join('|||');
 				
 		console.log("content.js: sending relayToImagesPost");
@@ -193,6 +198,8 @@ chrome.extension.onConnect.addListener(function(port) {
 			data: imageDataSerialized, 
 			cssuris: cssURIsSerialized,
 			cssdata: cssDataSerialized,
+			jsuris: jsURIsSerialized,
+			jsdata: jsDataSerialized,
 			outlinks: outlinksSerialized,
 			method: msg.method
 			});	//communicate back to code.js ~130 with image data

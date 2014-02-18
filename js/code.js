@@ -152,9 +152,14 @@ function generate_Warc(){
 							imgData: msg.data,
 							cssURIs: msg.cssuris,
 							cssData: msg.cssdata,
+							jsURIs:  msg.jsuris,
+							jsData:  msg.jsdata,
 							outlinks: msg.outlinks},
 						 function(response) {	//the callback to sendRequest
 						 	return;
+						 	
+						 	//OBSOLETE SAVE CODE BELOW
+						 	
 							console.log("generateWARC callback executed, about to write to file");
 							
 							//var bb = new BlobBuilder;
