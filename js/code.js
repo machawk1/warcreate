@@ -157,8 +157,8 @@ function generate_Warc(){
 							outlinks: msg.outlinks},
 						 function(response) {	//the callback to sendRequest
 						 	return;
-						 	
-						 	//OBSOLETE SAVE CODE BELOW
+						 	/*
+						 	//OBSOLETE SAVE CODE BELOW, GOOD FOR FETCHING RESOURCE POST-LOAD
 						 	
 							console.log("generateWARC callback executed, about to write to file");
 							
@@ -179,7 +179,7 @@ function generate_Warc(){
 							
 							console.log("Here's the data that's to be written");
 							console.log(response.x);
-							return;
+							
 						
 							if(!localStorage['uploadTo'] || localStorage['uploadTo'].length == 0){
 								//saveAs(bb.getBlob("text/plain;charset=utf-8"), fileName);
@@ -208,7 +208,7 @@ function generate_Warc(){
 							requestHeaders = new Array();
 							imageData = new Array();
 							var imageURIs = new Array();
-							msg = null;
+							msg = null;*/
 						});	
 					});
 				
@@ -287,12 +287,20 @@ var currentTabId = -1;
 
 chrome.tabs.getSelected(null, function(tab){ 
 	currentTabId=tab.id;
-	//console.log("tab id in getselected "+currentTabId);
+	console.log("tab id in getselected "+currentTabId);
 	//console.log(document.images);
 	var port = chrome.tabs.connect(tab.id,{name: "getImageData"});	//create a persistent connection
 	port.postMessage({url: tab.url, method: 'getImageData'});
 	port.onMessage.addListener(function(msg) {
-		localStorage["imageData"] = msg.imageData;
+		if(msg.method == "getImageDataRet"){
+			var imageURIsForWhichWeHaveData = Object.keys(JSON.parse(msg.imageData));
+			for(var uu=0; uu<imageURIsForWhichWeHaveData.length; uu++){
+				console.log("- Image data in local storage for "+imageURIsForWhichWeHaveData[uu]);
+			}
+
+			chrome.storage.local.set({'imageData':msg.imageData});	
+			//localStorage["imageData"] = msg.imageData;
+		}
 	});
 	
 
@@ -307,11 +315,11 @@ chrome.webRequest.onHeadersReceived.addListener(
 		responseHeaders[resp.url] = "";
 		responseHeaders[resp.url] += resp.statusLine + CRLF;
 
-		console.log("--------------Response Headers for "+resp.url+" in tab "+resp.tabId+"--------------");
+		console.log("- Response Headers received for "+resp.url+" in tab "+resp.tabId);
 		for (var key in resp.responseHeaders) {
 			responseHeaders[resp.url] += resp.responseHeaders[key].name+": "+resp.responseHeaders[key].value + CRLF;
 		}
-		console.log(responseHeaders[resp.url]);
+		//console.log(responseHeaders[resp.url]);
 	}
 , { urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['responseHeaders','blocking']);
 

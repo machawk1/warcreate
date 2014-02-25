@@ -13,6 +13,12 @@ function str2ab(str) {
   return buf;
 }
 
+function lengthInUtf8Bytes(str) {
+  // Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
+  var m = encodeURIComponent(str).match(/%[89ABab]/g);
+  return str.length + (m ? m.length : 0);
+}
+
 function generateWarc(o_request, o_sender, f_callback){
 	if(o_request.method != "generateWarc"){return; }
 	console.log("Running generateWarc code");
@@ -121,13 +127,7 @@ function generateWarc(o_request, o_sender, f_callback){
 	
 	function makeWarcResponseHeaderWith(targetURI, now, warcConcurrentTo, resp, additionalContentLength){
 		var httpHeader = resp.substring(0,resp.indexOf("\r\n\r\n"));
-		
-		function lengthInUtf8Bytes(str) {
-		  // Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
-		  var m = encodeURIComponent(str).match(/%[89ABab]/g);
-		  return str.length + (m ? m.length : 0);
-		}
-		
+
 		if(httpHeader == ""){
 			httpHeader = resp;
 		}
@@ -152,8 +152,10 @@ function generateWarc(o_request, o_sender, f_callback){
 			
 		return xx;
 	}
+	//alert("Warc response length is "+warcResponse.length +" vs. "+lengthInUtf8Bytes(warcResponse));
+	var htmlLengthCorrection = warcResponse.length - lengthInUtf8Bytes(warcResponse); //html count shouldn't use the method in makeWarcresponseHeader, pass a negative correction value
+	var warcResponseHeader = makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse,htmlLengthCorrection);	
 
-	var warcResponseHeader = makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse);	
 		
 	var warc =
 		warcHeader + CRLF +
@@ -163,7 +165,9 @@ function generateWarc(o_request, o_sender, f_callback){
 		warcMetadata + CRLF + CRLF  +
 		warcResponseHeader + CRLF +
 		warcResponse + CRLF + CRLF;
-
+	
+	
+	 //old content? not sure. Keep here until we can verify
 	var pattern = /\r\n(.*)\r\n----------------/g;
 	var myArray = pattern.exec(o_request.headers);
 	var str = "";
@@ -179,7 +183,15 @@ function generateWarc(o_request, o_sender, f_callback){
 	
 	var arrayBuffers = []; //we will load all of the data in-order in the arrayBuffers array then combine with the file blob to writeout
 	
-	arrayBuffers.push(str2ab(warc));
+	arrayBuffers.push(str2ab(warcHeader + CRLF));
+	arrayBuffers.push(str2ab(warcHeaderContent + CRLF + CRLF));
+	arrayBuffers.push(str2ab(warcRequestHeader + CRLF));
+	arrayBuffers.push(str2ab(warcMetadataHeader + CRLF));
+	arrayBuffers.push(str2ab(warcMetadata + CRLF + CRLF));
+	arrayBuffers.push(str2ab(warcResponseHeader + CRLF));
+	arrayBuffers.push(str2ab(warcResponse + CRLF + CRLF));
+	
+	//arrayBuffers.push(str2ab(warc));
 	
 	
 	var imgURIs, imgData, cssURIs, cssData, jsURIs, jsData;
@@ -194,11 +206,7 @@ function generateWarc(o_request, o_sender, f_callback){
 //	console.log(imgData);
 
 	var seedURL = true;
-	for(var requestHeader in requestHeaders){
-		console.log("Array buffers length: "+arrayBuffers.length+" "+requestHeader);
-		//console.log("Response header for "+requestHeader+":");
-		//console.log(responseHeaders[requestHeader]);
-		
+	for(var requestHeader in requestHeaders){	
 		//DEBUG, skip image WARCs
 		//if(responseHeaders[requestHeader] && responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1){continue;}
 		if(requestHeader == initURI){continue;} //the 'seed' will not have a body, we handle this above, skip
@@ -208,81 +216,88 @@ function generateWarc(o_request, o_sender, f_callback){
 
 		console.log("Checking URI "+requestHeader);
 		
-		/*if(
-		  responseHeaders[requestHeader] &&
-		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 && //isA image
-		  imgData[imgURIs.indexOf(requestHeader)] != null
-		){
-			console.log(
-			console.log(" (o) Binary data for "+requestHeader+" found and will be included in the WARC");
-			warcAsURIString += responseHeaders[requestHeader] +"|"+b64_to_utf8(imgData[imgURIs.indexOf(requestHeader)]).length+"|"+CRLF;
-			warcAsURIString += //window.atob(imgData[imgURIs.indexOf(requestHeader)]) + CRLF + CRLF;
-				//imgData[imgURIs.indexOf(requestHeader)] + CRLF + CRLF;
-				b64_to_utf8(imgData[imgURIs.indexOf(requestHeader)]) + CRLF + CRLF;
-		}else */
 		if(
 		  responseHeaders[requestHeader] &&
 		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 ){
-			var imageDataObject = JSON.parse(localStorage["imageData"]);
-			var rawImageDataAsBytes = imageDataObject[requestHeader];
-			
-			var imgRawString = "";
-		
-			if(!rawImageDataAsBytes || rawImageDataAsBytes == null){continue;} //we don't, um...have that image data
-
-			var byteCount = Object.keys(rawImageDataAsBytes).length;		
-
-			//var imgResponsePayload = responseHeaders[requestHeader] + CRLF + imgRawString + CRLF + CRLF;
-			//arrayBuffers.push(str2ab(responseHeaderString+CRLF));
-			var imagesAsObjectsFromJSON = JSON.parse(localStorage["imageData"]); //move this higher in code so the process doesn't fire every time. Saved here for debugging
-			
-			
-			
-			var hexValueArrayBuffer = new ArrayBuffer(Object.keys(imagesAsObjectsFromJSON[requestHeader]).length);
-			var hexValueInt8Ary = new Int8Array(hexValueArrayBuffer);
-			var ixx=0;
-			var sstr = "";
-			for(var index in imagesAsObjectsFromJSON[requestHeader]){			
-				hexValueInt8Ary.set([imagesAsObjectsFromJSON[requestHeader][index]],ixx);
-				ixx++;	
-			};
-		
-			
-			var responseHeaderString = makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader] + CRLF,hexValueInt8Ary.length + (CRLF + CRLF).length) + CRLF;
-
-			
-			arrayBuffers.push(str2ab(responseHeaderString));
-			arrayBuffers.push(str2ab(responseHeaders[requestHeader] + CRLF));
-			arrayBuffers.push(hexValueInt8Ary.buffer); //Now, add the image data
-			arrayBuffers.push(str2ab(CRLF + CRLF + CRLF + CRLF));
-			
-			/*
-			//TODO: extract content type to send to Ajax request
-			//TODO: This code should be saved for images that have appeared in the DOM since it loaded (thus their data isn't present and must be fetched).
-			var acquiredData = "Never replaced";
-			$.ajax({
-				url: requestHeader,
-				async: false,
-				beforeSend: function(xhr) {
-					  xhr.overrideMimeType( "image/png" )
-				}
-			}).done(function(data,t,x){
-				console.log(" > Re-requested resource, appending to WARC string");
-				console.log("X:");
-				console.log(x);
-				console.log("data:");
-				console.log(data);
-				httpResponseLine = "HTTP/1.1 " + x.status + " " + x.statusText + CRLF;
-				acquiredData = httpResponseLine + x.getAllResponseHeaders() + CRLF +  x.responseText;
-				//TODO: payload for image-based WARC response records is already calculated and wrong (nextline), bug #44(?)
-				console.log("HEADERS!");
-				console.log(responseHeaders[requestHeader]);
-				warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, acquiredData) + CRLF;
+			//var imageDataObject = JSON.parse(localStorage["imageData"]);
+			chrome.storage.local.get("imageData",function(result){
+				console.log("requestHeader: "+requestHeader);
 				
-				warcAsURIString += acquiredData + CRLF + CRLF;
-			}).error(function(data){
-				acquiredData = "Missing binary data. :(";
-			});*/
+				console.log(result);
+				//console.error((JSON.parse(result.imageData))[requestHeader]);
+				
+				var imageDataObject = JSON.parse(result.imageData);
+				if(!(requestHeader in imageDataObject)){
+					console.log("No data for image "+requestHeader);
+					return;
+				}else {
+					console.log("We have data for image "+requestHeader);
+				}
+				
+				//var imageDataObject = JSON.parse(result[requestHeader]);
+				var rawImageDataAsBytes = imageDataObject[requestHeader];
+			
+				var imgRawString = "";
+		
+				//if(!rawImageDataAsBytes || rawImageDataAsBytes == null){continue;} //we don't, um...have that image data
+				if(!rawImageDataAsBytes || rawImageDataAsBytes == null){return;} //we don't, um...have that image data
+
+				
+				var byteCount = Object.keys(rawImageDataAsBytes).length;		
+
+				//var imgResponsePayload = responseHeaders[requestHeader] + CRLF + imgRawString + CRLF + CRLF;
+				//arrayBuffers.push(str2ab(responseHeaderString+CRLF));
+				
+				
+				//var imagesAsObjectsFromJSON = JSON.parse(localStorage["imageData"]); //move this higher in code so the process doesn't fire every time. Saved here for debugging
+				var imagesAsObjectsFromJSON = imageDataObject; //redundant of above but testing
+			
+			
+				var hexValueArrayBuffer = new ArrayBuffer(Object.keys(imagesAsObjectsFromJSON[requestHeader]).length);
+				var hexValueInt8Ary = new Int8Array(hexValueArrayBuffer);
+				var ixx=0;
+				var sstr = "";
+				for(var index in imagesAsObjectsFromJSON[requestHeader]){			
+					hexValueInt8Ary.set([imagesAsObjectsFromJSON[requestHeader][index]],ixx);
+					ixx++;	
+				};
+		
+			
+				var responseHeaderString = makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader] + CRLF,hexValueInt8Ary.length + (CRLF + CRLF).length) + CRLF;
+
+			
+				arrayBuffers.push(str2ab(responseHeaderString));
+				arrayBuffers.push(str2ab(responseHeaders[requestHeader] + CRLF));
+				arrayBuffers.push(hexValueInt8Ary.buffer); //Now, add the image data
+				arrayBuffers.push(str2ab(CRLF + CRLF + CRLF + CRLF));
+			});
+				/*
+				//TODO: extract content type to send to Ajax request
+				//TODO: This code should be saved for images that have appeared in the DOM since it loaded (thus their data isn't present and must be fetched).
+				var acquiredData = "Never replaced";
+				$.ajax({
+					url: requestHeader,
+					async: false,
+					beforeSend: function(xhr) {
+						  xhr.overrideMimeType( "image/png" )
+					}
+				}).done(function(data,t,x){
+					console.log(" > Re-requested resource, appending to WARC string");
+					console.log("X:");
+					console.log(x);
+					console.log("data:");
+					console.log(data);
+					httpResponseLine = "HTTP/1.1 " + x.status + " " + x.statusText + CRLF;
+					acquiredData = httpResponseLine + x.getAllResponseHeaders() + CRLF +  x.responseText;
+					//TODO: payload for image-based WARC response records is already calculated and wrong (nextline), bug #44(?)
+					console.log("HEADERS!");
+					console.log(responseHeaders[requestHeader]);
+					warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, acquiredData) + CRLF;
+				
+					warcAsURIString += acquiredData + CRLF + CRLF;
+				}).error(function(data){
+					acquiredData = "Missing binary data. :(";
+				});*/
 			
 		}else if(
 		  responseHeaders[requestHeader] &&
@@ -304,7 +319,7 @@ function generateWarc(o_request, o_sender, f_callback){
 			
 			arrayBuffers.push(str2ab(respHeader+respContent+CRLF+CRLF));
 			
-		}else if(
+		}/*else if(
 		  responseHeaders[requestHeader] &&
 		  responseHeaders[requestHeader].indexOf("Content-Type: application/javascript") > -1)
 		{
@@ -324,7 +339,8 @@ function generateWarc(o_request, o_sender, f_callback){
 			
 			arrayBuffers.push(str2ab(respHeader+respContent+CRLF+CRLF));
 			
-		}else {
+		}*/
+		else {
 			/*console.log(" (X) "+requestHeader+" is not an image or CSS file.");
 			if(responseHeaders[requestHeader] && responseHeaders[requestHeader].indexOf("text/html") > -1){
 				warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader]) + CRLF;
@@ -370,8 +386,8 @@ function generateWarc(o_request, o_sender, f_callback){
 
 	//requestHeaders = null; requestHeaders = new Array();
 	//responseHeaders = null; responseHeaders = new Array();
-	saveAs(new Blob(arrayBuffers),"test.warc");
-	f_callback({x: jsonedData});
+	saveAs(new Blob(arrayBuffers), fileName);
+	//f_callback({x: jsonedData});
 }
 
 /* ************************************************************

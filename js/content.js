@@ -46,7 +46,7 @@ chrome.extension.onConnect.addListener(function(port) {
 				console.log(" Fetched "+u+"  "+Object.keys(imgObjs).length+" urls left to fetch");
 				if(Object.keys(imgObjs).length == 0){
 					 console.log("Ok, now postback image data");   
-					 port.postMessage({imageData: JSON.stringify(ret)},function(e){});
+					 port.postMessage({imageData: JSON.stringify(ret),method: "getImageDataRet",uri: u},function(e){});
 				}
 			};
 
@@ -196,8 +196,12 @@ chrome.extension.onConnect.addListener(function(port) {
 				 + '>';
 		}
 		
+		var domAsText = document.documentElement.outerHTML;
+		//domAsText = domAsText.replace(/[\n\r]+/g,"");
+		console.log("length before post: "+domAsText.length);
 		port.postMessage({
-			html: dtstr + document.all[0].outerHTML, 
+			//html: dtstr + document.all[0].outerHTML, //document.all is non-standard
+			html: dtstr + domAsText,//   document.documentElement.outerHTML, 
 			uris: imageURIsSerialized,
 			data: imageDataSerialized, 
 			cssuris: cssURIsSerialized,
