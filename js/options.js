@@ -7,7 +7,7 @@ function save_options() {
   //localStorage["warcSRC"] = waybackWarcSource;
   localStorage["handlingMethod"] = handling;
   
-  console.log(localStorage);
+  //console.log((localStorage);
   
   if(document.getElementById('addCollectionMetadataCheckbox').checked){
   	localStorage["collectionId"] = $("#collectionId").val();
@@ -35,8 +35,8 @@ function restore_options() {
 	waybackWarcSource.value = "C:\\xampp\\tomcat\\webapps\\ROOT\\files1\\"; //TODO, remove this obsolete code!
     return;
   }*/
-  console.log("Restoring options");
-  console.log(localStorage);
+  //console.log(("Restoring options");
+  //console.log((localStorage);
   
   var handling;
   if(localStorage["handlingMethod"] == "save"){
@@ -48,10 +48,10 @@ function restore_options() {
 	document.getElementById('output_display').checked = "checked";
   }
   
-  console.log(localStorage);
+  //console.log((localStorage);
   
   if(localStorage.getItem("collectionId") || localStorage.getItem("collectionName")){
-  	console.log("Restoring collection options!");
+  	//console.log(("Restoring collection options!");
     $("#collectionId").val(localStorage["collectionId"]);
   	$("#collectionName").val(localStorage["collectionName"]);	
   	$("#addCollectionMetadataCheckbox").attr("checked","checked");
@@ -168,7 +168,7 @@ function fetchSocialStandardSpecification(){
 		url: $("#sequentialArchivingSource").val()
 	})
 	.done(function(data){
-		console.log("Done fetching base spec!");	
+		//console.log(("Done fetching base spec!");	
 		var specs = [];
 		for(var homepage=0; homepage < $(data).children().children().children("homepage").length; homepage++){
 			//convert the XML spec to JS objects. This is ridiculously verbose. There has to be a cleaner way.
@@ -185,7 +185,7 @@ function fetchSocialStandardSpecification(){
 		//attempt to fetch and parse a site-specific hierarchy specification so the section of the website can be extracted and used as the basis of a crawl
 		$("#supportedSequentialArchivingSites").change(function(){
 			var specURI = $("#supportedSequentialArchivingSites option:selected").attr("title");
-			console.log(specURI);
+			//console.log((specURI);
 			$.ajax({
 				url: specURI
 			})
@@ -194,7 +194,7 @@ function fetchSocialStandardSpecification(){
 				var siteSections = specAsObj.socialMediaWebsite.sections.socialMediaWebsiteSection;
 				$("#sections").empty(); //Kill the children (of the section list)
 				for(var sectionI=0; sectionI<siteSections.length; sectionI++){
-					console.log(siteSections[sectionI].name + " " +siteSections[sectionI].url);
+					//console.log((siteSections[sectionI].name + " " +siteSections[sectionI].url);
 					$("#sections").append("<li><span class=\"name\">"+siteSections[sectionI].name+"</span><span class=\"url\">"+siteSections[sectionI].url+"</span>");
 				}
 				
@@ -202,7 +202,7 @@ function fetchSocialStandardSpecification(){
 		});		
 	})
 	.error(function(data){
-		console.log("There was an error in fetching the spec.");
+		//console.log(("There was an error in fetching the spec.");
 	});	
 }
 
@@ -210,13 +210,13 @@ function fetchSocialStandardSpecification(){
 //this doesn't work but I wanted to use it for debugging
 // ties up the browser for some reason
 function displayLocalStorageData(){
-	console.log("Local Storage, ho!");
+	//console.log(("Local Storage, ho!");
 	var XX = "";
 	for (i=0; i<localStorage.length; i++)   {
     	XX+=localStorage.key(i)+"=["+localStorage.getItem(localStorage.key(i))+"]";
     	break;
 	}
-	console.log(XX);
+	//console.log((XX);
 
 }
 

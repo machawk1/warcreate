@@ -1,10 +1,11 @@
 {
-  "name": "WARCreate",
-  "version": "0.2014.2.25",
   "manifest_version": 2,
+  "name": "WARCreate",
+  "version": "0.2014.3.15",
   
   "description": "Create Wayback-Consumable WARC Files from Any Webpage",
   "icons" : {
+  	"16" : "icons/icon-16.png",
     "48" : "icons/icon-48.png",
     "128" : "icons/icon-128.png"
   },
@@ -36,7 +37,7 @@
 	 "*://*/*"
   ],
   "options_page": "html/options.html",
-  
+  "short_name" : "WARCreate",
   
   "content_security_policy": "script-src 'self'; object-src 'self'",
   "minimum_chrome_version": "23.0"

@@ -39,20 +39,20 @@ function encodeImages(){
 	canvas.height = img.height;
 	var context = canvas.getContext("2d");
 
-	console.log(i+": "+images[i].src+"  file type: "+fileType);
+	//console.log((i+": "+images[i].src+"  file type: "+fileType);
 	var fileType = images[i].src.substr(images[i].src.length - 4).toLowerCase();
 	if(fileType == ".jpg" || fileType == "jpeg"){fileType = "image/jpeg";}
 	else if(fileType == ".png"){fileType = "image/png";}
 	else if(fileType == ".gif"){fileType = "image/gif";}
 	else {
 		var uTransformed = images[i].src.substring(0,images[i].src.indexOf(".jpg"))+".jpg";
-		alert("error at image "+i+" " + uTransformed); return; console.log(uTransformed);return;}
-	console.log(i+": "+images[i].src+"  file type: "+fileType);
+		alert("error at image "+i+" " + uTransformed); return; }
+	//console.log((i+": "+images[i].src+"  file type: "+fileType);
 
 	try {
 		var base64  = canvas.toDataURL(fileType);
 		img.src = base64;
-		console.log("Replaced image "+request.url+" with its base64 encoded form per canvas");
+		//console.log(("Replaced image "+request.url+" with its base64 encoded form per canvas");
 	}
 	catch(e){
 		alert('Encoding of inline binary content failed!')
@@ -114,11 +114,11 @@ function sequential_generate_Warc(){
  * string representative of the contents of the WARC file being generated.
 */
 function generate_Warc(){
-	console.log("generate_warc start");
+	//console.log(("generate_warc start");
 	
 	var imageData = [];
 	var imageURIs = [];
-	console.log("generate_warc");
+	//console.log(("generate_warc");
 	chrome.tabs.executeScript(null, {file:"js/jquery-2.0.2.min.js"}, function() {	/* Dependency for hash library and general goodness*/
 		chrome.tabs.executeScript(null, {file:"js/jquery.rc4.js"}, function() {	/* Hash library */
 			chrome.tabs.executeScript(null, {file:"js/date.js"}, function() {		/* Good date formatting library */
@@ -132,9 +132,9 @@ function generate_Warc(){
 					var imageDataFilledTo = -1;
 
 					//perform the first listener, populate the binary image data
-					console.log("adding listener");
+					//console.log(("adding listener");
 					port.onMessage.addListener(function(msg) {	//get image base64 data					
-						console.log("About to generateWARC(). Next should be callback.");
+						//console.log(("About to generateWARC(). Next should be callback.");
 						var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,"") + ".warc";
 						
 						//If the user has specified a custom filename format, apply it here
@@ -287,20 +287,30 @@ var currentTabId = -1;
 
 chrome.tabs.getSelected(null, function(tab){ 
 	currentTabId=tab.id;
-	console.log("tab id in getselected "+currentTabId);
+	//console.log(("tab id in getselected "+currentTabId);
 	//console.log(document.images);
 	var port = chrome.tabs.connect(tab.id,{name: "getImageData"});	//create a persistent connection
 	port.postMessage({url: tab.url, method: 'getImageData'});
 	port.onMessage.addListener(function(msg) {
-		if(msg.method == "getImageDataRet"){
+		/*if(msg.method == "getImageDataRet"){ //OBSOLETE HERE BELOW, 
 			var imageURIsForWhichWeHaveData = Object.keys(JSON.parse(msg.imageData));
 			for(var uu=0; uu<imageURIsForWhichWeHaveData.length; uu++){
 				console.log("- Image data in local storage for "+imageURIsForWhichWeHaveData[uu]);
 			}
 
-			chrome.storage.local.set({'imageData':msg.imageData});	
+			chrome.storage.local.set({'imageData':msg.imageData},
+				function(){
+					console.log("Checking if there was an error in setting the data");
+					if(chrome.runtime.lastError){
+						alert("Error in set data");
+					}else {
+						console.log("There was no data for setting this image in Chrome.Storage.Local");
+					}
+				}
+			
+			);	
 			//localStorage["imageData"] = msg.imageData;
-		}
+		}*/
 	});
 	
 
@@ -315,7 +325,7 @@ chrome.webRequest.onHeadersReceived.addListener(
 		responseHeaders[resp.url] = "";
 		responseHeaders[resp.url] += resp.statusLine + CRLF;
 
-		console.log("- Response Headers received for "+resp.url+" in tab "+resp.tabId);
+		//console.log(("- Response Headers received for "+resp.url+" in tab "+resp.tabId);
 		for (var key in resp.responseHeaders) {
 			responseHeaders[resp.url] += resp.responseHeaders[key].name+": "+resp.responseHeaders[key].value + CRLF;
 		}
@@ -331,9 +341,10 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 		requestHeaders[req.url] = "";
 
 		var path = req.url.substring(req.url.match(/[a-zA-Z0-9]\//).index + 1);
-
+		
 		var FABRICATED_httpVersion = "HTTP/1.1";
 		requestHeaders[req.url] += req.method + " " + path + " " + FABRICATED_httpVersion + CRLF;
+		//console.log(("- Request headers received for "+req.url);
 		for (var key in req.requestHeaders) {
 			requestHeaders[req.url] += req.requestHeaders[key].name+": "+req.requestHeaders[key].value + CRLF;
 		}
@@ -349,11 +360,11 @@ chrome.webRequest.onBeforeRedirect.addListener(function(resp){
 	responseHeaders[resp.url] = "";
 	responseHeaders[resp.url] += resp.statusLine + CRLF;
 
-	console.log("--------------Redirect Response Headers for "+resp.url+" --------------");
+	//console.log(("--------------Redirect Response Headers for "+resp.url+" --------------");
 	for (var key in resp.responseHeaders) {
 		responseHeaders[resp.url] += resp.responseHeaders[key].name+": "+resp.responseHeaders[key].value + CRLF;
 	}
-	console.log(responseHeaders[resp.url]);
+	//console.log((responseHeaders[resp.url]);
 }, { urls:["http://*/*", "https://*/*"], tabId: currentTabId}, ['responseHeaders']);
 
 

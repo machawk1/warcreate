@@ -10,9 +10,9 @@ function fetchImage(u) {
     xhr.onload = function (e) {  
         var uInt8Array = new Uint8Array(this.response);
         delete imageUris[u];
-        console.log("Fetched "+u+"  "+Object.keys(imageUris).length+" urls left to fetch");
+        //console.log(("Fetched "+u+"  "+Object.keys(imageUris).length+" urls left to fetch");
         if(Object.keys(imageUris).length == 0){
-             console.log("All image data collected");   
+             //console.log(("All image data collected");   
         }
     };
 
@@ -26,9 +26,9 @@ function ab2str(buf) {
 
 chrome.extension.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(msg) {
-  	console.log("in content.js with method: "+msg.method);
+  	//console.log(("in content.js with method: "+msg.method);
   	if(msg.method == "getImageData"){
-  		console.log("Getting image data");
+  		//console.log(("Getting image data");
   		//console.log(document.images);
   		function fetchImage(u) {
 			var xhr = new XMLHttpRequest();
@@ -38,26 +38,33 @@ chrome.extension.onConnect.addListener(function(port) {
 			xhr.onload = function (e) {  
 				var uInt8Array = new Uint8Array(this.response);
 				
-				var myString = uInt8Array;//"";
+				var stringUInt8Array = [];
+				for(var ii=0; ii<uInt8Array.length; ii++){
+					stringUInt8Array[ii] = uInt8Array[ii]+0;
+				}
+				
+				var myString = uInt8Array;
 				
 				ret[u] = myString;
 				delete imgObjs[u];
-				
-				console.log(" Fetched "+u+"  "+Object.keys(imgObjs).length+" urls left to fetch");
-				if(Object.keys(imgObjs).length == 0){
-					 console.log("Ok, now postback image data");   
-					 port.postMessage({imageData: JSON.stringify(ret),method: "getImageDataRet",uri: u},function(e){});
-				}
+
+				 //console.log(("Ok, now postback image data"); 
+				 console.error(u); 
+				 var ohemefgee = {};
+				 ohemefgee[u] = stringUInt8Array;
+				 chrome.storage.local.set(ohemefgee,function(){
+					if(chrome.runtime.lastError){
+						console.error("Error in set data");
+						console.error(chrome.runtime.lastError);
+					}
+				 });	
+				 //console.log(("- Image data in local storage for "+u);
+				 //port.postMessage({imageData: JSON.stringify(ret),method: "getImageDataRet",uri: u},function(e){});
+
 			};
 
 			xhr.send();
 		}
-
-		function ab2str(buf) {
-			return String.fromCharCode.apply(null, new Uint16Array(buf));
-		}
-		
-		console.log(document.images);
 		
 		var imgObjs = {};
 		//get the image URIs from the DOM
@@ -81,10 +88,10 @@ chrome.extension.onConnect.addListener(function(port) {
 
   	}
 	else if(msg.method == "getHTML"){
-		console.log("about to post getHTML message");
+		//console.log(("about to post getHTML message");
 		images = document.images;
 		
-		console.log("LINKS:");
+		//console.log(("LINKS:");
 		//console.log($("a"));
 		
 		outlinks = [];
@@ -124,10 +131,12 @@ chrome.extension.onConnect.addListener(function(port) {
 		//imagesI = 0;
 		for(var i = 0; i< images.length; i++){
 			// NOTE: image data is NOT fetched here, a subsequent Ajax call is made in warcGenerator.js 20130211 ~ line 188
-			console.log(images[i].src);
+			//console.log((images[i].src);
 			var image = images[i];
-			if(!(image.src)){console.log("Image "+i+" had no src. Continuing to encode the others"); continue;}
-			console.log("About to convert image "+(i+1)+"/"+images.length+": "+images[i].src);
+			if(!(image.src)){c
+				//console.log("Image "+i+" had no src. Continuing to encode the others"); 
+				continue;}
+			//console.log(("About to convert image "+(i+1)+"/"+images.length+": "+images[i].src);
 			
 			var canvas = document.createElement('canvas');
 			canvas.width = image.width;
@@ -182,14 +191,14 @@ chrome.extension.onConnect.addListener(function(port) {
 		var jsURIsSerialized = JSURLs.join('|||');
 		var outlinksSerialized = outlinks.join('|||');
 				
-		console.log("content.js: sending relayToImagesPost");
+		//console.log(("content.js: sending relayToImagesPost");
 		//all of this nonsense just to get the doctype to prepend!
 		var node = document.doctype;
 		var dtstr;
 		if(!node){dtstr = "";}
 		else{
 			dtstr = "<!DOCTYPE "
-				 + node.name
+				 + "" + node.name
 				 + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
 				 + (!node.publicId && node.systemId ? ' SYSTEM' : '') 
 				 + (node.systemId ? ' "' + node.systemId + '"' : '')
@@ -198,7 +207,7 @@ chrome.extension.onConnect.addListener(function(port) {
 		
 		var domAsText = document.documentElement.outerHTML;
 		//domAsText = domAsText.replace(/[\n\r]+/g,"");
-		console.log("length before post: "+domAsText.length);
+		//console.log(("length before post: "+domAsText.length);
 		port.postMessage({
 			//html: dtstr + document.all[0].outerHTML, //document.all is non-standard
 			html: dtstr + domAsText,//   document.documentElement.outerHTML, 
@@ -212,7 +221,7 @@ chrome.extension.onConnect.addListener(function(port) {
 			method: msg.method
 			});	//communicate back to code.js ~130 with image data
 	}else {
-		console.log("Method unsupported in content.js: "+msg.method);
+		//console.log(("Method unsupported in content.js: "+msg.method);
 	}
    
   });

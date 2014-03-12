@@ -21,8 +21,7 @@ function lengthInUtf8Bytes(str) {
 
 function generateWarc(o_request, o_sender, f_callback){
 	if(o_request.method != "generateWarc"){return; }
-	console.log("Running generateWarc code");
-	
+	//console.log(("Running generateWarc code");
 	
 	var CRLF = "\r\n";
 	
@@ -120,6 +119,10 @@ function generateWarc(o_request, o_sender, f_callback){
 	
 	// targetURI
 	
+	if(initURI.indexOf("twitter.com") > -1){
+		responseHeaders[initURI] = responseHeaders[initURI].replace("text/javascript","text/html");
+	}
+	
 	var warcResponse =
 		responseHeaders[initURI]+
 		CRLF + o_request.docHtml + CRLF;
@@ -202,10 +205,10 @@ function generateWarc(o_request, o_sender, f_callback){
 	if(o_request.cssData) cssData = o_request.cssData.split("|||");
 	if(o_request.jsURIs ) jsURIs = o_request.jsURIs.split("|||");
 	if(o_request.jsData ) jsData = o_request.jsData.split("|||");
-	//console.log(imgURIs);
-//	console.log(imgData);
-
+	
 	var seedURL = true;
+	var responsesToConcatenate = [];
+	
 	for(var requestHeader in requestHeaders){	
 		//DEBUG, skip image WARCs
 		//if(responseHeaders[requestHeader] && responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1){continue;}
@@ -214,63 +217,66 @@ function generateWarc(o_request, o_sender, f_callback){
 		var requestHeaderString =  makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF;
 		arrayBuffers.push(str2ab(requestHeaderString));
 
-		console.log("Checking URI "+requestHeader);
+		//console.log("Checking URI "+requestHeader);
+		//console.log("rh: "+ responseHeaders[requestHeader]);
+		//console.log("rh2: "+ responseHeaders[requestHeader].indexOf("Content-Type: image/"));
+		
 		
 		if(
 		  responseHeaders[requestHeader] &&
-		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1 ){
+		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1  &&
+		  responseHeaders[requestHeader].indexOf("icon") == -1 )
+		  {
 			//var imageDataObject = JSON.parse(localStorage["imageData"]);
-			chrome.storage.local.get("imageData",function(result){
-				console.log("requestHeader: "+requestHeader);
-				
-				console.log(result);
-				//console.error((JSON.parse(result.imageData))[requestHeader]);
-				
-				var imageDataObject = JSON.parse(result.imageData);
-				if(!(requestHeader in imageDataObject)){
-					console.log("No data for image "+requestHeader);
-					return;
-				}else {
-					console.log("We have data for image "+requestHeader);
-				}
-				
-				//var imageDataObject = JSON.parse(result[requestHeader]);
-				var rawImageDataAsBytes = imageDataObject[requestHeader];
+			responsesToConcatenate[requestHeader] = "pending";
+			asynchronouslyFetchImageData(requestHeader);
 			
-				var imgRawString = "";
-		
-				//if(!rawImageDataAsBytes || rawImageDataAsBytes == null){continue;} //we don't, um...have that image data
-				if(!rawImageDataAsBytes || rawImageDataAsBytes == null){return;} //we don't, um...have that image data
+			function asynchronouslyFetchImageData(rh){
 
-				
-				var byteCount = Object.keys(rawImageDataAsBytes).length;		
-
-				//var imgResponsePayload = responseHeaders[requestHeader] + CRLF + imgRawString + CRLF + CRLF;
-				//arrayBuffers.push(str2ab(responseHeaderString+CRLF));
-				
-				
-				//var imagesAsObjectsFromJSON = JSON.parse(localStorage["imageData"]); //move this higher in code so the process doesn't fire every time. Saved here for debugging
-				var imagesAsObjectsFromJSON = imageDataObject; //redundant of above but testing
+				chrome.storage.local.get(rh,function(result){
+					var rawImageDataAsBytes = result[rh];
+					
+					if(rawImageDataAsBytes){//we have the data in chrome.storage.local
+					
+						var imgRawString = "";
+	
+						var byteCount = result[rh].length;	
+						var imagesAsObjectsFromJSON = rawImageDataAsBytes; //redundant of above but testing
 			
-			
-				var hexValueArrayBuffer = new ArrayBuffer(Object.keys(imagesAsObjectsFromJSON[requestHeader]).length);
-				var hexValueInt8Ary = new Int8Array(hexValueArrayBuffer);
-				var ixx=0;
-				var sstr = "";
-				for(var index in imagesAsObjectsFromJSON[requestHeader]){			
-					hexValueInt8Ary.set([imagesAsObjectsFromJSON[requestHeader][index]],ixx);
-					ixx++;	
-				};
+						var hexValueArrayBuffer = new ArrayBuffer(byteCount);
+						var hexValueInt8Ary = new Int8Array(hexValueArrayBuffer);
+						var ixx=0;
+						var sstr = "";
+						for(var index=0; index<byteCount; index++){			
+							hexValueInt8Ary.set([result[rh][index]],ixx);
+							ixx++;	
+						};
 		
 			
-				var responseHeaderString = makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, responseHeaders[requestHeader] + CRLF,hexValueInt8Ary.length + (CRLF + CRLF).length) + CRLF;
+						var responseHeaderString = makeWarcResponseHeaderWith(rh, now, warcConcurrentTo, responseHeaders[rh] + CRLF,hexValueInt8Ary.length + (CRLF + CRLF).length) + CRLF;
 
 			
-				arrayBuffers.push(str2ab(responseHeaderString));
-				arrayBuffers.push(str2ab(responseHeaders[requestHeader] + CRLF));
-				arrayBuffers.push(hexValueInt8Ary.buffer); //Now, add the image data
-				arrayBuffers.push(str2ab(CRLF + CRLF + CRLF + CRLF));
-			});
+						arrayBuffers.push(str2ab(responseHeaderString));
+						arrayBuffers.push(str2ab(responseHeaders[rh] + CRLF));
+						arrayBuffers.push(hexValueInt8Ary.buffer); //Now, add the image data
+						arrayBuffers.push(str2ab(CRLF + CRLF + CRLF + CRLF));
+				
+						delete responsesToConcatenate[rh];
+					}else {
+						//if we don't have the image data in localstorage, remove it anyway
+						console.error("We don't have "+rh+"'s data in cache.");
+						delete responsesToConcatenate[rh];
+					}
+					
+					if(Object.keys(responsesToConcatenate).length == 0){
+						//console.log((arrayBuffers);
+						saveAs(new Blob(arrayBuffers), fileName);
+					}else {
+						//console.log(("Still have to process URIs:"+Object.keys(responsesToConcatenate).join(" "));
+					}
+					
+				});
+			}
 				/*
 				//TODO: extract content type to send to Ajax request
 				//TODO: This code should be saved for images that have appeared in the DOM since it loaded (thus their data isn't present and must be fetched).
@@ -303,6 +309,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		  responseHeaders[requestHeader] &&
 		  responseHeaders[requestHeader].indexOf("Content-Type: text/css") > -1)
 		{
+			responsesToConcatenate[requestHeader] = "pending";
 			console.log(requestHeader+" is a CSS file");
 			var respHeader = responseHeaders[requestHeader] + CRLF + CRLF;
 			var respContent = "";
@@ -318,6 +325,7 @@ function generateWarc(o_request, o_sender, f_callback){
 			arrayBuffers.push(str2ab(cssResponseHeaderString));
 			
 			arrayBuffers.push(str2ab(respHeader+respContent+CRLF+CRLF));
+			delete responsesToConcatenate[requestHeader];
 			
 		}/*else if(
 		  responseHeaders[requestHeader] &&
@@ -386,7 +394,12 @@ function generateWarc(o_request, o_sender, f_callback){
 
 	//requestHeaders = null; requestHeaders = new Array();
 	//responseHeaders = null; responseHeaders = new Array();
-	saveAs(new Blob(arrayBuffers), fileName);
+	//
+	if(Object.keys(responsesToConcatenate).length == 0){
+		saveAs(new Blob(arrayBuffers), fileName);
+	}else {
+		console.log("Still have to process URIs:"+Object.keys(responsesToConcatenate).join(" "));
+	}
 	//f_callback({x: jsonedData});
 }
 
