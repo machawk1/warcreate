@@ -224,6 +224,26 @@ function showFilenameExample(){ //when the file format scheme changes, update th
 	$("#exampleFileName").html("Example: "+moment().format($("#filenameScheme").val())+".warc");
 };
 
+function populatePendingContentTable(){
+	var targetTable = $("#pendingContentTable");
+	$("#pendingContentTable .data").remove();
+	for(var key=0; key < Object.keys(responseHeaders).length; key++){
+		var k = Object.keys(responseHeaders)[key];
+		var str = 	"<tr class=\"data\">"+
+					"<td>"+k+"</td>"+
+					"<td class='#req'>"+requestHeaders[k].length+"</td>"+
+					"<td class='#res'>"+responseHeaders[k].length+"</td>"+
+					"</tr>";
+		targetTable.append(str);
+		str = "";
+	}
+	
+	//targetTable.remove(".data");
+	//console.log(responseHeaders);
+	//console.log(Object.keys(responseHeaders));
+	//console.log(requestHeaders);
+}
+
 window.onload = function(){
 	setupButtonFunctionalityAndVisibility();
 	$('#filenameScheme').on("keyup",showFilenameExample); //bind example display to text field change
@@ -253,4 +273,8 @@ window.onload = function(){
 	
 	//fetch socialstandard data
 	fetchSocialStandardSpecification();
+	
+	//show data ready to be used for WARC creation
+	//populatePendingContentTable();
+	$("#getPendingContent").click(function(){populatePendingContentTable();});
 };

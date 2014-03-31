@@ -100,6 +100,8 @@ function generateWarc(o_request, o_sender, f_callback){
 		if(href.indexOf("mailto:") > -1){continue;}
 		
 		if(href.substr(0,1) != "h"){href = initURI + href;} //resolve fragment and internal links
+		
+		href = href.substr(0,8) + href.substr(8).replace(/\/\//g,"/"); //replace double slashes outside of scheme
 		outlinkStr += "outlink: " + href + CRLF;
 	}
 	

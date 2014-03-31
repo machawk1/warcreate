@@ -35,11 +35,19 @@ h3#collections {clear: both; padding-top: 1.0em;}
 #collectionMetadata span {font-style: italic; margin-left: 0.5em;}
 
 #sequentialArchiving {display: none;} /* This feature is not ready for production just yet */
+
+#pendingContent {clear: both; margin-top: 1.0em;}
+#pendingContentTable {table-layout: fixed; width: 100%;}
+#pendingContentTable th {border: 1px solid black;}
+#pendingContentTable td {width: 300px;  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px;}
+#pendingContentTable #uri {width: 75%;}
+#pendingContentTable .req, #pendingContentTable .res {width: 100px;}
 </style>
 </head>
 <script type="text/javascript" src="../js/jquery-2.0.2.min.js"></script>
 <script type="text/javascript" src="../js/moment-with-langs.min.js"></script>
 <script type="text/javascript" src="../js/xml2json.js"></script>
+<script type="text/javascript" src="../js/code.js"></script>
 <script type="text/javascript" src="../js/options.js"></script>
 <body id="body">
 
@@ -108,6 +116,20 @@ h3#collections {clear: both; padding-top: 1.0em;}
 <input type="button" value="Restore Defaults" /><input type="submit" id="submit" />
 </form>
 -->
+<h3 id="pendingContent">Pending Content</h3><button id="getPendingContent">Show pending content</button>
+<table id="pendingContentTable" cellspacing="0">
+<tr>
+	<th rowspan="2" id="uri">URI</th>
+	<th colspan="2">HTTP</th>
+</tr>
+<tr>
+	<th class="req">-Request</th>
+	<th class="res">-Response</th>
+</tr>
+</table>
+
+
+
 <p id="contact">For support or to report a bug, contact <a href="mailto:warcreate@matkelly.com">Mat Kelly</a>.</p>
 </body>
 </html>

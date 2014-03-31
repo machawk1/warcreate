@@ -14,7 +14,7 @@ var server = "http://warcreate.com";
 // Called when the url of a tab changes.
 function checkForValidUrl(tabId, changeInfo, tab) {
     chrome.pageAction.show(tabId);
-};
+}
 
 function alertContent(){
 	chrome.tabs.executeScript(null, {file:"js/jquery-2.0.2.min.js"}, function() {
@@ -55,7 +55,7 @@ function encodeImages(){
 		//console.log(("Replaced image "+request.url+" with its base64 encoded form per canvas");
 	}
 	catch(e){
-		alert('Encoding of inline binary content failed!')
+		alert('Encoding of inline binary content failed!');
 		console.log(e);
 		return;
 	}
@@ -67,7 +67,7 @@ function encodeImages(){
 */
 function encrypt(){
 	var key = document.getElementById('key').value;
-	if(key == ""){alert("First enter a key for encryption."); return;}
+	if(key === ""){alert("First enter a key for encryption."); return;}
 	chrome.tabs.executeScript(null, {file:"js/jquery-2.0.2.min.js"}, function() {
 		chrome.tabs.executeScript(null, {file:"js/jquery.rc4.js"}, function() {
 			chrome.tabs.executeScript(null, {code: "var params = {k:'"+key+"'};"}, function(){
@@ -242,6 +242,9 @@ window.onload = function(){
 	var gwButtonDOM = document.createElement('input'); gwButtonDOM.type = "button"; gwButtonDOM.id = "generateWarc"; gwButtonDOM.value = "Generate WARC";
 	var clsButtonDOM = document.createElement('input'); clsButtonDOM.type = "button"; clsButtonDOM.id = "clearLocalStorage"; clsButtonDOM.value = "Clear LocalStorage";
 	
+	//For debugging, display content already captured
+	//var dcButtonDOM = document.createElement('input'); dcButtonDOM.type = "button"; dcButtonDOM.id = "displayCaptured"; gwButtonDOM.value = "Show pending content";
+	
 	var errorText = document.createElement("a"); errorText.id = "errorText"; errorText.target = "_blank";
 	var status = document.createElement("input"); status.id = "status"; status.type = "text"; status.value = ""; 
 	
@@ -332,6 +335,7 @@ chrome.webRequest.onHeadersReceived.addListener(
 		//console.log(responseHeaders[resp.url]);
 	}
 , { urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['responseHeaders','blocking']);
+
 
 /**
  * Stores HTTP request headers into an object array with URI as key.

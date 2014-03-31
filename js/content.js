@@ -48,8 +48,8 @@ chrome.extension.onConnect.addListener(function(port) {
 				ret[u] = myString;
 				delete imgObjs[u];
 
-				 //console.log(("Ok, now postback image data"); 
-				 console.error(u); 
+				 //console.log("Ok, now postback image data"); 
+				 //console.error(u); 
 				 var ohemefgee = {};
 				 ohemefgee[u] = stringUInt8Array;
 				 chrome.storage.local.set(ohemefgee,function(){
@@ -62,6 +62,10 @@ chrome.extension.onConnect.addListener(function(port) {
 				 //port.postMessage({imageData: JSON.stringify(ret),method: "getImageDataRet",uri: u},function(e){});
 
 			};
+			
+			xhr.onerror = function(e){
+				console.log("Error");
+			}
 
 			xhr.send();
 		}
@@ -69,7 +73,9 @@ chrome.extension.onConnect.addListener(function(port) {
 		var imgObjs = {};
 		//get the image URIs from the DOM
 		for(var image=0; image<document.images.length; image++){
-			imgObjs[document.images[image].src] = "foo"; //dummy data to-be-filled below programmatically
+			if(document.images[image].src.indexOf("data:") == -1){
+				imgObjs[document.images[image].src] = "foo"; //dummy data to-be-filled below programmatically
+			}
 		}
 		//get the image URIs embedded in CSS
 		var imagesInCSS = getallBgimages();
@@ -81,7 +87,10 @@ chrome.extension.onConnect.addListener(function(port) {
 		var ret = {};
 		
 		for(var uri in imgObjs){
-			fetchImage(uri);
+			console.error(uri);
+			if(uri.indexOf("data:") == -1){
+				fetchImage(uri);
+			}
 		}
 		
   		
@@ -95,30 +104,43 @@ chrome.extension.onConnect.addListener(function(port) {
 		//console.log($("a"));
 		
 		outlinks = [];
+		outlinksAddedRegistry = []; //hacky array to prevent duplicate outlinks
 		
 		// outlinks as images [embedded resource], there are probably other types
 		$(images).each(function (){
-			outlinks.push($(this).attr("src")+" E =EMBED_MISC");
+			if(!outlinksAddedRegistry[$(this).attr("src")]){
+				outlinksAddedRegistry[$(this).attr("src")] = "";
+				outlinks.push($(this).attr("src")+" E =EMBED_MISC");
+			}
 		});
 		
 		// outlinks as CSS //TODO, E =EMBED_MISC was made-up. Is this right?
 		$(document.styleSheets).each(function (){
-		   outlinks.push($(this).attr("href")+" E =EMBED_MISC");
+			if(!outlinksAddedRegistry[$(this).attr("href")]){
+				outlinksAddedRegistry[$(this).attr("href")] = "";			
+		   		outlinks.push($(this).attr("href")+" E =EMBED_MISC");
+		   	}
 		});
 		
 		// outlinks as JavaScripts
 		$(document.scripts).each(function (){
-		   if($(this).attr("href")){ // Only include the externally embedded JS, not the inline
+		   if(	$(this).attr("href") && // Only include the externally embedded JS, not the inline
+		   		!outlinksAddedRegistry[$(this).attr("href")]
+		   ){
+		   		outlinksAddedRegistry[$(this).attr("href")] = "";
 		   		outlinks.push($(this).attr("href")+" E script/@src");
-		   	}
+		   }
 		});
 		
 		// outlinks as external links on page
 		$("a").each(function (){
-		   outlinks.push($(this).attr("href")+" L a/@href");
+			if(!outlinksAddedRegistry[$(this).attr("href")]){
+				outlinksAddedRegistry[$(this).attr("href")] = "";
+		  		outlinks.push($(this).attr("href")+" L a/@href");
+		  	}
 		});
 		
-		
+		outlinksAddedRegistry = null; //reclaim space, since we no longer need this check given we're through building outlinks
 		
 		
 		var imageURIs = [];
@@ -133,7 +155,7 @@ chrome.extension.onConnect.addListener(function(port) {
 			// NOTE: image data is NOT fetched here, a subsequent Ajax call is made in warcGenerator.js 20130211 ~ line 188
 			//console.log((images[i].src);
 			var image = images[i];
-			if(!(image.src)){c
+			if(!(image.src)){
 				//console.log("Image "+i+" had no src. Continuing to encode the others"); 
 				continue;}
 			//console.log(("About to convert image "+(i+1)+"/"+images.length+": "+images[i].src);
