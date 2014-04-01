@@ -120,10 +120,13 @@ function generateWarc(o_request, o_sender, f_callback){
 		"Content-Length: " + warcMetadata.length + CRLF;	
 	
 	// targetURI
-	
+	//DUCTTAPE
 	if(initURI.indexOf("twitter.com") > -1){
 		responseHeaders[initURI] = responseHeaders[initURI].replace("text/javascript","text/html");
 	}
+	//DUCTTAPE to fix bug #53
+	responseHeaders[initURI] = responseHeaders[initURI].replace("HTTP/1.1 304 Not Modified","HTTP/1.1 200 OK");
+	
 	
 	var warcResponse =
 		responseHeaders[initURI]+
