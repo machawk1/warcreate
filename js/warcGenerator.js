@@ -272,7 +272,7 @@ function generateWarc(o_request, o_sender, f_callback){
 					}
 					
 					if(Object.keys(responsesToConcatenate).length == 0){
-						saveAs(new Blob(arrayBuffers), fileName,);
+						saveAs(new Blob(arrayBuffers), fileName);
 					}else {
 						//console.log(("Still have to process URIs:"+Object.keys(responsesToConcatenate).join(" "));
 					}
