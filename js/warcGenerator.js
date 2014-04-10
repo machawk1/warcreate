@@ -127,11 +127,9 @@ function generateWarc(o_request, o_sender, f_callback){
 	//DUCTTAPE to fix bug #53
 	responseHeaders[initURI] = responseHeaders[initURI].replace("HTTP/1.1 304 Not Modified","HTTP/1.1 200 OK");
 	
-	
 	var warcResponse =
 		responseHeaders[initURI]+
 		CRLF + o_request.docHtml + CRLF;
-
 	
 	function makeWarcResponseHeaderWith(targetURI, now, warcConcurrentTo, resp, additionalContentLength){
 		var httpHeader = resp.substring(0,resp.indexOf("\r\n\r\n"));
@@ -165,14 +163,14 @@ function generateWarc(o_request, o_sender, f_callback){
 	var warcResponseHeader = makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse,htmlLengthCorrection);	
 
 		
-	var warc =
+	/*var warc =
 		warcHeader + CRLF +
 		warcHeaderContent + CRLF + CRLF +
 		warcRequestHeader + CRLF + 
 		warcMetadataHeader + CRLF +
 		warcMetadata + CRLF + CRLF  +
 		warcResponseHeader + CRLF +
-		warcResponse + CRLF + CRLF;
+		warcResponse + CRLF + CRLF;*/
 	
 	
 	 //old content? not sure. Keep here until we can verify
@@ -186,7 +184,7 @@ function generateWarc(o_request, o_sender, f_callback){
 	}
 	
 	
-	localStorage["paiheaders"] = "";
+	//localStorage["paiheaders"] = "";
 	
 	
 	var arrayBuffers = []; //we will load all of the data in-order in the arrayBuffers array then combine with the file blob to writeout
@@ -274,8 +272,7 @@ function generateWarc(o_request, o_sender, f_callback){
 					}
 					
 					if(Object.keys(responsesToConcatenate).length == 0){
-						//console.log((arrayBuffers);
-						saveAs(new Blob(arrayBuffers), fileName);
+						saveAs(new Blob(arrayBuffers), fileName,);
 					}else {
 						//console.log(("Still have to process URIs:"+Object.keys(responsesToConcatenate).join(" "));
 					}

@@ -142,7 +142,6 @@ function generate_Warc(){
 							fileName = moment().format(localStorage['filenameScheme'])+".warc";
 						}						
 						
-						
 						chrome.extension.sendRequest({
 							url: tab.url, 
 							method: 'generateWarc', 
