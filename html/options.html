@@ -30,11 +30,11 @@ ul#sections li span.url {border-top-left-radius: 0px; border-bottom-left-radius:
 #supportedSequentialArchivingSites {}
 label#sequentialArchivingSourceLabel, #sequentialArchivingAvailableHierarchiesLabel {width: 70px; float: left; display: block;}
 
-h3#collections {clear: both; padding-top: 1.0em;}
+h3 {clear: both; padding-top: 1.0em; margin-bottom: 0;}
 #collectionMetadata label {width: 70px; float: left; display: block;}
 #collectionMetadata span {font-style: italic; margin-left: 0.5em;}
 
-#sequentialArchiving {display: none;} /* This feature is not ready for production just yet */
+/*#sequentialArchiving {display: none;}  This feature is not ready for production just yet */
 
 #pendingContent {clear: both; margin-top: 1.0em;}
 #pendingContentTable {table-layout: fixed; width: 100%;}
@@ -61,7 +61,7 @@ h3#collections {clear: both; padding-top: 1.0em;}
 <input type="radio" name="postGeneration" id="postGeneration_upload" value="postGeneration_upload" /><label for="output_display">Uploading to</label>: <input type="text" id="uploadTo" value="http://warcreate.com/warcs/" disabled="disabled" />
 <br /><button id="restoreDefaults">Restore Defaults</button><button id="save">Save Changes</button><p id="status">Changes Saved!</p><br />
 
-<section id="sequentialArchiving">
+<section id="sequentialArchivingSection">
   <h3>"Sequential Archiving"</h3>
   <input type="checkbox" name="sequentialArchiving" id="sequentialArchiving" />
   <label for="sequentialArchiving">Attempt to capture all sections of current website into one WARC</label>
@@ -89,7 +89,7 @@ h3#collections {clear: both; padding-top: 1.0em;}
 <label for="collectionId">Collection ID:</label><input type="text" name="collectionId" id="collectionId"/><span>e.g., 1234</span><br />
 <label for="collectionName">Collection Name:</label><input type="text" name="collectionName" id="collectionName" /><span>e.g., My Archived Pages</span>
 </fieldset>
-
+<br />
 <!--
 <h3>Images</h3>
 <input type="radio" name="images" id="images_inline" value="image_inline"  /><label for="images_inline">Convert image data to inline data</label><br />
@@ -108,7 +108,7 @@ h3#collections {clear: both; padding-top: 1.0em;}
 	<li class="check" id="check_localWaybackInstance" title="http://localhost:8080/wayback/">Local Wayback Instance &bull; <a href="http://matkelly.com/warcreate/xampp">Get help</a></li>
 </ul>
 
-<p>After generating a WARC:</p>
+<h3 style="clear: both;">After generating a WARC:</h3>
 <form id="options">
 <input type="radio" checked="checked" name="postWARC" id="save" value="save" /><label for="save">Just save it to my computer"</label><br />
 <input type="radio" name="postWARC" id="upload" value="upload" /><label for="upload">Upload it to:</label><input type="text" id="uploadTo" value="http://warcreate.com/warcs" />
@@ -116,7 +116,8 @@ h3#collections {clear: both; padding-top: 1.0em;}
 <input type="button" value="Restore Defaults" /><input type="submit" id="submit" />
 </form>
 -->
-<h3 id="pendingContent">Pending Content</h3><button id="getPendingContent">Show pending content</button>
+
+<!--<h3 id="pendingContent">Pending Content</h3><button id="getPendingContent">Show pending content</button>
 <table id="pendingContentTable" cellspacing="0">
 <tr>
 	<th rowspan="2" id="uri">URI</th>
@@ -127,7 +128,7 @@ h3#collections {clear: both; padding-top: 1.0em;}
 	<th class="res">-Response</th>
 </tr>
 </table>
-
+-->
 
 
 <p id="contact">For support or to report a bug, contact <a href="mailto:warcreate@matkelly.com">Mat Kelly</a>.</p>

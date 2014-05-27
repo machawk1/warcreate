@@ -272,7 +272,12 @@ function generateWarc(o_request, o_sender, f_callback){
 					}
 					
 					if(Object.keys(responsesToConcatenate).length == 0){
-						saveAs(new Blob(arrayBuffers), fileName);
+
+						if(!localStorage['uploadTo'] || localStorage['uploadTo'].length == 0){
+							saveAs(new Blob(arrayBuffers), fileName);
+						}else {
+							uploadWarc(arrayBuffers);
+						}
 					}else {
 						//console.log(("Still have to process URIs:"+Object.keys(responsesToConcatenate).join(" "));
 					}
@@ -430,6 +435,42 @@ function getVersion(callback) {
         }
         xmlhttp.send(null);
 }
+
+function uploadWarc(abArray){
+	var blobFromArrayBuffers = new Blob(abArray);
+	
+	function uploadSuccess(d,t,j){
+		console.log("* Upload succeeded! Three call variables follow this message.");
+		console.log(d);
+		console.log(t);
+		console.log(j);
+	}
+	
+	function uploadFail(x,t,e){
+		console.log("There was an error uploading the file.");
+	}
+
+	console.log("Uploading WARC to "+localStorage['uploadTo']);
+	
+	var ajaxRequest = new XMLHttpRequest();
+	ajaxRequest.open('POST', localStorage['uploadTo'], true);
+	 ajaxRequest.onreadystatechange = function() {
+        if (ajaxRequest.readyState == 4) {
+            //alert('Response: \n' + ajaxRequest.responseText);
+        	console.log(ajaxRequest.status);
+        	console.log(ajaxRequest.responseText);
+        	if(ajaxRequest.status == 201 && ajaxRequest.responseText.length > 0){
+        		alert("WARC created at "+ajaxRequest.responseText);
+        	}else {
+        		alert("The server accepted the WARC.");
+        	}
+        }
+    };
+    ajaxRequest.send(blobFromArrayBuffers);
+
+							
+}
+
 var version;
 getVersion(function (ver) { version = ver; });
 
