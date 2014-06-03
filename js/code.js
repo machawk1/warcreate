@@ -116,6 +116,7 @@ function sequential_generate_Warc(){
 function generate_Warc(){
 	//console.log(("generate_warc start");
 	
+	
 	var imageData = [];
 	var imageURIs = [];
 	//console.log(("generate_warc");
@@ -128,13 +129,14 @@ function generate_Warc(){
 					//chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id});
 					var port = chrome.tabs.connect(tab.id,{name: "warcreate"});	//create a persistent connection
 					port.postMessage({url: tab.url, method: 'getHTML'});	//fetch the html of the page, in content.js
-					
+						
 					var imageDataFilledTo = -1;
 
 					//perform the first listener, populate the binary image data
 					//console.log(("adding listener");
-					port.onMessage.addListener(function(msg) {	//get image base64 data					
+					port.onMessage.addListener(function(msg) {	//get image base64 data		
 						//console.log(("About to generateWARC(). Next should be callback.");
+						
 						var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,"") + ".warc";
 						
 						//If the user has specified a custom filename format, apply it here

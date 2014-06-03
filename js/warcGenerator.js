@@ -439,7 +439,7 @@ function getVersion(callback) {
 function uploadWarc(abArray){
 	var blobFromArrayBuffers = new Blob(abArray);
 	
-	function uploadSuccess(d,t,j){
+	/*function uploadSuccess(d,t,j){
 		console.log("* Upload succeeded! Three call variables follow this message.");
 		console.log(d);
 		console.log(t);
@@ -448,19 +448,46 @@ function uploadWarc(abArray){
 	
 	function uploadFail(x,t,e){
 		console.log("There was an error uploading the file.");
-	}
+	}*/
 
 	console.log("Uploading WARC to "+localStorage['uploadTo']);
 	
 	var ajaxRequest = new XMLHttpRequest();
+	
+	var progressObj = {   
+			type:"progress",
+			title:"WARC Uploading",
+			message:ajaxRequest.responseText,
+			iconUrl: "../icons/icon-128.png"
+	};
+	progressObj.progress = 0;
+	chrome.notifications.create(
+		'id1',progressObj,function() {} 
+	 );
+
+	
+	function updateNotification(perc){
+		progressObj.progress = perc;
+		chrome.notifications.update('id1',progressObj,function() {} );
+	}
+	
 	ajaxRequest.open('POST', localStorage['uploadTo'], true);
+	
 	 ajaxRequest.onreadystatechange = function() {
+	 	updateNotification(25*ajaxRequest.readyState);
         if (ajaxRequest.readyState == 4) {
             //alert('Response: \n' + ajaxRequest.responseText);
         	console.log(ajaxRequest.status);
         	console.log(ajaxRequest.responseText);
+        	progressObj.message = ajaxRequest.responseText;
+        	progressObj.iconUrl = "../icons/icon-check-128.png";
+        	progressObj.title = "WARC Uploaded";
+        	setTimeout(function(){updateNotification(100);},500);
         	if(ajaxRequest.status == 201 && ajaxRequest.responseText.length > 0){
-        		alert("WARC created at "+ajaxRequest.responseText);
+        		//alert("WARC created at "+ajaxRequest.responseText);
+        		
+					
+        		
         	}else {
         		alert("The server accepted the WARC.");
         	}
