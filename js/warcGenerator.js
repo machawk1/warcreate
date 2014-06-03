@@ -461,10 +461,10 @@ function uploadWarc(abArray){
 			iconUrl: "../icons/icon-128.png"
 	};
 	progressObj.progress = 0;
-	chrome.notifications.create(
-		'id1',progressObj,function() {} 
-	 );
-
+	chrome.notifications.create('id1',progressObj,function() {} );
+	chrome.notifications.onButtonClicked.addListener(function(id,buttonIndex){	
+		chrome.tabs.create({url: warcfileURI});
+	});
 	
 	function updateNotification(perc){
 		progressObj.progress = perc;
@@ -477,15 +477,16 @@ function uploadWarc(abArray){
 	 	updateNotification(25*ajaxRequest.readyState);
         if (ajaxRequest.readyState == 4) {
             //alert('Response: \n' + ajaxRequest.responseText);
-        	console.log(ajaxRequest.status);
-        	console.log(ajaxRequest.responseText);
+        	//console.log(ajaxRequest.status);
+        	//console.log(ajaxRequest.responseText);
         	progressObj.message = ajaxRequest.responseText;
         	progressObj.iconUrl = "../icons/icon-check-128.png";
         	progressObj.title = "WARC Uploaded";
+        	progressObj.buttons = [{title: "View WARC file",iconUrl: "../icons/icon-viewing.png"}];
         	setTimeout(function(){updateNotification(100);},500);
         	if(ajaxRequest.status == 201 && ajaxRequest.responseText.length > 0){
         		//alert("WARC created at "+ajaxRequest.responseText);
-        		
+        		warcfileURI = ajaxRequest.responseText;
 					
         		
         	}else {
@@ -497,6 +498,8 @@ function uploadWarc(abArray){
 
 							
 }
+var warcfileURI = ""; //the Chrome notifications API isn't mature enough to surface data, even via buttons
+
 
 var version;
 getVersion(function (ver) { version = ver; });
