@@ -1,16 +1,28 @@
 //depends on date.js
 
-function ab2str(buf) {
-  return String.fromCharCode.apply(null, new Uint16Array(buf));
-}
+/* ************** BEGIN STRING UTILITY FUNCTIONS **************  */
+
+ function ab2str(buf) {
+   var s = String.fromCharCode.apply(null, new Uint8Array(buf));
+   return decode_utf8(decode_utf8(s))
+ }
 
 function str2ab(str) {
-  var buf = new ArrayBuffer(str.length); // 2 bytes for each char
+  var s = encode_utf8(str);
+  var buf = new ArrayBuffer(s.length); // 2 bytes for each char
   var bufView = new Uint8Array(buf);
-  for (var i=0, strLen=str.length; i<strLen; i++) {
-    bufView[i] = str.charCodeAt(i);
+  for (var i=0, strLen=s.length; i<strLen; i++) {
+    bufView[i] = s.charCodeAt(i);
   }
   return buf;
+}
+
+function encode_utf8(s) {
+  return unescape(encodeURIComponent(s));
+}
+
+function decode_utf8(s) {
+  return decodeURIComponent(escape(s));
 }
 
 function lengthInUtf8Bytes(str) {
@@ -18,6 +30,8 @@ function lengthInUtf8Bytes(str) {
   var m = encodeURIComponent(str).match(/%[89ABab]/g);
   return str.length + (m ? m.length : 0);
 }
+
+/* ************** END STRING UTILITY FUNCTIONS **************  */
 
 function generateWarc(o_request, o_sender, f_callback){
 	if(o_request.method != "generateWarc"){return; }
