@@ -226,6 +226,11 @@ function generateWarc(o_request, o_sender, f_callback){
 	var seedURL = true;
 	var responsesToConcatenate = [];
 	
+	var jsregexp = new RegExp('content-type:[ ]*(text|application)/(javascript|js)','i');
+	var imgregexp = new RegExp('content-type:[ ]*image/','i');
+	var cssregexp = new RegExp('content-type:[ ]*text/(css|stylesheet)','i');
+	var fontregexp = new RegExp('content-type:[ ]*font/','i');
+	
 	for(var requestHeader in requestHeaders){	
 		//DEBUG, skip image WARCs
 		//if(responseHeaders[requestHeader] && responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1){continue;}
@@ -241,7 +246,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		
 		if(
 		  responseHeaders[requestHeader] &&
-		  responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1  &&
+		  imgregexp.exec(responseHeaders[requestHeader]) != null  &&
 		  responseHeaders[requestHeader].indexOf("icon") == -1 )
 		  {
 			//var imageDataObject = JSON.parse(localStorage["imageData"]);
@@ -328,7 +333,7 @@ function generateWarc(o_request, o_sender, f_callback){
 			
 		}else if(
 		  responseHeaders[requestHeader] &&
-		  responseHeaders[requestHeader].indexOf("Content-Type: text/css") > -1)
+		  cssregexp.exec(responseHeaders[requestHeader]) != null)
 		{
 			responsesToConcatenate[requestHeader] = "pending";
 			console.log(requestHeader+" is a CSS file");
