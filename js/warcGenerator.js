@@ -174,7 +174,9 @@ function generateWarc(o_request, o_sender, f_callback){
 	}
 	//alert("Warc response length is "+warcResponse.length +" vs. "+lengthInUtf8Bytes(warcResponse));
 	var htmlLengthCorrection = warcResponse.length - lengthInUtf8Bytes(warcResponse); //html count shouldn't use the method in makeWarcresponseHeader, pass a negative correction value
-	var warcResponseHeader = makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse,htmlLengthCorrection);	
+	//above doesn't work and only messes up content length. No adjustment needed, 0 passed below
+	
+	var warcResponseHeader = makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse,0);//htmlLengthCorrection);	
 
 		
 	/*var warc =
