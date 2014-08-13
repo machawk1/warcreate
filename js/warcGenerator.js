@@ -346,6 +346,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		  responseHeaders[requestHeader] &&
 		  cssregexp.exec(responseHeaders[requestHeader]) != null)
 		{
+			if(cssURIs === null){break;}
 			responsesToConcatenate[requestHeader] = "pending";
 			console.log(requestHeader+" is a CSS file");
 			var respHeader = responseHeaders[requestHeader] + CRLF + CRLF;
