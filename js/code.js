@@ -294,8 +294,8 @@ chrome.tabs.getSelected(null, function(tab){
 	
 	
 	chrome.storage.local.get('lastTabId',function(result){
-		$("body").append("Tab IDY: "+result.lastTabId);
-		$("body").append(tab.url);
+		//$("body").append("Tab IDY: "+result.lastTabId);
+		//$("body").append(tab.url);
 	});
 
 	var port = chrome.tabs.connect(tab.id,{name: "getImageData"});	//create a persistent connection
