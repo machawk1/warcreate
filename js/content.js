@@ -87,7 +87,7 @@ chrome.extension.onConnect.addListener(function(port) {
 		var ret = {};
 		
 		for(var uri in imgObjs){
-			console.error(uri);
+			console.log("Fetching image at "+uri);
 			if(uri.indexOf("data:") == -1){
 				fetchImage(uri);
 			}
@@ -228,6 +228,16 @@ chrome.extension.onConnect.addListener(function(port) {
 		}
 		
 		var domAsText = document.documentElement.outerHTML;
+		
+		// This accounts for foo.txt documents on the web, which chrome puts a wrapper around
+		var textDocumentStarterString = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">';
+		if(domAsText.substr(0, textDocumentStarterString.length) ==  textDocumentStarterString){
+			console.log("Adjusting WARC algorithm to account for text rather than HTML document.");
+			
+			domAsText = $(document).find("pre").html(); //replace text w/ html wrapper with just text
+			dtstr = ""; //remove the doctype injection
+		}
+		
 		//domAsText = domAsText.replace(/[\n\r]+/g,"");
 		//console.log(("length before post: "+domAsText.length);
 		port.postMessage({

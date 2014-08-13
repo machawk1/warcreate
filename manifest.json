@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "WARCreate",
-  "version": "0.2014.8.11",
+  "version": "0.2014.8.13",
   
   "description": "Create Wayback-Consumable WARC Files from Any Webpage",
   "icons" : {
@@ -17,7 +17,7 @@
   "content_scripts": [
 	{
 		"matches": ["http://*/*", "https://*/*"],
-		"js": ["js/imagesFromCSSExtractor.js","js/content.js"]
+		"js": ["js/jquery-2.1.1.min.js","js/imagesFromCSSExtractor.js","js/content.js"]
 	}
    ],
   "page_action" :
@@ -30,6 +30,7 @@
 	 "webRequest",
 	 "webRequestBlocking",
      "tabs", 
+     "activeTab",
      "storage",
      "unlimitedStorage",
 	 "http://*/*",
