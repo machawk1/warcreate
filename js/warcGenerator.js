@@ -141,7 +141,16 @@ function generateWarc(o_request, o_sender, f_callback){
 	//DUCTTAPE to fix bug #53
 	responseHeaders[initURI] = responseHeaders[initURI].replace("HTTP/1.1 304 Not Modified","HTTP/1.1 200 OK");
 	
-	var warcResponse =
+
+
+	//DUCTTAPE to fix bug #62
+	// - fix the content length to be representative of the un-zipped text content
+	responseHeaders[initURI] = responseHeaders[initURI].replace(/Content-Length:.*\r\n/gi,"Content-Length: "+lengthInUtf8Bytes(o_request.docHtml)+"\n");
+	
+	// - remove reference to GZip HTML (or text) body, as we're querying the DOM, not getting the raw feed
+	responseHeaders[initURI] = responseHeaders[initURI].replace(/Content-Encoding.*gzip\r\n/gi,"");
+
+	warcResponse =
 		responseHeaders[initURI]+
 		CRLF + o_request.docHtml + CRLF;
 	
@@ -173,7 +182,7 @@ function generateWarc(o_request, o_sender, f_callback){
 		return xx;
 	}
 	//alert("Warc response length is "+warcResponse.length +" vs. "+lengthInUtf8Bytes(warcResponse));
-	var htmlLengthCorrection = warcResponse.length - lengthInUtf8Bytes(warcResponse); //html count shouldn't use the method in makeWarcresponseHeader, pass a negative correction value
+	//var htmlLengthCorrection = warcResponse.length - lengthInUtf8Bytes(warcResponse); //html count shouldn't use the method in makeWarcresponseHeader, pass a negative correction value
 	//above doesn't work and only messes up content length. No adjustment needed, 0 passed below
 	
 	var warcResponseHeader = makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse,0);//htmlLengthCorrection);	
