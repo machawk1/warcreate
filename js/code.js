@@ -290,9 +290,14 @@ var currentTabId = -1;
 
 
 chrome.tabs.getSelected(null, function(tab){ 
-	currentTabId=tab.id;
-	//console.log(("tab id in getselected "+currentTabId);
-	//console.log(document.images);
+	chrome.storage.local.set({'lastTabId':tab.id});
+	
+	
+	chrome.storage.local.get('lastTabId',function(result){
+		$("body").append("Tab IDY: "+result.lastTabId);
+		$("body").append(tab.url);
+	});
+
 	var port = chrome.tabs.connect(tab.id,{name: "getImageData"});	//create a persistent connection
 	port.postMessage({url: tab.url, method: 'getImageData'});
 	port.onMessage.addListener(function(msg) {
