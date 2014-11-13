@@ -110,6 +110,34 @@ function sequential_generate_Warc(){
 }
 
 /**
+ * Prevent the cached from being wiped when navigating
+*/
+function startRecording(){
+	console.log("starting recording process, start blinking the red icon");
+	//change the WARCreate icon to blink red.
+	chrome.tabs.getSelected(null, function(tab) {
+		//chrome.pageAction.hide(tab.id);
+		chrome.pageAction.setIcon({tabId:tab.id,path:"../icons/recording.png"});
+		//setTimeout(changePageActionIcon, 1500, "../icons/icon-19.png",tab.id);
+		//chrome.pageAction.show(tab.id);
+	});
+}
+
+/**
+ * UNUSED: Changes the pageAction icon to the URI passed in. Would be unnecessary if Chrome supported animated GIF here
+*/
+function changePageActionIcon(newIconPath,tabid){
+	var nextPath = "../icons/icon-19.png";
+	if(newIconPath == nextPath){
+		nextPath = "../icons/recording.png";
+	}
+	
+	chrome.pageAction.setIcon({tabId:tabid,path:newIconPath});
+	
+	setTimeout(changePageActionIcon, 1500, nextPath,tabid);
+}
+
+/**
  * Calls and aggregates the results of the functions that progressively create a 
  * string representative of the contents of the WARC file being generated.
 */
@@ -243,6 +271,9 @@ window.onload = function(){
 	var gwButtonDOM = document.createElement('input'); gwButtonDOM.type = "button"; gwButtonDOM.id = "generateWarc"; gwButtonDOM.value = "Generate WARC";
 	var clsButtonDOM = document.createElement('input'); clsButtonDOM.type = "button"; clsButtonDOM.id = "clearLocalStorage"; clsButtonDOM.value = "Clear LocalStorage";
 	
+	var recordButtonDOM = document.createElement('input'); recordButtonDOM.type = "button"; recordButtonDOM.id = "recordButton"; recordButtonDOM.value = "Start Recording";
+
+	
 	//For debugging, display content already captured
 	//var dcButtonDOM = document.createElement('input'); dcButtonDOM.type = "button"; dcButtonDOM.id = "displayCaptured"; gwButtonDOM.value = "Show pending content";
 	
@@ -254,6 +285,7 @@ window.onload = function(){
 	//add buttons to DOM
 	buttonContainer.appendChild(gwButtonDOM);
 	buttonContainer.appendChild(caButtonDOM);
+	buttonContainer.appendChild(recordButtonDOM);
 
 	buttonContainer.appendChild(clsButtonDOM);
 	buttonContainer.appendChild(status);
@@ -263,6 +295,8 @@ window.onload = function(){
 	
 	var gwButton = document.getElementById('generateWarc');
 	gwButton.onclick = generate_Warc;
+	
+	$("#recordButton").click(startRecording);
 	
 	var clsButton = document.getElementById('clearLocalStorage');
 	
