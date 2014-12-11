@@ -147,7 +147,10 @@ function generate_Warc(){
 	
 	var imageData = [];
 	var imageURIs = [];
+	
 	//console.log(("generate_warc");
+	
+	//TODO: Refactor out this callback hell
 	chrome.tabs.executeScript(null, {file:"js/jquery-2.1.1.min.js"}, function() {	/* Dependency for hash library and general goodness*/
 		chrome.tabs.executeScript(null, {file:"js/jquery.rc4.js"}, function() {	/* Hash library */
 			chrome.tabs.executeScript(null, {file:"js/date.js"}, function() {		/* Good date formatting library */
@@ -172,7 +175,7 @@ function generate_Warc(){
 							fileName = moment().format(localStorage['filenameScheme'])+".warc";
 						}						
 						
-						chrome.extension.sendRequest({
+						chrome.runtime.sendMessage({
 							url: tab.url, 
 							method: 'generateWarc', 
 							docHtml: msg.html, 
@@ -322,41 +325,15 @@ var CRLF = "\r\n";
 var currentTabId = -1;
 
 
-
+// Fired each time the popup is opened
 chrome.tabs.getSelected(null, function(tab){ 
+	//tab storage test, no function tied to it yet
 	chrome.storage.local.set({'lastTabId':tab.id});
-	
-	
-	chrome.storage.local.get('lastTabId',function(result){
-		//$("body").append("Tab IDY: "+result.lastTabId);
-		//$("body").append(tab.url);
-	});
+	chrome.storage.local.get('lastTabId',function(result){});
 
 	var port = chrome.tabs.connect(tab.id,{name: "getImageData"});	//create a persistent connection
 	port.postMessage({url: tab.url, method: 'getImageData'});
-	port.onMessage.addListener(function(msg) {
-		/*if(msg.method == "getImageDataRet"){ //OBSOLETE HERE BELOW, 
-			var imageURIsForWhichWeHaveData = Object.keys(JSON.parse(msg.imageData));
-			for(var uu=0; uu<imageURIsForWhichWeHaveData.length; uu++){
-				console.log("- Image data in local storage for "+imageURIsForWhichWeHaveData[uu]);
-			}
-
-			chrome.storage.local.set({'imageData':msg.imageData},
-				function(){
-					console.log("Checking if there was an error in setting the data");
-					if(chrome.runtime.lastError){
-						alert("Error in set data");
-					}else {
-						console.log("There was no data for setting this image in Chrome.Storage.Local");
-					}
-				}
-			
-			);	
-			//localStorage["imageData"] = msg.imageData;
-		}*/
-	});
-	
-
+	port.onMessage.addListener(function(msg) {});
 });
 
 

@@ -35,7 +35,7 @@ function lengthInUtf8Bytes(str) {
 
 function generateWarc(o_request, o_sender, f_callback){
 	if(o_request.method != "generateWarc"){return; }
-	//console.log(("Running generateWarc code");
+	console.log("Running generateWarc code");
 	
 	var CRLF = "\r\n";
 	
@@ -542,4 +542,4 @@ getVersion(function (ver) { version = ver; });
  
 ************************************************************ */
 
-chrome.extension.onRequest.addListener(generateWarc);
+chrome.runtime.onMessage.addListener(generateWarc);

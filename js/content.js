@@ -24,7 +24,7 @@ function ab2str(buf) {
 }
 
 
-chrome.extension.onConnect.addListener(function(port) {
+chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(msg) {
   	//console.log(("in content.js with method: "+msg.method);
   	if(msg.method == "getImageData"){
