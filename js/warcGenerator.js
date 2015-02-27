@@ -36,10 +36,10 @@ function lengthInUtf8Bytes(str) {
 function generateWarc(o_request, o_sender, f_callback){
 	if(o_request.method != "generateWarc"){return; }
 	console.log("Running generateWarc code");
-	
+
 	var CRLF = "\r\n";
-	
-		
+
+
 	//from http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
 	function guidGenerator() {
 		var S4 = function() {
@@ -48,49 +48,49 @@ function generateWarc(o_request, o_sender, f_callback){
 		return "<urn:uuid:"+(S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4())+">";
 	}
 
-	
+
 	var now = new Date().toISOString();
 	now = now.substr(0,now.indexOf("."))+"Z";
-	
+
 	var nowHttp = new Date().toString("ddd dd MMM yyyy HH:mm:ss")+" GMT";
 	var fileName = o_request.file;
 	var initURI = o_request.url;
-	
+
 	var warcInfoDescription =  "Crawl initiated from the WARCreate Google Chrome extension";
 	var isPartOf = "basic";
 	if(localStorage.getItem("collectionId") || localStorage.getItem("collectionName")){
 		warcInfoDescription = "collectionId=" +localStorage.getItem("collectionId")+", collectionName=\""+localStorage.getItem("collectionName")+"\"";
 		isPartOf = localStorage.getItem("collectionId");
 	}
-	
-	var warcHeaderContent = 
-		"software: WARCreate/"+version+" http://warcreate.com" +CRLF + 
+
+	var warcHeaderContent =
+		"software: WARCreate/"+version+" http://warcreate.com" +CRLF +
 		"format: WARC File Format 1.0" + CRLF +
 		"conformsTo: http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf" + CRLF +
 		"isPartOf: " + isPartOf + CRLF +
 		"description: "+ warcInfoDescription + CRLF +
 		"robots: ignore" + CRLF +
-		"http-header-user-agent: "+ navigator.userAgent + CRLF + 
+		"http-header-user-agent: "+ navigator.userAgent + CRLF +
 		"http-header-from: warcreate@matkelly.com" + CRLF + CRLF;
 
-	var warcHeader = 
+	var warcHeader =
 		"WARC/1.0" + CRLF +
 		"WARC-Type: warcinfo " +CRLF +
 		"WARC-Date: "+ now + CRLF +
-		"WARC-Filename: "+ fileName + CRLF + 
+		"WARC-Filename: "+ fileName + CRLF +
 		"WARC-Record-ID: " + guidGenerator() + CRLF +
 		"Content-Type: application/warc-fields" +CRLF +
 		"Content-Length: "+ warcHeaderContent.length + CRLF;
-		
 
-		
+
+
 	var warcRequest = requestHeaders[initURI];
-		
+
 	var warcConcurrentTo = guidGenerator();
-	
+
 	function makeWarcRequestHeaderWith(targetURI, now, warcConcurrentTo, warcRequest){
 		var CRLF = "\r\n";
-		var x = 
+		var x =
 			"WARC/1.0" + CRLF +
 			"WARC-Type: request" + CRLF +
 			"WARC-Target-URI: "+ targetURI + CRLF +
@@ -102,27 +102,27 @@ function generateWarc(o_request, o_sender, f_callback){
 			warcRequest + CRLF + CRLF;
 			return x;
 	}
-	
-	
+
+
 	var warcRequestHeader = makeWarcRequestHeaderWith(initURI, now, warcConcurrentTo, warcRequest);
-	
+
 
 	var outlinks = o_request.outlinks.split("|||");
 	var outlinkStr = "";
 	for(var outlink in outlinks){
 		var href = outlinks[outlink];
 		if(href.indexOf("mailto:") > -1){continue;}
-		
+
 		if(href.substr(0,1) != "h"){href = initURI + href;} //resolve fragment and internal links
-		
+
 		href = href.substr(0,8) + href.substr(8).replace(/\/\//g,"/"); //replace double slashes outside of scheme
 		outlinkStr += "outlink: " + href + CRLF;
 	}
-	
+
 	//includes initial URI var warcMetadata = "outlink: "+ initURI + CRLF + outlinkStr;
 	var warcMetadata = outlinkStr;
-	
-		
+
+
 	var warcMetadataHeader =
 		"WARC/1.0" + CRLF +
 		"WARC-Type: metadata" + CRLF +
@@ -131,8 +131,8 @@ function generateWarc(o_request, o_sender, f_callback){
 		"WARC-Concurrent-To: <urn:uuid:dddc4ba2-c1e1-459b-8d0d-a98a20b87e96>" + CRLF +
 		"WARC-Record-ID: <urn:uuid:6fef2a49-a9ba-4b40-9f4a-5ca5db1fd5c6>" + CRLF +
 		"Content-Type: application/warc-fields" + CRLF +
-		"Content-Length: " + warcMetadata.length + CRLF;	
-	
+		"Content-Length: " + warcMetadata.length + CRLF;
+
 	// targetURI
 	//DUCTTAPE
 	if(initURI.indexOf("twitter.com") > -1){
@@ -140,20 +140,20 @@ function generateWarc(o_request, o_sender, f_callback){
 	}
 	//DUCTTAPE to fix bug #53
 	responseHeaders[initURI] = responseHeaders[initURI].replace("HTTP/1.1 304 Not Modified","HTTP/1.1 200 OK");
-	
+
 
 
 	//DUCTTAPE to fix bug #62
 	// - fix the content length to be representative of the un-zipped text content
 	responseHeaders[initURI] = responseHeaders[initURI].replace(/Content-Length:.*\r\n/gi,"Content-Length: "+lengthInUtf8Bytes(o_request.docHtml)+"\n");
-	
+
 	// - remove reference to GZip HTML (or text) body, as we're querying the DOM, not getting the raw feed
 	responseHeaders[initURI] = responseHeaders[initURI].replace(/Content-Encoding.*gzip\r\n/gi,"");
 
 	warcResponse =
 		responseHeaders[initURI]+
 		CRLF + o_request.docHtml + CRLF;
-	
+
 	function makeWarcResponseHeaderWith(targetURI, now, warcConcurrentTo, resp, additionalContentLength){
 		var httpHeader = resp.substring(0,resp.indexOf("\r\n\r\n"));
 
@@ -162,11 +162,11 @@ function generateWarc(o_request, o_sender, f_callback){
 		}
 
 		var countCorrect = httpHeader.match(/\r\n/g).length;//number of lines in xx below
-		
+
 		//var contentLength = (encodeURI(resp).split(/%..|./).length - 1);
 		var contentLength = lengthInUtf8Bytes(resp);
 		if(additionalContentLength){contentLength += additionalContentLength;} //(arraybuffer + string).length don't mix ;)
-				
+
 		var xx =
 			"WARC/1.0" + CRLF +
 			"WARC-Type: response" + CRLF +
@@ -175,29 +175,29 @@ function generateWarc(o_request, o_sender, f_callback){
 			"WARC-Record-ID: "+ guidGenerator() + CRLF +
 			"Content-Type: application/http; msgtype=response" + CRLF +
 			//"Content-Length: " + (unescape(encodeURIComponent(resp)).length + countCorrect) + CRLF;	 //11260 len
-			//"Content-Length: " + (resp.length) + CRLF;// + countCorrect) + CRLF;	
+			//"Content-Length: " + (resp.length) + CRLF;// + countCorrect) + CRLF;
 			"Content-Length: " + contentLength + CRLF;
 			//"Content-Length: " + lengthInUtf8Bytes(resp) + CRLF;
-			
+
 		return xx;
 	}
 	//alert("Warc response length is "+warcResponse.length +" vs. "+lengthInUtf8Bytes(warcResponse));
 	//var htmlLengthCorrection = warcResponse.length - lengthInUtf8Bytes(warcResponse); //html count shouldn't use the method in makeWarcresponseHeader, pass a negative correction value
 	//above doesn't work and only messes up content length. No adjustment needed, 0 passed below
-	
-	var warcResponseHeader = makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse,0);//htmlLengthCorrection);	
 
-		
+	var warcResponseHeader = makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse,0);//htmlLengthCorrection);
+
+
 	/*var warc =
 		warcHeader + CRLF +
 		warcHeaderContent + CRLF + CRLF +
-		warcRequestHeader + CRLF + 
+		warcRequestHeader + CRLF +
 		warcMetadataHeader + CRLF +
 		warcMetadata + CRLF + CRLF  +
 		warcResponseHeader + CRLF +
 		warcResponse + CRLF + CRLF;*/
-	
-	
+
+
 	 //old content? not sure. Keep here until we can verify
 	var pattern = /\r\n(.*)\r\n----------------/g;
 	var myArray = pattern.exec(o_request.headers);
@@ -207,13 +207,13 @@ function generateWarc(o_request, o_sender, f_callback){
 		myArray = pattern.exec(o_request.headers);
 
 	}
-	
-	
+
+
 	//localStorage["paiheaders"] = "";
-	
-	
+
+
 	var arrayBuffers = []; //we will load all of the data in-order in the arrayBuffers array then combine with the file blob to writeout
-	
+
 	arrayBuffers.push(str2ab(warcHeader + CRLF));
 	arrayBuffers.push(str2ab(warcHeaderContent + CRLF + CRLF));
 	arrayBuffers.push(str2ab(warcRequestHeader + CRLF));
@@ -221,40 +221,40 @@ function generateWarc(o_request, o_sender, f_callback){
 	arrayBuffers.push(str2ab(warcMetadata + CRLF + CRLF));
 	arrayBuffers.push(str2ab(warcResponseHeader + CRLF));
 	arrayBuffers.push(str2ab(warcResponse + CRLF + CRLF));
-	
+
 	//arrayBuffers.push(str2ab(warc));
-	
-	
+
+
 	var imgURIs, imgData, cssURIs, cssData, jsURIs, jsData;
-	
+
 	if(o_request.imgURIs) imgURIs = o_request.imgURIs.split("|||");
 	if(o_request.imgData) imgData = o_request.imgData.split("|||");
 	if(o_request.cssURIs) cssURIs = o_request.cssURIs.split("|||");
 	if(o_request.cssData) cssData = o_request.cssData.split("|||");
 	if(o_request.jsURIs ) jsURIs = o_request.jsURIs.split("|||");
 	if(o_request.jsData ) jsData = o_request.jsData.split("|||");
-	
+
 	var seedURL = true;
 	var responsesToConcatenate = [];
-	
+
 	var jsregexp = new RegExp('content-type:[ ]*(text|application)/(javascript|js)','i');
 	var imgregexp = new RegExp('content-type:[ ]*image/','i');
 	var cssregexp = new RegExp('content-type:[ ]*text/(css|stylesheet)','i');
 	var fontregexp = new RegExp('content-type:[ ]*font/','i');
-	
-	for(var requestHeader in requestHeaders){	
+
+	for(var requestHeader in requestHeaders){
 		//DEBUG, skip image WARCs
 		//if(responseHeaders[requestHeader] && responseHeaders[requestHeader].indexOf("Content-Type: image/") > -1){continue;}
 		if(requestHeader == initURI){continue;} //the 'seed' will not have a body, we handle this above, skip
-		
+
 		var requestHeaderString =  makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF;
 		arrayBuffers.push(str2ab(requestHeaderString));
 
 		//console.log("Checking URI "+requestHeader);
 		//console.log("rh: "+ responseHeaders[requestHeader]);
 		//console.log("rh2: "+ responseHeaders[requestHeader].indexOf("Content-Type: image/"));
-		
-		
+
+
 		if(
 		  responseHeaders[requestHeader] &&
 		  imgregexp.exec(responseHeaders[requestHeader]) != null  &&
@@ -263,44 +263,44 @@ function generateWarc(o_request, o_sender, f_callback){
 			//var imageDataObject = JSON.parse(localStorage["imageData"]);
 			responsesToConcatenate[requestHeader] = "pending";
 			asynchronouslyFetchImageData(requestHeader);
-			
+
 			function asynchronouslyFetchImageData(rh){
 
 				chrome.storage.local.get(rh,function(result){
 					var rawImageDataAsBytes = result[rh];
-					
+
 					if(rawImageDataAsBytes){//we have the data in chrome.storage.local
-					
+
 						var imgRawString = "";
-	
-						var byteCount = result[rh].length;	
+
+						var byteCount = result[rh].length;
 						var imagesAsObjectsFromJSON = rawImageDataAsBytes; //redundant of above but testing
-			
+
 						var hexValueArrayBuffer = new ArrayBuffer(byteCount);
 						var hexValueInt8Ary = new Int8Array(hexValueArrayBuffer);
 						var ixx=0;
 						var sstr = "";
-						for(var index=0; index<byteCount; index++){			
+						for(var index=0; index<byteCount; index++){
 							hexValueInt8Ary.set([result[rh][index]],ixx);
-							ixx++;	
+							ixx++;
 						};
-		
-			
+
+
 						var responseHeaderString = makeWarcResponseHeaderWith(rh, now, warcConcurrentTo, responseHeaders[rh] + CRLF,hexValueInt8Ary.length + (CRLF + CRLF).length) + CRLF;
 
-			
+
 						arrayBuffers.push(str2ab(responseHeaderString));
 						arrayBuffers.push(str2ab(responseHeaders[rh] + CRLF));
 						arrayBuffers.push(hexValueInt8Ary.buffer); //Now, add the image data
 						arrayBuffers.push(str2ab(CRLF + CRLF + CRLF + CRLF));
-				
+
 						delete responsesToConcatenate[rh];
 					}else {
 						//if we don't have the image data in localstorage, remove it anyway
 						console.error("We don't have "+rh+"'s data in cache.");
 						delete responsesToConcatenate[rh];
 					}
-					
+
 					if(Object.keys(responsesToConcatenate).length == 0){
 
 						if(!localStorage['uploadTo'] || localStorage['uploadTo'].length == 0){
@@ -311,7 +311,7 @@ function generateWarc(o_request, o_sender, f_callback){
 					}else {
 						//console.log(("Still have to process URIs:"+Object.keys(responsesToConcatenate).join(" "));
 					}
-					
+
 				});
 			}
 				/*
@@ -336,17 +336,17 @@ function generateWarc(o_request, o_sender, f_callback){
 					console.log("HEADERS!");
 					console.log(responseHeaders[requestHeader]);
 					warcAsURIString += makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, acquiredData) + CRLF;
-				
+
 					warcAsURIString += acquiredData + CRLF + CRLF;
 				}).error(function(data){
 					acquiredData = "Missing binary data. :(";
 				});*/
-			
+
 		}else if(
 		  responseHeaders[requestHeader] &&
 		  cssregexp.exec(responseHeaders[requestHeader]) != null)
 		{
-			if(cssURIs === null){break;}
+			if(cssURIs === null || !cssURIs){break;}
 			responsesToConcatenate[requestHeader] = "pending";
 			console.log(requestHeader+" is a CSS file");
 			var respHeader = responseHeaders[requestHeader] + CRLF + CRLF;
@@ -361,10 +361,10 @@ function generateWarc(o_request, o_sender, f_callback){
 
 			var cssResponseHeaderString = makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, respHeader+respContent) + CRLF;
 			arrayBuffers.push(str2ab(cssResponseHeaderString));
-			
+
 			arrayBuffers.push(str2ab(respHeader+respContent+CRLF+CRLF));
 			delete responsesToConcatenate[requestHeader];
-			
+
 		}/*else if(
 		  responseHeaders[requestHeader] &&
 		  responseHeaders[requestHeader].indexOf("Content-Type: application/javascript") > -1)
@@ -382,9 +382,9 @@ function generateWarc(o_request, o_sender, f_callback){
 
 			var jsResponseHeaderString = makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, respHeader+respContent) + CRLF;
 			arrayBuffers.push(str2ab(jsResponseHeaderString));
-			
+
 			arrayBuffers.push(str2ab(respHeader+respContent+CRLF+CRLF));
-			
+
 		}*/
 		else {
 			/*console.log(" (X) "+requestHeader+" is not an image or CSS file.");
@@ -422,13 +422,13 @@ function generateWarc(o_request, o_sender, f_callback){
 		console.log(aggregateBuffer);
 		pivotLength += arrayBuffers[bufI].length;
 	}
-	
-	
+
+
 	var data = {
 		data: Array.apply(null, new Uint8Array(aggregateBuffer))
 	};
 	var jsonedData = JSON.stringify(data);*/
-	
+
 
 	//requestHeaders = null; requestHeaders = new Array();
 	//responseHeaders = null; responseHeaders = new Array();
@@ -442,9 +442,9 @@ function generateWarc(o_request, o_sender, f_callback){
 }
 
 /* ************************************************************
- 
+
  UTILITY FUNCTIONS
- 
+
 ************************************************************ */
 
 //from https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
@@ -469,23 +469,23 @@ function getVersion(callback) {
 
 function uploadWarc(abArray){
 	var blobFromArrayBuffers = new Blob(abArray);
-	
+
 	/*function uploadSuccess(d,t,j){
 		console.log("* Upload succeeded! Three call variables follow this message.");
 		console.log(d);
 		console.log(t);
 		console.log(j);
 	}
-	
+
 	function uploadFail(x,t,e){
 		console.log("There was an error uploading the file.");
 	}*/
 
 	console.log("Uploading WARC to "+localStorage['uploadTo']);
-	
+
 	var ajaxRequest = new XMLHttpRequest();
-	
-	var progressObj = {   
+
+	var progressObj = {
 			type:"progress",
 			title:"WARC Uploading",
 			message:ajaxRequest.responseText,
@@ -493,17 +493,17 @@ function uploadWarc(abArray){
 	};
 	progressObj.progress = 0;
 	chrome.notifications.create('id1',progressObj,function() {} );
-	chrome.notifications.onButtonClicked.addListener(function(id,buttonIndex){	
+	chrome.notifications.onButtonClicked.addListener(function(id,buttonIndex){
 		chrome.tabs.create({url: warcfileURI});
 	});
-	
+
 	function updateNotification(perc){
 		progressObj.progress = perc;
 		chrome.notifications.update('id1',progressObj,function() {} );
 	}
-	
+
 	ajaxRequest.open('POST', localStorage['uploadTo'], true);
-	
+
 	 ajaxRequest.onreadystatechange = function() {
 	 	updateNotification(25*ajaxRequest.readyState);
         if (ajaxRequest.readyState == 4) {
@@ -518,8 +518,8 @@ function uploadWarc(abArray){
         	if(ajaxRequest.status == 201 && ajaxRequest.responseText.length > 0){
         		//alert("WARC created at "+ajaxRequest.responseText);
         		warcfileURI = ajaxRequest.responseText;
-					
-        		
+
+
         	}else {
         		alert("The server accepted the WARC.");
         	}
@@ -527,7 +527,7 @@ function uploadWarc(abArray){
     };
     ajaxRequest.send(blobFromArrayBuffers);
 
-							
+
 }
 var warcfileURI = ""; //the Chrome notifications API isn't mature enough to surface data, even via buttons
 
@@ -537,9 +537,9 @@ getVersion(function (ver) { version = ver; });
 
 
 /* ************************************************************
- 
+
  INITIAL RUNTIME EXECUTION
- 
+
 ************************************************************ */
 
 chrome.runtime.onMessage.addListener(generateWarc);
