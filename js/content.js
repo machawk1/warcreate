@@ -7,12 +7,12 @@ function fetchImage(u) {
     xhr.open('GET', u, true);
     xhr.responseType = 'arraybuffer';
 
-    xhr.onload = function (e) {  
+    xhr.onload = function (e) {
         var uInt8Array = new Uint8Array(this.response);
         delete imageUris[u];
         //console.log(("Fetched "+u+"  "+Object.keys(imageUris).length+" urls left to fetch");
         if(Object.keys(imageUris).length == 0){
-             //console.log(("All image data collected");   
+             //console.log(("All image data collected");
         }
     };
 
@@ -35,21 +35,21 @@ chrome.runtime.onConnect.addListener(function(port) {
 			xhr.open('GET', u, true);
 			xhr.responseType = 'arraybuffer';
 
-			xhr.onload = function (e) {  
+			xhr.onload = function (e) {
 				var uInt8Array = new Uint8Array(this.response);
-				
+
 				var stringUInt8Array = [];
 				for(var ii=0; ii<uInt8Array.length; ii++){
 					stringUInt8Array[ii] = uInt8Array[ii]+0;
 				}
-				
+
 				var myString = uInt8Array;
-				
+
 				ret[u] = myString;
 				delete imgObjs[u];
 
-				 //console.log("Ok, now postback image data"); 
-				 //console.error(u); 
+				 //console.log("Ok, now postback image data");
+				 //console.error(u);
 				 var ohemefgee = {};
 				 ohemefgee[u] = stringUInt8Array;
 				 chrome.storage.local.set(ohemefgee,function(){
@@ -57,19 +57,19 @@ chrome.runtime.onConnect.addListener(function(port) {
 						console.error("Error in set data");
 						console.error(chrome.runtime.lastError);
 					}
-				 });	
+				 });
 				 //console.log(("- Image data in local storage for "+u);
 				 //port.postMessage({imageData: JSON.stringify(ret),method: "getImageDataRet",uri: u},function(e){});
 
 			};
-			
+
 			xhr.onerror = function(e){
 				console.log("Error");
 			}
 
 			xhr.send();
 		}
-		
+
 		var imgObjs = {};
 		//get the image URIs from the DOM
 		for(var image=0; image<document.images.length; image++){
@@ -82,30 +82,30 @@ chrome.runtime.onConnect.addListener(function(port) {
 		for(var imageInCSS=0; imageInCSS<imagesInCSS.length; imageInCSS++){
 			imgObjs[imagesInCSS[imageInCSS]] = "foo"; //dummy data to-be-filled below programmatically
 		}
-		
-		
+
+
 		var ret = {};
-		
+
 		for(var uri in imgObjs){
 			console.log("Fetching image at "+uri);
 			if(uri.indexOf("data:") == -1){
 				fetchImage(uri);
 			}
 		}
-		
-  		
+
+
 
   	}
 	else if(msg.method == "getHTML"){
 		//console.log(("about to post getHTML message");
 		images = document.images;
-		
+
 		//console.log(("LINKS:");
 		//console.log($("a"));
-		
+
 		outlinks = [];
 		outlinksAddedRegistry = []; //hacky array to prevent duplicate outlinks
-		
+
 		// outlinks as images [embedded resource], there are probably other types
 		$(images).each(function (){
 			if(!outlinksAddedRegistry[$(this).attr("src")]){
@@ -113,15 +113,15 @@ chrome.runtime.onConnect.addListener(function(port) {
 				outlinks.push($(this).attr("src")+" E =EMBED_MISC");
 			}
 		});
-		
+
 		// outlinks as CSS //TODO, E =EMBED_MISC was made-up. Is this right?
 		$(document.styleSheets).each(function (){
 			if(!outlinksAddedRegistry[$(this).attr("href")]){
-				outlinksAddedRegistry[$(this).attr("href")] = "";			
+				outlinksAddedRegistry[$(this).attr("href")] = "";
 		   		outlinks.push($(this).attr("href")+" E =EMBED_MISC");
 		   	}
 		});
-		
+
 		// outlinks as JavaScripts
 		$(document.scripts).each(function (){
 		   if(	$(this).attr("href") && // Only include the externally embedded JS, not the inline
@@ -131,7 +131,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 		   		outlinks.push($(this).attr("href")+" E script/@src");
 		   }
 		});
-		
+
 		// outlinks as external links on page
 		$("a").each(function (){
 			if(!outlinksAddedRegistry[$(this).attr("href")]){
@@ -139,14 +139,14 @@ chrome.runtime.onConnect.addListener(function(port) {
 		  		outlinks.push($(this).attr("href")+" L a/@href");
 		  	}
 		});
-		
+
 		outlinksAddedRegistry = null; //reclaim space, since we no longer need this check given we're through building outlinks
-		
-		
+
+
 		var imageURIs = [];
 		var imageBase64Data = [];
 		//image conversion code
-	//*********************************	
+	//*********************************
 	// Convert images to something portal and text-y
 	//*********************************
 		//console.log("Converting image data, "+images.length+" to convert");
@@ -156,24 +156,24 @@ chrome.runtime.onConnect.addListener(function(port) {
 			//console.log((images[i].src);
 			var image = images[i];
 			if(!(image.src)){
-				//console.log("Image "+i+" had no src. Continuing to encode the others"); 
+				//console.log("Image "+i+" had no src. Continuing to encode the others");
 				continue;}
 			//console.log(("About to convert image "+(i+1)+"/"+images.length+": "+images[i].src);
-			
+
 			var canvas = document.createElement('canvas');
 			canvas.width = image.width;
 			canvas.height = image.height;
-			
+
 			var dataurl = canvas.toDataURL();
 			var datastartpos = dataurl.match(",").index+1;
 			var dd = dataurl.substring(datastartpos);
-			
+
 		}
-		
+
 		var imageDataSerialized = imageBase64Data.join('|||');
 		var imageURIsSerialized = imageURIs.join('|||');
 		localStorage['imagesInDOM'] = imageURIsSerialized;
-	//*********************************	
+	//*********************************
 	// Re-fetch CSS (limitation of webRequest, need to be able to get content on response, functionality unavailable, requires refetch)
 	//*********************************
 		//a better way to get all stylesheets but we cannot get them as text but instead an object with ruleslist
@@ -181,16 +181,33 @@ chrome.runtime.onConnect.addListener(function(port) {
 		var styleSheetData = [];
 
 		for(var ss=0; ss<document.styleSheets.length; ss++){
+      //iterate the rules trying to find any @imports to include in the WARC
+      for(var rules=0; rules<document.styleSheets[ss].rules.length; rules++){
+        if(document.styleSheets[ss].rules[rules].type == 3){
+            //we have a CSS import. Magic number, yes, but so is the definition
+            var foundCSSFile = absolute(document.URL,document.styleSheets[ss].rules[rules].href);
+            styleSheetURLs.push(foundCSSFile);
+            $.ajax({
+              url: foundCSSFile,
+              dataType: "text",
+              async: false
+            }).done(function(cssText){
+              styleSheetData.push(cssText);
+            });
+        }
+      }
 			styleSheetURLs.push(document.styleSheets[ss].href);
 			$.ajax({
 				url: document.styleSheets[ss].href,
 				dataType: "text",
 				async: false
 			}).done(function(cssText){
-				styleSheetData.push(cssText);		
+				styleSheetData.push(cssText);
 			});
+
+
 		}
-	//*********************************	
+	//*********************************
 	// Re-fetch JS
 	//*********************************
 		var JSURLs = [];
@@ -203,16 +220,16 @@ chrome.runtime.onConnect.addListener(function(port) {
 				dataType: "text",
 				async: false
 			}).done(function(jsText){
-				JSData.push(jsText);		
+				JSData.push(jsText);
 			});
-		}		
-		
+		}
+
 		var cssDataSerialized = styleSheetData.join('|||');
 		var cssURIsSerialized = styleSheetURLs.join('|||');
 		var jsDataSerialized = JSData.join('|||');
 		var jsURIsSerialized = JSURLs.join('|||');
 		var outlinksSerialized = outlinks.join('|||');
-				
+
 		//console.log(("content.js: sending relayToImagesPost");
 		//all of this nonsense just to get the doctype to prepend!
 		var node = document.doctype;
@@ -222,29 +239,29 @@ chrome.runtime.onConnect.addListener(function(port) {
 			dtstr = "<!DOCTYPE "
 				 + "" + node.name
 				 + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
-				 + (!node.publicId && node.systemId ? ' SYSTEM' : '') 
+				 + (!node.publicId && node.systemId ? ' SYSTEM' : '')
 				 + (node.systemId ? ' "' + node.systemId + '"' : '')
 				 + '>';
 		}
-		
+
 		var domAsText = document.documentElement.outerHTML;
-		
+
 		// This accounts for foo.txt documents on the web, which chrome puts a wrapper around
 		var textDocumentStarterString = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">';
 		if(domAsText.substr(0, textDocumentStarterString.length) ==  textDocumentStarterString){
 			console.log("Adjusting WARC algorithm to account for text rather than HTML document.");
-			
+
 			domAsText = $(document).find("pre").html(); //replace text w/ html wrapper with just text
 			dtstr = ""; //remove the doctype injection
 		}
-		
+
 		//domAsText = domAsText.replace(/[\n\r]+/g,"");
 		//console.log(("length before post: "+domAsText.length);
 		port.postMessage({
 			//html: dtstr + document.all[0].outerHTML, //document.all is non-standard
-			html: dtstr + domAsText,//   document.documentElement.outerHTML, 
+			html: dtstr + domAsText,//   document.documentElement.outerHTML,
 			uris: imageURIsSerialized,
-			data: imageDataSerialized, 
+			data: imageDataSerialized,
 			cssuris: cssURIsSerialized,
 			cssdata: cssDataSerialized,
 			jsuris: jsURIsSerialized,
@@ -255,7 +272,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 	}else {
 		//console.log(("Method unsupported in content.js: "+msg.method);
 	}
-   
+
   });
 });
 
@@ -321,3 +338,18 @@ function base64ArrayBuffer(arrayBuffer) {
   return base64
 }
 
+function absolute(base, relative) {
+    var stack = base.split("/"),
+        parts = relative.split("/");
+    stack.pop(); // remove current file name (or empty string)
+                 // (omit if "base" is the current folder without trailing slash)
+    for (var i=0; i<parts.length; i++) {
+        if (parts[i] == ".")
+            continue;
+        if (parts[i] == "..")
+            stack.pop();
+        else
+            stack.push(parts[i]);
+    }
+    return stack.join("/");
+}
