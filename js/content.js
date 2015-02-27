@@ -339,10 +339,15 @@ function base64ArrayBuffer(arrayBuffer) {
 }
 
 function absolute(base, relative) {
+
+
     var stack = base.split("/"),
         parts = relative.split("/");
     stack.pop(); // remove current file name (or empty string)
                  // (omit if "base" is the current folder without trailing slash)
+
+    if(relative.substr(0,1) == "/"){return stack[0]+relative;} //where the @import is /cssFiles.css
+
     for (var i=0; i<parts.length; i++) {
         if (parts[i] == ".")
             continue;
