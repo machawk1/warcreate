@@ -182,11 +182,11 @@ chrome.runtime.onConnect.addListener(function(port) {
 
 		for(var ss=0; ss<document.styleSheets.length; ss++){
 			//iterate the rules trying to find any @imports to include in the WARC
-			console.log(document.styleSheets[ss]);
 			for(var rules=0; document.styleSheets[ss].rules && rules<document.styleSheets[ss].rules.length; rules++){
 				if(document.styleSheets[ss].rules[rules].type == 3){
 					//we have a CSS import. Magic number, yes, but so is the definition
 					var foundCSSFile = absolute(document.URL,document.styleSheets[ss].rules[rules].href);
+
 					styleSheetURLs.push(foundCSSFile);
 					$.ajax({
 					  url: foundCSSFile,
@@ -194,6 +194,8 @@ chrome.runtime.onConnect.addListener(function(port) {
 					  async: false
 					}).done(function(cssText){
 					  styleSheetData.push(cssText);
+					}).fail(function(e){
+						console.log("CSS fetch failed");
 					});
 				}
 			}
@@ -207,6 +209,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 				styleSheetData.push(cssText);
 			});
 		}
+		
 	//*********************************
 	// Re-fetch JS
 	//*********************************
@@ -339,14 +342,12 @@ function base64ArrayBuffer(arrayBuffer) {
 }
 
 function absolute(base, relative) {
-
-
     var stack = base.split("/"),
         parts = relative.split("/");
     stack.pop(); // remove current file name (or empty string)
                  // (omit if "base" is the current folder without trailing slash)
 
-    if(relative.substr(0,1) == "/"){return stack[0]+relative;} //where the @import is /cssFiles.css
+    if(relative.substr(0,1) == "/"){return window.location.origin+relative;} //where the @import is /cssFiles.css
 
     for (var i=0; i<parts.length; i++) {
         if (parts[i] == ".")
