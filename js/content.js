@@ -181,21 +181,23 @@ chrome.runtime.onConnect.addListener(function(port) {
 		var styleSheetData = [];
 
 		for(var ss=0; ss<document.styleSheets.length; ss++){
-      //iterate the rules trying to find any @imports to include in the WARC
-      for(var rules=0; rules<document.styleSheets[ss].rules.length; rules++){
-        if(document.styleSheets[ss].rules[rules].type == 3){
-            //we have a CSS import. Magic number, yes, but so is the definition
-            var foundCSSFile = absolute(document.URL,document.styleSheets[ss].rules[rules].href);
-            styleSheetURLs.push(foundCSSFile);
-            $.ajax({
-              url: foundCSSFile,
-              dataType: "text",
-              async: false
-            }).done(function(cssText){
-              styleSheetData.push(cssText);
-            });
-        }
-      }
+			//iterate the rules trying to find any @imports to include in the WARC
+			console.log(document.styleSheets[ss]);
+			for(var rules=0; document.styleSheets[ss].rules && rules<document.styleSheets[ss].rules.length; rules++){
+				if(document.styleSheets[ss].rules[rules].type == 3){
+					//we have a CSS import. Magic number, yes, but so is the definition
+					var foundCSSFile = absolute(document.URL,document.styleSheets[ss].rules[rules].href);
+					styleSheetURLs.push(foundCSSFile);
+					$.ajax({
+					  url: foundCSSFile,
+					  dataType: "text",
+					  async: false
+					}).done(function(cssText){
+					  styleSheetData.push(cssText);
+					});
+				}
+			}
+			
 			styleSheetURLs.push(document.styleSheets[ss].href);
 			$.ajax({
 				url: document.styleSheets[ss].href,
@@ -204,8 +206,6 @@ chrome.runtime.onConnect.addListener(function(port) {
 			}).done(function(cssText){
 				styleSheetData.push(cssText);
 			});
-
-
 		}
 	//*********************************
 	// Re-fetch JS
