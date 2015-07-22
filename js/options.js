@@ -6,9 +6,9 @@ function save_options() {
   //else if(document.getElementById('output_display').checked == "checked"){handling = "display";}
   //localStorage["warcSRC"] = waybackWarcSource;
   localStorage["handlingMethod"] = handling;
-  
+
   //console.log((localStorage);
-  
+
   if(document.getElementById('addCollectionMetadataCheckbox').checked){
   	localStorage["collectionId"] = $("#collectionId").val();
   	localStorage["collectionName"] = $("#collectionName").val();
@@ -16,7 +16,7 @@ function save_options() {
     localStorage.removeItem("collectionId");
   	localStorage.removeItem("collectionName");
   }
-    
+
   // Update status to let user know options were saved.
   var status = $("#status");
   //alert("status saved!");
@@ -25,7 +25,7 @@ function save_options() {
   setTimeout(function() {
   	$("#status").fadeOut();
   }, 750);
-  
+
 }
 // Restores select box state to saved value from localStorage.
 function restore_options() {
@@ -37,40 +37,40 @@ function restore_options() {
   }*/
   //console.log(("Restoring options");
   //console.log((localStorage);
-  
+
   var handling;
-  if(localStorage["handlingMethod"] == "save"){
-	document.getElementById('output_save').checked = "checked";
+  if(localStorage['handlingMethod'] == 'save'){
+	document.getElementById('output_save').checked = 'checked';
 	document.getElementById('output_display').removeAttribute('checked');
   }
-  else if(localStorage["handlingMethod"] == "display"){
-	document.getElementById('output_save').removeAttribute('checked');  
-	document.getElementById('output_display').checked = "checked";
+  else if(localStorage['handlingMethod'] == 'display'){
+	document.getElementById('output_save').removeAttribute('checked');
+	document.getElementById('output_display').checked = 'checked';
   }
-  
+
   //console.log((localStorage);
-  
-  if(localStorage.getItem("collectionId") || localStorage.getItem("collectionName")){
-  	//console.log(("Restoring collection options!");
-    $("#collectionId").val(localStorage["collectionId"]);
-  	$("#collectionName").val(localStorage["collectionName"]);	
-  	$("#addCollectionMetadataCheckbox").attr("checked","checked");
+
+  if(localStorage.getItem('collectionId') || localStorage.getItem('collectionName')){
+  	//console.log(('Restoring collection options!');
+    $('#collectionId').val(localStorage['collectionId']);
+  	$('#collectionName').val(localStorage['collectionName']);
+  	$('#addCollectionMetadataCheckbox').attr('checked','checked');
   }
-  
-  
+
+
   //waybackWarcSource.value = warcSRC;
 }
 
 function clear_options(){
-	localStorage["warcSRC"] = "";
+	localStorage['warcSRC'] = '';
 	restore_options();
-	document.getElementById("waybackWarcSource").value = "sdf";
+	document.getElementById('waybackWarcSource').value = 'sdf';
 }
 
 function checkURI(uri){
-	var req=new XMLHttpRequest();              
-	try{	
-		req.open("GET", uri, false);                             
+	var req=new XMLHttpRequest();
+	try{
+		req.open('GET', uri, false);
 		req.send(null);
 		return req.status;
 	}catch(e){
@@ -78,58 +78,58 @@ function checkURI(uri){
 	}
 }
 
-var lastSavedStateString = ""; //string representation of the last saved state of the form inputs
+var lastSavedStateString = ''; //string representation of the last saved state of the form inputs
 function setSaveChangesButtonEnabledBasedOnOptionsChange(){
-	if(lastSavedStateString != ""){
-		var currentSavedState = $("#filenameScheme").val() + 
-								$("#uploadTo").val() + 
-								$("#collectionId").val() +
-								$("#collectionName").val() +
-								$("#postGeneration_save").is(':checked') + 
-								$("#postGeneration_upload").is(':checked') +
-								$("#addCollectionMetadataCheckbox").is(':checked')
+	if(lastSavedStateString != ''){
+		var currentSavedState = $('#filenameScheme').val() +
+								$('#uploadTo').val() +
+								$('#collectionId').val() +
+								$('#collectionName').val() +
+								$('#postGeneration_save').is(':checked') +
+								$('#postGeneration_upload').is(':checked') +
+								$('#addCollectionMetadataCheckbox').is(':checked')
 								;
 
 		if(lastSavedStateString == currentSavedState){
-			$("#save").attr("disabled","disabled");
+			$('#save').attr('disabled','disabled');
 		}else {
-			$("#save").removeAttr("disabled");
+			$('#save').removeAttr('disabled');
 		}
 	}else{	//set the initial state
-		lastSavedStateString = 	$("#filenameScheme").val() + 
-								$("#uploadTo").val() + 
-								$("#collectionId").val() +
-								$("#collectionName").val() +
-								$("#postGeneration_save").is(':checked') + 
-								$("#postGeneration_upload").is(':checked') +
-								$("#addCollectionMetadataCheckbox").is(':checked')
+		lastSavedStateString = 	$('#filenameScheme').val() +
+								$('#uploadTo').val() +
+								$('#collectionId').val() +
+								$('#collectionName').val() +
+								$('#postGeneration_save').is(':checked') +
+								$('#postGeneration_upload').is(':checked') +
+								$('#addCollectionMetadataCheckbox').is(':checked')
 								;
-								
-		$("#save").attr("disabled","disabled");
-		$("#filenameScheme").on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
-		$("#uploadTo").on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
-		$("#postGeneration_save").on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
-		$("#postGeneration_upload").on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
-		
-		$("#addCollectionMetadataCheckbox").on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
-		$("#collectionId").on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
-		$("#collectionName").on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
+
+		$('#save').attr('disabled','disabled');
+		$('#filenameScheme').on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$('#uploadTo').on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$('#postGeneration_save').on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$('#postGeneration_upload').on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
+
+		$('#addCollectionMetadataCheckbox').on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$('#collectionId').on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$('#collectionName').on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
 	}
 }
 
 function setupButtonFunctionalityAndVisibility(){
 	$('#postGeneration_save').on('click',function(){
-		$('#uploadTo').attr("disabled","disabled");
-		$('#filenameScheme').removeAttr("disabled");
-		$("#exampleFileName").show();
+		$('#uploadTo').attr('disabled','disabled');
+		$('#filenameScheme').removeAttr('disabled');
+		$('#exampleFileName').show();
 	});
 	$('#postGeneration_upload').on('click',function(){
-		$('#uploadTo').removeAttr("disabled");
-		$('#filenameScheme').attr("disabled","disabled");
-		$("#exampleFileName").hide();
-		
+		$('#uploadTo').removeAttr('disabled');
+		$('#filenameScheme').attr('disabled','disabled');
+		$('#exampleFileName').hide();
+
 	});
-	$("#restoreDefaults").on('click',function(){
+	$('#restoreDefaults').on('click',function(){
 		$("#uploadTo").val("http://warcreate.com/warcs/").attr("disabled","disabled");
 		$('#postGeneration_save').prop("checked","checked");
 		$('#postGeneration_upload').removeAttr("checked");
@@ -153,14 +153,14 @@ function setupButtonFunctionalityAndVisibility(){
 
 		localStorage['uploadTo'] = uploadToURI;
 		localStorage['filenameScheme'] = filenameScheme;
-		
+
 		localStorage['collectionId'] = $("#collectionId").val();
 		localStorage['collectionName'] = $("#collectionName").val();
-		
+
 		//TODO: give feedback that options have been saved
 		save_options();
 	});
-	
+
 }
 
 function fetchSocialStandardSpecification(){
@@ -168,7 +168,7 @@ function fetchSocialStandardSpecification(){
 		url: $("#sequentialArchivingSource").val()
 	})
 	.done(function(data){
-		//console.log(("Done fetching base spec!");	
+		//console.log(("Done fetching base spec!");
 		var specs = [];
 		for(var homepage=0; homepage < $(data).children().children().children("homepage").length; homepage++){
 			//convert the XML spec to JS objects. This is ridiculously verbose. There has to be a cleaner way.
@@ -197,13 +197,13 @@ function fetchSocialStandardSpecification(){
 					//console.log((siteSections[sectionI].name + " " +siteSections[sectionI].url);
 					$("#sections").append("<li><span class=\"name\">"+siteSections[sectionI].name+"</span><span class=\"url\">"+siteSections[sectionI].url+"</span>");
 				}
-				
-			});	
-		});		
+
+			});
+		});
 	})
 	.error(function(data){
 		//console.log(("There was an error in fetching the spec.");
-	});	
+	});
 }
 
 
@@ -237,7 +237,7 @@ function populatePendingContentTable(){
 		targetTable.append(str);
 		str = "";
 	}
-	
+
 	//targetTable.remove(".data");
 	//console.log(responseHeaders);
 	//console.log(Object.keys(responseHeaders));
@@ -247,33 +247,33 @@ function populatePendingContentTable(){
 window.onload = function(){
 	setupButtonFunctionalityAndVisibility();
 	$('#filenameScheme').on("keyup",showFilenameExample); //bind example display to text field change
-	
-	
+
+
 	if(localStorage['uploadTo'] && localStorage['uploadTo'].length > 0){
 		$('#uploadTo').removeAttr("disabled");
 		$('#postGeneration_upload').prop("checked","checked");
 		$('#postGeneration_save').removeAttr("checked");
 		$('#uploadTo').val(localStorage['uploadTo']);
-		
+
 		// hide/disable the "save to downloads" options if the user's current setting is "upload to"
 		$('#filenameScheme').attr("disabled","disabled");
 		$('#exampleFileName').hide();
 	}else if(localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0){
 		$('#filenameScheme').val(localStorage['filenameScheme']);
 	}
-	
+
 	$('#collectionId').on('input', function (event) { 	//require the collection id to only contain numbers
 		this.value = this.value.replace(/[^0-9]/g, '');
 	});
-	
+
 	setSaveChangesButtonEnabledBasedOnOptionsChange(); //set enabled status of the save button initially
 	showFilenameExample(); //fire the keyup event onload
-	
+
 	restore_options();
-	
+
 	//fetch socialstandard data
 	fetchSocialStandardSpecification();
-	
+
 	//show data ready to be used for WARC creation
 	//populatePendingContentTable();
 	$("#getPendingContent").click(function(){populatePendingContentTable();});
