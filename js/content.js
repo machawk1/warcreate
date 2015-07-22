@@ -185,9 +185,10 @@ chrome.runtime.onConnect.addListener(function(port) {
 			for(var rules=0; document.styleSheets[ss].rules && rules<document.styleSheets[ss].rules.length; rules++){
 				if(document.styleSheets[ss].rules[rules].type == 3){
 					//we have a CSS import. Magic number, yes, but so is the definition
-					var foundCSSFile = absolute(document.URL,document.styleSheets[ss].rules[rules].href);
+					var foundCSSFile = absolute(document.styleSheets[ss].href,document.styleSheets[ss].rules[rules].href);
 
 					styleSheetURLs.push(foundCSSFile);
+
 					$.ajax({
 					  url: foundCSSFile,
 					  dataType: "text",
@@ -195,11 +196,12 @@ chrome.runtime.onConnect.addListener(function(port) {
 					}).done(function(cssText){
 					  styleSheetData.push(cssText);
 					}).fail(function(e){
-						console.log("CSS fetch failed");
+						console.log('CSS fetch of ' + foundCSSFile + ' failed');
+            console.log(e);
 					});
 				}
 			}
-			
+
 			styleSheetURLs.push(document.styleSheets[ss].href);
 			$.ajax({
 				url: document.styleSheets[ss].href,
@@ -209,7 +211,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 				styleSheetData.push(cssText);
 			});
 		}
-		
+
 	//*********************************
 	// Re-fetch JS
 	//*********************************
