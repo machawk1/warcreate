@@ -11,6 +11,8 @@ var debug = true;
 
 //var server = "http://localhost:8080";
 var server = "http://warcreate.com";
+var path_recordingIcon = '../icons/recording.png';
+var path_warcreateIcon = '../icons/icon-38.png';
 
 // Called when the url of a tab changes.
 function checkForValidUrl(tabId, changeInfo, tab) {
@@ -113,31 +115,34 @@ function sequential_generate_Warc(){
 /**
  * Prevent the cached from being wiped when navigating
 */
-function startRecording(){
+function startRecording() {
 	console.log("starting recording process, start blinking the red icon");
 	//change the WARCreate icon to blink red.
+
 	chrome.tabs.getSelected(null, function(tab) {
     console.log("recording...");
-		//chrome.pageAction.hide(tab.id);
-		chrome.pageAction.setIcon({tabId:tab.id,path:"../icons/recording.png"});
-		//setTimeout(changePageActionIcon, 1500, "../icons/icon-19.png",tab.id);
-		//chrome.pageAction.show(tab.id);
+    chrome.storage.local.set({'recording': true}, function(){
+      console.log('The preference stating that we are in record mode has been saved.');
+      changePageActionIcon(path_recordingIcon);
+    });
 	});
+}
+
+function stopRecording() {
+  chrome.storage.local.set({'recording': false}, function(){
+    changePageActionIcon(path_warcreateIcon);
+  });
+
 }
 
 /**
  * UNUSED: Changes the pageAction icon to the URI passed in. Would be unnecessary if Chrome supported animated GIF here
 */
-function changePageActionIcon(newIconPath,tabid){
-  console.log("access test 1");
-	var nextPath = "../icons/icon-19.png";
-	if(newIconPath == nextPath){
-		nextPath = "../icons/recording.png";
-	}
-
-	chrome.pageAction.setIcon({tabId:tabid,path:newIconPath});
-
-	setTimeout(changePageActionIcon, 1500, nextPath,tabid);
+function changePageActionIcon(iconPath) {
+  console.log("calling changePageActionIcon" + iconPath);
+  chrome.tabs.getSelected(null, function(tab) {
+    chrome.pageAction.setIcon({tabId:tab.id, path: iconPath});
+  });
 }
 
 /**
@@ -191,6 +196,9 @@ function generate_Warc(){
 							jsData:  msg.jsdata,
 							outlinks: msg.outlinks},
 						 function(response) {	//the callback to sendRequest
+               /*chrome.storage.local.set({'recording': false}, function(){
+                 console.log('The preference stating that we are out of record mode has been saved.');
+               });*/
 						 	return;
 						 	/*
 						 	//OBSOLETE SAVE CODE BELOW, GOOD FOR FETCHING RESOURCE POST-LOAD
@@ -271,20 +279,33 @@ window.onload = function(){
 	var caButtonDOM = document.createElement('input'); caButtonDOM.type = "button"; caButtonDOM.id = "generateCohesiveWARC";  caButtonDOM.disabled = "disabled";
 	var t;
 
-	caButtonDOM.value = "Generate WARC for site";
+	caButtonDOM.value = 'Generate WARC for site';
 
 	//create buttons for popup
-	var gwButtonDOM = document.createElement('input'); gwButtonDOM.type = "button"; gwButtonDOM.id = "generateWarc"; gwButtonDOM.value = "Generate WARC";
-	var clsButtonDOM = document.createElement('input'); clsButtonDOM.type = "button"; clsButtonDOM.id = "clearLocalStorage"; clsButtonDOM.value = "Clear LocalStorage";
+	var gwButtonDOM = document.createElement('input'); gwButtonDOM.type = 'button'; gwButtonDOM.id = 'generateWarc'; gwButtonDOM.value = 'Generate WARC';
+	var clsButtonDOM = document.createElement('input'); clsButtonDOM.type = 'button'; clsButtonDOM.id = 'clearLocalStorage'; clsButtonDOM.value = 'Clear LocalStorage';
 
-	var recordButtonDOM = document.createElement('input'); recordButtonDOM.type = "button"; recordButtonDOM.id = "recordButton"; recordButtonDOM.value = "Start Recording";
+	var recordButtonDOM = document.createElement('input'); recordButtonDOM.type = 'button'; recordButtonDOM.id = 'recordButton';
 
+  // If in recording mode, set button to allow disabling of recording
+  chrome.storage.local.get('recording', function(details) {
+    if (details.recording) {
+      console.log("details.recording = " + details.recording);
+      recordButtonDOM.value = 'Stop Recording';
+      recordButtonDOM.onclick = stopRecording;
+      changePageActionIcon(path_recordingIcon);
+    } else {
+      recordButtonDOM.value = 'Start Recording';
+      recordButtonDOM.onclick = startRecording;
+      changePageActionIcon(path_warcreateIcon);
+    }
+  });
 
 	//For debugging, display content already captured
 	//var dcButtonDOM = document.createElement('input'); dcButtonDOM.type = "button"; dcButtonDOM.id = "displayCaptured"; gwButtonDOM.value = "Show pending content";
 
-	var errorText = document.createElement("a"); errorText.id = "errorText"; errorText.target = "_blank";
-	var status = document.createElement("input"); status.id = "status"; status.type = "text"; status.value = "";
+	var errorText = document.createElement('a'); errorText.id = 'errorText'; errorText.target = '_blank';
+	var status = document.createElement('input'); status.id = 'status'; status.type = 'text'; status.value = '';
 
 	if(!buttonContainer){return;}
 
@@ -296,13 +317,13 @@ window.onload = function(){
 	buttonContainer.appendChild(clsButtonDOM);
 	buttonContainer.appendChild(status);
 	$(buttonContainer).prepend(errorText);
-	$("#status").css("display","none"); //initially hide the status block
+	$('#status').css('display','none'); //initially hide the status block
 
 
 	var gwButton = document.getElementById('generateWarc');
 	gwButton.onclick = generate_Warc;
 
-  recordButton.onclick = startRecording;
+
 	//$("#recordButton").click(startRecording);
 
 	var clsButton = document.getElementById('clearLocalStorage');
@@ -311,20 +332,20 @@ window.onload = function(){
 	// https://securegrants.neh.gov/publicquery/main.aspx?f=1&gn=HD-51670-13
 	var ulButton = document.getElementById('uploader');
 	var caButton = document.getElementById('generateCohesiveWARC');
-	$(ulButton).css("display","none");
-	$(caButton).css("display","none");
+	$(ulButton).css('display','none');
+	$(caButton).css('display','none');
 
-	$(clsButton).css("display","none"); //clear local storage, used in debugging
+	$(clsButton).css('display','none'); //clear local storage, used in debugging
 	caButton.onclick = sequential_generate_Warc;
 };
 // Listen for any changes to the URL of any tab.
 chrome.tabs.onUpdated.addListener(checkForValidUrl);
 
-var headers = "";
+var headers = '';
 
 var responseHeaders = new Array();
 var requestHeaders = new Array();
-var CRLF = "\r\n";
+var CRLF = '\r\n';
 
 var currentTabId = -1;
 
@@ -334,7 +355,7 @@ chrome.tabs.getSelected(null, function(tab){
 	chrome.storage.local.set({'lastTabId':tab.id});
 	chrome.storage.local.get('lastTabId',function(result){});
 
-	var port = chrome.tabs.connect(tab.id,{name: "getImageData"});	//create a persistent connection
+	var port = chrome.tabs.connect(tab.id,{name: 'getImageData'});	//create a persistent connection
 	port.postMessage({url: tab.url, method: 'getImageData'});
 	port.onMessage.addListener(function(msg) {});
 });
@@ -345,12 +366,12 @@ chrome.tabs.getSelected(null, function(tab){
 */
 chrome.webRequest.onHeadersReceived.addListener(
 	function(resp){
-		responseHeaders[resp.url] = "";
+		responseHeaders[resp.url] = '';
 		responseHeaders[resp.url] += resp.statusLine + CRLF;
 
 		//console.log(("- Response Headers received for "+resp.url+" in tab "+resp.tabId);
 		for (var key in resp.responseHeaders) {
-			responseHeaders[resp.url] += resp.responseHeaders[key].name+": "+resp.responseHeaders[key].value + CRLF;
+			responseHeaders[resp.url] += resp.responseHeaders[key].name + ': ' + resp.responseHeaders[key].value + CRLF;
 		}
 		//console.log(responseHeaders[resp.url]);
 	}
@@ -362,15 +383,15 @@ chrome.webRequest.onHeadersReceived.addListener(
 */
 chrome.webRequest.onBeforeSendHeaders.addListener(
 	function(req){
-		requestHeaders[req.url] = "";
+		requestHeaders[req.url] = '';
 
 		var path = req.url.substring(req.url.match(/[a-zA-Z0-9]\//).index + 1);
 
-		var FABRICATED_httpVersion = "HTTP/1.1";
-		requestHeaders[req.url] += req.method + " " + path + " " + FABRICATED_httpVersion + CRLF;
+		var FABRICATED_httpVersion = 'HTTP/1.1';
+		requestHeaders[req.url] += req.method + ' ' + path + ' ' + FABRICATED_httpVersion + CRLF;
 		//console.log(("- Request headers received for "+req.url);
 		for (var key in req.requestHeaders) {
-			requestHeaders[req.url] += req.requestHeaders[key].name+": "+req.requestHeaders[key].value + CRLF;
+			requestHeaders[req.url] += req.requestHeaders[key].name + ': ' + req.requestHeaders[key].value + CRLF;
 		}
 	}
 , { urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['requestHeaders','blocking']);
@@ -381,7 +402,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
  * the browser.
 */
 chrome.webRequest.onBeforeRedirect.addListener(function(resp){
-	responseHeaders[resp.url] = "";
+	responseHeaders[resp.url] = '';
 	responseHeaders[resp.url] += resp.statusLine + CRLF;
 
 	//console.log(("--------------Redirect Response Headers for "+resp.url+" --------------");
@@ -425,9 +446,18 @@ chrome.webNavigation.onBeforeNavigate.addListener(function(details) {
     }
 
     //TODO: check if in record mode before nuking the cache
-    requestHeaders = [];
-    responseHeaders = [];
-    responseHeaderString = "";
+
+    chrome.storage.local.get('recording', function(result) {
+      if(!result.recording){
+        changePageActionIcon(path_warcreateIcon);
+        requestHeaders = [];
+        responseHeaders = [];
+        responseHeaderString = '';
+      } else {
+        changePageActionIcon(path_recordingIcon);
+      }
+    });
+
 }, { urls:["http://*/*", "https://*/*"]}, ['responseHeaders']);
 
 
