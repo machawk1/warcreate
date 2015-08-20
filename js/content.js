@@ -116,7 +116,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 
 		// outlinks as CSS //TODO, E =EMBED_MISC was made-up. Is this right?
 		$(document.styleSheets).each(function (){
-			if(!outlinksAddedRegistry[$(this).attr("href")]){
+			if(!outlinksAddedRegistry[$(this).attr("href")] && $(this).attr("href")){
 				outlinksAddedRegistry[$(this).attr("href")] = "";
 		   		outlinks.push($(this).attr("href")+" E =EMBED_MISC");
 		   	}
