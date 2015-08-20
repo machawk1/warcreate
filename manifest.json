@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "WARCreate",
-  "version": "0.2015.8.19",
+  "version": "0.2015.8.20",
 
   "description": "Create Wayback-Consumable WARC Files from Any Webpage",
   "icons" : {
@@ -24,7 +24,7 @@
   {
     "default_icon" : "icons/icon-19.png",
     "default_title" : "WARCreate",
-	"default_popup" : "html/popup.html"
+	  "default_popup" : "html/popup.html"
   },
   "permissions" : [
 	 "webRequest",
@@ -33,6 +33,7 @@
      "activeTab",
      "storage",
      "unlimitedStorage",
+     "webNavigation",
 	 "http://*/*",
 	 "http://*/",
 	 "*://*/*",
