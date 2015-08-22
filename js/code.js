@@ -290,7 +290,7 @@ window.onload = function(){
   // If in recording mode, set button to allow disabling of recording
   chrome.storage.local.get('recording', function(details) {
     if (details.recording) {
-      console.log("details.recording = " + details.recording);
+      console.log('details.recording = ' + details.recording);
       recordButtonDOM.value = 'Stop Recording';
       recordButtonDOM.onclick = stopRecording;
       changePageActionIcon(path_recordingIcon);
@@ -317,7 +317,7 @@ window.onload = function(){
 	buttonContainer.appendChild(clsButtonDOM);
 	buttonContainer.appendChild(status);
 	$(buttonContainer).prepend(errorText);
-	$('#status').css('display','none'); //initially hide the status block
+	$('#status').css('display', 'none'); //initially hide the status block
 
 
 	var gwButton = document.getElementById('generateWarc');
@@ -441,18 +441,23 @@ function b64_to_utf8( str ) {
 
 
 chrome.webNavigation.onBeforeNavigate.addListener(function(details) {
-    if (debug) {
-      console.log('Destroy accumulated cache if not in recording mode');
-    }
-
     //TODO: check if in record mode before nuking the cache
 
     chrome.storage.local.get('recording', function(result) {
       if(!result.recording){
+        if (debug) {
+          console.log('Destroy accumulated cache if not in recording mode');
+        }
+
+        var lastKey = Object.keys(requestHeaders).slice(-1)[0];
+        var lastKeyValue = requestHeaders[lastKey];
+
         changePageActionIcon(path_warcreateIcon);
         requestHeaders = [];
         responseHeaders = [];
         responseHeaderString = '';
+
+        requestHeaders[lastKey] = lastKeyValue;
       } else {
         changePageActionIcon(path_recordingIcon);
       }
