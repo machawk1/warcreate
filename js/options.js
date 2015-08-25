@@ -80,7 +80,7 @@ function checkURI(uri){
 
 var lastSavedStateString = ''; //string representation of the last saved state of the form inputs
 function setSaveChangesButtonEnabledBasedOnOptionsChange(){
-	if(lastSavedStateString != ''){
+	if(lastSavedStateString !== ''){
 		var currentSavedState = $('#filenameScheme').val() +
 								$('#uploadTo').val() +
 								$('#collectionId').val() +
@@ -174,11 +174,11 @@ function fetchSocialStandardSpecification(){
 			//convert the XML spec to JS objects. This is ridiculously verbose. There has to be a cleaner way.
 			var str = $(data).children().children()[homepage];
 			var chiln = $(str).children();
-			var obj = new Object();
+			var specObject = {};
 			for(var ii=0; ii<chiln.length; ii++){
-				obj[chiln[ii].tagName] = chiln[ii].textContent;
+				specObject[chiln[ii].tagName] = chiln[ii].textContent;
 			}
-			specs.push(obj);
+			specs.push(specObject);
 
 			$('#supportedSequentialArchivingSites').append('<option title="' + obj.specification + '">' + obj.homepage + '</option>');
 		}
@@ -220,9 +220,9 @@ function displayLocalStorageData(){
 
 }
 
-function showFilenameExample(){ //when the file format scheme changes, update the example
+function showFilenameExample() { //when the file format scheme changes, update the example
 	$('#exampleFileName').html('Example: ' + moment().format($('#filenameScheme').val()) + '.warc');
-};
+}
 
 function populatePendingContentTable(){
 	var targetTable = $('#pendingContentTable');
@@ -244,7 +244,7 @@ function populatePendingContentTable(){
 	//console.log(requestHeaders);
 }
 
-window.onload = function(){
+window.onload = function() {
 	setupButtonFunctionalityAndVisibility();
 	$('#filenameScheme').on('keyup', showFilenameExample); //bind example display to text field change
 
