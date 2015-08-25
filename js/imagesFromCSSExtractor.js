@@ -21,8 +21,8 @@ document.deepCss= function(who, css){
  }
  var dv= document.defaultView || window;
  return who.style[sty] || 
- dv.getComputedStyle(who,"").getPropertyValue(css) || '';
-}
+ dv.getComputedStyle(who, '').getPropertyValue(css) || '';
+};
 
 Array.prototype.indexOf= Array.prototype.indexOf || 
  function(what, index){
@@ -33,4 +33,4 @@ Array.prototype.indexOf= Array.prototype.indexOf ||
   ++index;
  }
  return -1;
-}
+};

@@ -68,7 +68,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 			}
 
 			xhr.send();
-		}
+		};
 
 		var imgObjs = {};
 		//get the image URIs from the DOM
@@ -147,22 +147,23 @@ chrome.runtime.onConnect.addListener(function(port) {
 		var imageBase64Data = [];
 		//image conversion code
 	//*********************************
-	// Convert images to something portal and text-y
+	// Convert images to something portable and text-y
 	//*********************************
 		//console.log('Converting image data, '+images.length+' to convert');
 		//imagesI = 0;
 		for(var i = 0; i< images.length; i++){
 			// NOTE: image data is NOT fetched here, a subsequent Ajax call is made in warcGenerator.js 20130211 ~ line 188
 			//console.log((images[i].src);
-			var image = images[i];
-			if(!(image.src)){
+			var imageI = images[i];
+			if(!(imageI.src)){
 				//console.log('Image '+i+' had no src. Continuing to encode the others');
-				continue;}
+				continue;
+			}
 			//console.log(('About to convert image '+(i+1)+'/'+images.length+': '+images[i].src);
 
 			var canvas = document.createElement('canvas');
-			canvas.width = image.width;
-			canvas.height = image.height;
+			canvas.width = imageI.width;
+			canvas.height = imageI.height;
 
 			var dataurl = canvas.toDataURL();
 			var datastartpos = dataurl.match(',').index + 1;
@@ -172,7 +173,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 
 		var imageDataSerialized = imageBase64Data.join('|||');
 		var imageURIsSerialized = imageURIs.join('|||');
-		localStorage['imagesInDOM'] = imageURIsSerialized;
+		localStorage.imagesInDOM = imageURIsSerialized;
 	//*********************************
 	// Re-fetch CSS (limitation of webRequest, need to be able to get content on response, functionality unavailable, requires refetch)
 	//*********************************
@@ -292,55 +293,55 @@ function b64_to_utf8( str ) {
 }
 
 function base64ArrayBuffer(arrayBuffer) {
-  var base64    = ''
-  var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+  var base64    = '';
+  var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-  var bytes         = new Uint8Array(arrayBuffer)
-  var byteLength    = bytes.byteLength
-  var byteRemainder = byteLength % 3
-  var mainLength    = byteLength - byteRemainder
+  var bytes         = new Uint8Array(arrayBuffer);
+  var byteLength    = bytes.byteLength;
+  var byteRemainder = byteLength % 3;
+  var mainLength    = byteLength - byteRemainder;
 
-  var a, b, c, d
-  var chunk
+  var a, b, c, d;
+  var chunk;
 
   // Main loop deals with bytes in chunks of 3
   for (var i = 0; i < mainLength; i = i + 3) {
     // Combine the three bytes into a single integer
-    chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]
+    chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
 
     // Use bitmasks to extract 6-bit segments from the triplet
-    a = (chunk & 16515072) >> 18 // 16515072 = (2^6 - 1) << 18
-    b = (chunk & 258048)   >> 12 // 258048   = (2^6 - 1) << 12
-    c = (chunk & 4032)     >>  6 // 4032     = (2^6 - 1) << 6
-    d = chunk & 63               // 63       = 2^6 - 1
+    a = (chunk & 16515072) >> 18; // 16515072 = (2^6 - 1) << 18
+    b = (chunk & 258048)   >> 12; // 258048   = (2^6 - 1) << 12
+    c = (chunk & 4032)     >>  6; // 4032     = (2^6 - 1) << 6
+    d = chunk & 63;               // 63       = 2^6 - 1
 
     // Convert the raw binary segments to the appropriate ASCII encoding
-    base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d]
+    base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d];
   }
 
   // Deal with the remaining bytes and padding
   if (byteRemainder == 1) {
-    chunk = bytes[mainLength]
+    chunk = bytes[mainLength];
 
-    a = (chunk & 252) >> 2 // 252 = (2^6 - 1) << 2
+    a = (chunk & 252) >> 2; // 252 = (2^6 - 1) << 2
 
     // Set the 4 least significant bits to zero
-    b = (chunk & 3)   << 4 // 3   = 2^2 - 1
+    b = (chunk & 3)   << 4; // 3   = 2^2 - 1
 
     base64 += encodings[a] + encodings[b] + '=='
   } else if (byteRemainder == 2) {
-    chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1]
+    chunk = (bytes[mainLength] << 8); | bytes[mainLength + 1]
 
-    a = (chunk & 64512) >> 10 // 64512 = (2^6 - 1) << 10
-    b = (chunk & 1008)  >>  4 // 1008  = (2^6 - 1) << 4
+    a = (chunk & 64512) >> 10; // 64512 = (2^6 - 1) << 10
+    b = (chunk & 1008)  >>  4; // 1008  = (2^6 - 1) << 4
 
     // Set the 2 least significant bits to zero
-    c = (chunk & 15)    <<  2 // 15    = 2^4 - 1
+    c = (chunk & 15)    <<  2; // 15    = 2^4 - 1
 
-    base64 += encodings[a] + encodings[b] + encodings[c] + '='
+    base64 += encodings[a] + encodings[b] + encodings[c] + '=';
   }
 
-  return base64
+  return base64;
 }
 
 function absolute(base, relative) {
