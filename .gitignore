@@ -4,6 +4,7 @@
 # except for .gitignore
 !.gitignore
 !.codeclimate.yml
+!.jshintrc
 
 # Ignore Play! working directory #
 db

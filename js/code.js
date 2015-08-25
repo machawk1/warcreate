@@ -99,7 +99,7 @@ function sequential_generate_Warc(){
 		chrome.tabs.create({url: nextUrl, active: true},
 			function(tab){
 				chrome.tabs.onUpdated.addListener(function(tabId,info){
-					if(info.status == 'complete'){
+					if(info.status === 'complete'){
 						generate_Warc();
 						//chrome.tabs.remove(tab.tabId);
 						alert('done with ' + (uu + 1) + '/' + urls.length);
@@ -312,8 +312,8 @@ chrome.tabs.onUpdated.addListener(checkForValidUrl);
 
 var headers = '';
 
-var responseHeaders = new Array();
-var requestHeaders = new Array();
+var responseHeaders = [];
+var requestHeaders = [];
 var CRLF = '\r\n';
 
 var currentTabId = -1;
@@ -340,11 +340,13 @@ chrome.webRequest.onHeadersReceived.addListener(
 
 		//console.log(("- Response Headers received for "+resp.url+" in tab "+resp.tabId);
 		for (var key in resp.responseHeaders) {
-			responseHeaders[resp.url] += resp.responseHeaders[key].name + ': ' + resp.responseHeaders[key].value + CRLF;
+		    if (resp.responseHeaders.hasOwnProperty(key)) {
+			    responseHeaders[resp.url] += resp.responseHeaders[key].name + ': ' + resp.responseHeaders[key].value + CRLF;
+		    }
 		}
 		//console.log(responseHeaders[resp.url]);
-	}
-, { urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['responseHeaders','blocking']);
+	},
+    { urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['responseHeaders','blocking']);
 
 
 /**
@@ -360,7 +362,9 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 		requestHeaders[req.url] += req.method + ' ' + path + ' ' + FABRICATED_httpVersion + CRLF;
 		//console.log(("- Request headers received for "+req.url);
 		for (var key in req.requestHeaders) {
-			requestHeaders[req.url] += req.requestHeaders[key].name + ': ' + req.requestHeaders[key].value + CRLF;
+		    if (req.requestHeaders.hasOwnProperty(key)) {
+			    requestHeaders[req.url] += req.requestHeaders[key].name + ': ' + req.requestHeaders[key].value + CRLF;
+			}
 		}
 	}
 , { urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['requestHeaders','blocking']);
@@ -376,7 +380,9 @@ chrome.webRequest.onBeforeRedirect.addListener(function(resp){
 
 	//console.log(("--------------Redirect Response Headers for "+resp.url+" --------------");
 	for (var key in resp.responseHeaders) {
-		responseHeaders[resp.url] += resp.responseHeaders[key].name+": "+resp.responseHeaders[key].value + CRLF;
+	    if (resp.responseHeaders.hasOwnProperty(key)) {
+		    responseHeaders[resp.url] += resp.responseHeaders[key].name + ': ' + resp.responseHeaders[key].value + CRLF;
+	    }
 	}
 	//console.log((responseHeaders[resp.url]);
 }, { urls:["http://*/*", "https://*/*"], tabId: currentTabId}, ['responseHeaders']);
