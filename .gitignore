@@ -3,6 +3,7 @@
 .*
 # except for .gitignore
 !.gitignore
+!.codeclimate.yml
 
 # Ignore Play! working directory #
 db

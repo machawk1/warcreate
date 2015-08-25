@@ -1,0 +1,26 @@
+languages:
+   Ruby: false
+   JavaScript: true
+   Python: false
+   PHP: false
+exclude_paths:
+- "icons/*"
+- "js/FileSaver/*"
+- "js/downloadify/*"
+- "js/FileSaver.js"
+- "js/base64.js"
+- "js/date.js"
+- "js/dnd-js"
+- "js/es6-shim.js"
+- "js/filler.min.js"
+- "js/jquery-1.7.min.js"
+- "js/jquery-2.1.1.min.js"
+- "js/jquery-2.1.1.min.map"
+- "js/jquery.getimagedata.min.js"
+- "js/jquery.jsonp-2.1.4.min.js"
+- "js/jquery.ocupload.1.1.2.packed.js"
+- "js/jquery.rc4.js"
+- "js/moment-with-langs.min.js"
+- "js/punycode.min.js"
+- "js/upclick-min.js"
+- "js/xml2json.js"
