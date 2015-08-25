@@ -11,7 +11,7 @@ function fetchImage(u) {
         var uInt8Array = new Uint8Array(this.response);
         delete imageUris[u];
         //console.log(("Fetched "+u+"  "+Object.keys(imageUris).length+" urls left to fetch");
-        if(Object.keys(imageUris).length == 0){
+        if(Object.keys(imageUris).length === 0){
              //console.log(("All image data collected");
         }
     };
