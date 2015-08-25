@@ -39,11 +39,11 @@ function restore_options() {
   //console.log((localStorage);
 
   var handling;
-  if(localStorage['handlingMethod'] == 'save'){
+  if(localStorage.handlingMethod == 'save'){
 	document.getElementById('output_save').checked = 'checked';
 	document.getElementById('output_display').removeAttribute('checked');
   }
-  else if(localStorage['handlingMethod'] == 'display'){
+  else if(localStorage.handlingMethod == 'display'){
 	document.getElementById('output_save').removeAttribute('checked');
 	document.getElementById('output_display').checked = 'checked';
   }
@@ -52,8 +52,8 @@ function restore_options() {
 
   if(localStorage.getItem('collectionId') || localStorage.getItem('collectionName')){
   	//console.log(('Restoring collection options!');
-    $('#collectionId').val(localStorage['collectionId']);
-  	$('#collectionName').val(localStorage['collectionName']);
+    $('#collectionId').val(localStorage.collectionId);
+  	$('#collectionName').val(localStorage.collectionName);
   	$('#addCollectionMetadataCheckbox').attr('checked','checked');
   }
 
@@ -62,7 +62,7 @@ function restore_options() {
 }
 
 function clear_options(){
-	localStorage['warcSRC'] = '';
+	localStorage.warcSRC = '';
 	restore_options();
 	document.getElementById('waybackWarcSource').value = 'sdf';
 }
@@ -151,11 +151,11 @@ function setupButtonFunctionalityAndVisibility(){
 			filenameScheme = $('#filenameScheme').val();
 		}
 
-		localStorage['uploadTo'] = uploadToURI;
-		localStorage['filenameScheme'] = filenameScheme;
+		localStorage.uploadTo = uploadToURI;
+		localStorage.filenameScheme = filenameScheme;
 
-		localStorage['collectionId'] = $('#collectionId').val();
-		localStorage['collectionName'] = $('#collectionName').val();
+		localStorage.collectionId = $('#collectionId').val();
+		localStorage.collectionName = $('#collectionName').val();
 
 		//TODO: give feedback that options have been saved
 		save_options();
@@ -249,17 +249,17 @@ window.onload = function(){
 	$('#filenameScheme').on('keyup', showFilenameExample); //bind example display to text field change
 
 
-	if(localStorage['uploadTo'] && localStorage['uploadTo'].length > 0){
+	if(localStorage.uploadTo && localStorage.uploadTo.length > 0){
 		$('#uploadTo').removeAttr('disabled');
 		$('#postGeneration_upload').prop('checked', 'checked');
 		$('#postGeneration_save').removeAttr('checked');
-		$('#uploadTo').val(localStorage['uploadTo']);
+		$('#uploadTo').val(localStorage.uploadTo);
 
 		// hide/disable the "save to downloads" options if the user's current setting is "upload to"
 		$('#filenameScheme').attr('disabled', 'disabled');
 		$('#exampleFileName').hide();
-	}else if(localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0){
-		$('#filenameScheme').val(localStorage['filenameScheme']);
+	}else if(localStorage.filenameScheme && localStorage.filenameScheme.length > 0){
+		$('#filenameScheme').val(localStorage.filenameScheme);
 	}
 
 	$('#collectionId').on('input', function (event) { 	//require the collection id to only contain numbers
