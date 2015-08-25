@@ -366,8 +366,8 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
 			    requestHeaders[req.url] += req.requestHeaders[key].name + ': ' + req.requestHeaders[key].value + CRLF;
 			}
 		}
-	}
-, { urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['requestHeaders','blocking']);
+	}, 
+	{ urls:["http://*/*", "https://*/*"], tabId: currentTabId }, ['requestHeaders','blocking']);
 
 
 /**
