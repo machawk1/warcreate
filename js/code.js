@@ -44,12 +44,14 @@ function encodeImages(){
 
 	//console.log((i+": "+images[i].src+"  file type: "+fileType);
 	var fileType = images[i].src.substr(images[i].src.length - 4).toLowerCase();
-	if(fileType == ".jpg" || fileType == "jpeg"){fileType = "image/jpeg";}
-	else if(fileType == ".png"){fileType = "image/png";}
-	else if(fileType == ".gif"){fileType = "image/gif";}
+	if(fileType === '.jpg' || fileType === 'jpeg'){fileType = 'image/jpeg';}
+	else if(fileType === '.png'){fileType = 'image/png';}
+	else if(fileType === '.gif'){fileType = 'image/gif';}
 	else {
-		var uTransformed = images[i].src.substring(0,images[i].src.indexOf(".jpg"))+".jpg";
-		alert("error at image "+i+" " + uTransformed); return; }
+		var uTransformed = images[i].src.substring(0,images[i].src.indexOf('.jpg')) + '.jpg';
+		alert('error at image ' + i + ' ' + uTransformed); 
+		return; 
+	}
 	//console.log((i+": "+images[i].src+"  file type: "+fileType);
 
 	try {
@@ -70,11 +72,11 @@ function encodeImages(){
 */
 function encrypt(){
 	var key = document.getElementById('key').value;
-	if(key === ""){alert("First enter a key for encryption."); return;}
-	chrome.tabs.executeScript(null, {file:"js/jquery-2.1.1.min.js"}, function() {
-		chrome.tabs.executeScript(null, {file:"js/jquery.rc4.js"}, function() {
-			chrome.tabs.executeScript(null, {code: "var params = {k:'"+key+"'};"}, function(){
-				chrome.tabs.executeScript(null, { file: "js/encryptPage.js" }, function(){
+	if(key === ""){alert('First enter a key for encryption.'); return;}
+	chrome.tabs.executeScript(null, {file:'js/jquery-2.1.1.min.js'}, function() {
+		chrome.tabs.executeScript(null, {file:'js/jquery.rc4.js'}, function() {
+			chrome.tabs.executeScript(null, {code: "var params = {k:'" + key + "'};"}, function(){
+				chrome.tabs.executeScript(null, { file: 'js/encryptPage.js' }, function(){
 
 				});
 			});
@@ -89,7 +91,7 @@ function encrypt(){
 */
 function sequential_generate_Warc(){
 	var urls = [];
-	$(localStorage['spec']).find("url").each(function(index){
+	$(localStorage.spec).find('url').each(function(index){
 		urls.push($(this).text());
 	});
 	var uu = 0;
@@ -97,10 +99,10 @@ function sequential_generate_Warc(){
 		chrome.tabs.create({url: nextUrl, active: true},
 			function(tab){
 				chrome.tabs.onUpdated.addListener(function(tabId,info){
-					if(info.status == "complete"){
+					if(info.status == 'complete'){
 						generate_Warc();
 						//chrome.tabs.remove(tab.tabId);
-						alert("done with "+(uu+1)+"/"+urls.length);
+						alert('done with ' + (uu + 1) + '/' + urls.length);
 						if(++uu >= urls.length){return;}
 						generateWarcFromNextURL(urls[uu]);
 					}
@@ -116,11 +118,11 @@ function sequential_generate_Warc(){
  * Prevent the cached from being wiped when navigating
 */
 function startRecording() {
-	console.log("starting recording process, start blinking the red icon");
+	console.log('starting recording process, start blinking the red icon');
 	//change the WARCreate icon to blink red.
 
 	chrome.tabs.getSelected(null, function(tab) {
-    console.log("recording...");
+    console.log('recording...');
     chrome.storage.local.set({'recording': true}, function(){
       console.log('The preference stating that we are in record mode has been saved.');
       changePageActionIcon(path_recordingIcon);
@@ -139,7 +141,7 @@ function stopRecording() {
  * UNUSED: Changes the pageAction icon to the URI passed in. Would be unnecessary if Chrome supported animated GIF here
 */
 function changePageActionIcon(iconPath) {
-  console.log("calling changePageActionIcon" + iconPath);
+  console.log('calling changePageActionIcon' + iconPath);
   chrome.tabs.getSelected(null, function(tab) {
     chrome.pageAction.setIcon({tabId:tab.id, path: iconPath});
   });
@@ -159,14 +161,14 @@ function generate_Warc(){
 	//console.log(("generate_warc");
 
 	//TODO: Refactor out this callback hell
-	chrome.tabs.executeScript(null, {file:"js/jquery-2.1.1.min.js"}, function() {	/* Dependency for hash library and general goodness*/
-		chrome.tabs.executeScript(null, {file:"js/jquery.rc4.js"}, function() {	/* Hash library */
-			chrome.tabs.executeScript(null, {file:"js/date.js"}, function() {		/* Good date formatting library */
+	chrome.tabs.executeScript(null, {file:'js/jquery-2.1.1.min.js'}, function() {	/* Dependency for hash library and general goodness*/
+		chrome.tabs.executeScript(null, {file:'js/jquery.rc4.js'}, function() {	/* Hash library */
+			chrome.tabs.executeScript(null, {file:'js/date.js'}, function() {		/* Good date formatting library */
 				var uris = [];
 				var datum = [];
 				chrome.tabs.getSelected(null, function(tab) {
 					//chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id});
-					var port = chrome.tabs.connect(tab.id,{name: "warcreate"});	//create a persistent connection
+					var port = chrome.tabs.connect(tab.id,{name: 'warcreate'});	//create a persistent connection
 					port.postMessage({url: tab.url, method: 'getHTML'});	//fetch the html of the page, in content.js
 
 					var imageDataFilledTo = -1;
@@ -176,11 +178,11 @@ function generate_Warc(){
 					port.onMessage.addListener(function(msg) {	//get image base64 data
 						//console.log(("About to generateWARC(). Next should be callback.");
 
-						var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,"") + ".warc";
+						var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,'') + '.warc';
 
 						//If the user has specified a custom filename format, apply it here
-						if(localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0){
-							fileName = moment().format(localStorage['filenameScheme'])+".warc";
+						if(localStorage.filenameScheme && localStorage.filenameScheme.length > 0){
+							fileName = moment().format(localStorage.filenameScheme) + '.warc';
 						}
 
 						chrome.runtime.sendMessage({
@@ -200,58 +202,7 @@ function generate_Warc(){
                  console.log('The preference stating that we are out of record mode has been saved.');
                });*/
 						 	return;
-						 	/*
-						 	//OBSOLETE SAVE CODE BELOW, GOOD FOR FETCHING RESOURCE POST-LOAD
 
-							console.log("generateWARC callback executed, about to write to file");
-
-							//var bb = new BlobBuilder;
-							//bb.append(response.d);
-							//localStorage['data'] = response.d;
-
-							function uploadSuccess(d,t,j){
-								console.log("* Upload succeeded! Three call variables follow this message.");
-								console.log(d);
-								console.log(t);
-								console.log(j);
-							}
-
-							function uploadFail(x,t,e){
-								console.log("There was an error uploading the file.");
-							}
-
-							console.log("Here's the data that's to be written");
-							console.log(response.x);
-
-
-							if(!localStorage['uploadTo'] || localStorage['uploadTo'].length == 0){
-								//saveAs(bb.getBlob("text/plain;charset=utf-8"), fileName);
-								console.log("Responding!");
-								console.log(response.x);
-								console.log(JSON.parse(response.x).data);
-								//saveAs(JSON.parse(response.x).data, fileName);
-
-							} else {
-								console.log("Uploading!"+localStorage['uploadTo']);
-
-								$.ajax({
-									type: "POST",
-									url: localStorage['uploadTo'],
-									data: {data: response.d}//localStorage['data']} //testing file upload
-									}
-								  )
-								.done(uploadSuccess)
-								.fail(uploadFail);
-							}
-
-
-							console.log("Done!");
-							chrome.pageAction.setIcon({path:"../icons/icon-check.png",tabId:tab.id});
-							responseHeaders = new Array();
-							requestHeaders = new Array();
-							imageData = new Array();
-							var imageURIs = new Array();
-							msg = null;*/
 						});
 					});
 
@@ -276,16 +227,28 @@ window.onload = function(){
 	var encodeButton = document.getElementById('encodeImages');
 
 	//if a website is recognized from the spec, show the "Cohesive archive"
-	var caButtonDOM = document.createElement('input'); caButtonDOM.type = "button"; caButtonDOM.id = "generateCohesiveWARC";  caButtonDOM.disabled = "disabled";
+	var caButtonDOM = document.createElement('input');
+	caButtonDOM.type = 'button';
+	caButtonDOM.id = 'generateCohesiveWARC';
+	caButtonDOM.disabled = 'disabled';
 	var t;
 
 	caButtonDOM.value = 'Generate WARC for site';
 
 	//create buttons for popup
-	var gwButtonDOM = document.createElement('input'); gwButtonDOM.type = 'button'; gwButtonDOM.id = 'generateWarc'; gwButtonDOM.value = 'Generate WARC';
-	var clsButtonDOM = document.createElement('input'); clsButtonDOM.type = 'button'; clsButtonDOM.id = 'clearLocalStorage'; clsButtonDOM.value = 'Clear LocalStorage';
+	var gwButtonDOM = document.createElement('input');
+	gwButtonDOM.type = 'button';
+	gwButtonDOM.id = 'generateWarc';
+	gwButtonDOM.value = 'Generate WARC';
+	
+	var clsButtonDOM = document.createElement('input');
+	clsButtonDOM.type = 'button';
+	clsButtonDOM.id = 'clearLocalStorage';
+	clsButtonDOM.value = 'Clear LocalStorage';
 
-	var recordButtonDOM = document.createElement('input'); recordButtonDOM.type = 'button'; recordButtonDOM.id = 'recordButton';
+	var recordButtonDOM = document.createElement('input');
+	recordButtonDOM.type = 'button';
+	recordButtonDOM.id = 'recordButton';
 
   // If in recording mode, set button to allow disabling of recording
   chrome.storage.local.get('recording', function(details) {
@@ -304,8 +267,14 @@ window.onload = function(){
 	//For debugging, display content already captured
 	//var dcButtonDOM = document.createElement('input'); dcButtonDOM.type = "button"; dcButtonDOM.id = "displayCaptured"; gwButtonDOM.value = "Show pending content";
 
-	var errorText = document.createElement('a'); errorText.id = 'errorText'; errorText.target = '_blank';
-	var status = document.createElement('input'); status.id = 'status'; status.type = 'text'; status.value = '';
+	var errorText = document.createElement('a');
+	errorText.id = 'errorText';
+	errorText.target = '_blank';
+	
+	var status = document.createElement('input');
+	status.id = 'status';
+	status.type = 'text';
+	status.value = '';
 
 	if(!buttonContainer){return;}
 
