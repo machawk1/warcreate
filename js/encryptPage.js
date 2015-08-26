@@ -1,9 +1,9 @@
-var key = params['k'];
+var key = params.k;
 
 //alert($('#cipher'));
 function convertImagesToBase64(){
 	var images = document.getElementsByTagName('img');
-	for(var i=0; i<images.length; i++){
+	for(var i = 0; i < images.length; i++){
 		
 		var img = new Image();
 		img.src = images[i].src;
@@ -14,23 +14,28 @@ function convertImagesToBase64(){
 	
 		//return;
 		// Create canvas tag to represent img
-		var canvas = document.createElement("canvas"); 
+		var canvas = document.createElement('canvas'); 
 		canvas.width = img.width; 
 		canvas.height = img.height;
 		
-		var context = canvas.getContext("2d");
+		var context = canvas.getContext('2d');
 		var newImage = new Image();
-		newImage.src
+		//newImage.src
 		//context.drawImage(img,0,0);
-		console.log(i+": "+images[i].src+"  file type: "+fileType);
+		console.log(i + ': ' + images[i].src + '  file type: ' + fileType);
 		var fileType = images[i].src.substr(images[i].src.length - 4).toLowerCase();
-		if(fileType == ".jpg" || fileType == "jpeg"){fileType = "image/jpeg";}
-		else if(fileType == ".png"){fileType = "image/png";}
-		else if(fileType == ".gif"){fileType = "image/gif";}
+		if(fileType == '.jpg' || fileType == 'jpeg'){fileType = 'image/jpeg';}
+		else if(fileType == '.png'){fileType = 'image/png';}
+		else if(fileType == '.gif'){fileType = 'image/gif';}
 		else {
-			var uTransformed = images[i].src.substring(0,images[i].src.indexOf(".jpg"))+".jpg";
-			alert("error at image "+i+" " + uTransformed); continue; console.log(uTransformed);return;}
-		console.log(i+": "+images[i].src+"  file type: "+fileType);
+			var uTransformed = images[i].src.substring(0,images[i].src.indexOf('.jpg')) + '.jpg';
+			alert('error at image ' + i + ' ' + uTransformed); 
+			continue; 
+			console.log(uTransformed);
+			return;
+		}
+		
+		console.log(i + ': ' + images[i].src + '  file type: ' + fileType);
 
 		try {
 		
@@ -40,7 +45,7 @@ function convertImagesToBase64(){
 			img.src = base64;
 			
 			//alert(base64);
-			//img.src = base64;//"https://www.google.com/intl/en_com/images/srpr/logo3w.png";
+			//img.src = base64;//'https://www.google.com/intl/en_com/images/srpr/logo3w.png';
 			
 			//chrome.extension.sendRequest({url: img.src});
 			//chrome.extension.getBackgroundPage().adjustImage(img.src);
@@ -67,5 +72,5 @@ convertImagesToBase64();
 
 //var content = document.documentElement.innerHTML;
 //var encryptedContent = $.rc4EncryptStr(	content,	key);
-//$('body').append("<br />Encrypted Content: "+encryptedContent);
-//$('body').append("<br />Encrypted Content: "+content);
+//$('body').append('<br />Encrypted Content: '+encryptedContent);
+//$('body').append('<br />Encrypted Content: '+content);
