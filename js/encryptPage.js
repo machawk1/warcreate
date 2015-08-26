@@ -31,8 +31,8 @@ function convertImagesToBase64(){
 			var uTransformed = images[i].src.substring(0,images[i].src.indexOf('.jpg')) + '.jpg';
 			alert('error at image ' + i + ' ' + uTransformed); 
 			continue; 
-			console.log(uTransformed);
-			return;
+			//console.log(uTransformed);
+			//return;
 		}
 		
 		console.log(i + ': ' + images[i].src + '  file type: ' + fileType);

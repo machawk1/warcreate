@@ -1,14 +1,14 @@
-var CRLF = "\r\n";
+var CRLF = '\r\n';
 
 Warc = function(srcStr) {
 	this.warcRecords = [];
 	this.now = 
 	
 	function WarcRecord(){
-		this.str = "";
+		this.str = '';
 		function WarcInfoHeader(){var str;
-			addLine("WARC/1.0")
-		}
+			addLine('WARC/1.0');
+		}'
 		function WarcInfoContent(){}
 		function RequestHeader(){}
 		function RequestContent(){}
@@ -20,7 +20,7 @@ Warc = function(srcStr) {
 			var content;
 		}
 		function addLine(str){
-			this.str += str + "\r\n";
+			this.str += str + '\r\n';
 		}
 	}
 
