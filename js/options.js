@@ -61,7 +61,7 @@ function restore_options() {
   //waybackWarcSource.value = warcSRC;
 }
 
-function clear_options(){
+function clear_options() {
 	localStorage.warcSRC = '';
 	restore_options();
 	document.getElementById('waybackWarcSource').value = 'sdf';
@@ -79,8 +79,8 @@ function checkURI(uri){
 }
 
 var lastSavedStateString = ''; //string representation of the last saved state of the form inputs
-function setSaveChangesButtonEnabledBasedOnOptionsChange(){
-	if(lastSavedStateString !== ''){
+function setSaveChangesButtonEnabledBasedOnOptionsChange() {
+	if(lastSavedStateString !== '') {
 		var currentSavedState = $('#filenameScheme').val() +
 								$('#uploadTo').val() +
 								$('#collectionId').val() +
@@ -95,7 +95,7 @@ function setSaveChangesButtonEnabledBasedOnOptionsChange(){
 		}else {
 			$('#save').removeAttr('disabled');
 		}
-	}else{	//set the initial state
+	}else {	//set the initial state
 		lastSavedStateString = 	$('#filenameScheme').val() +
 								$('#uploadTo').val() +
 								$('#collectionId').val() +
@@ -117,19 +117,19 @@ function setSaveChangesButtonEnabledBasedOnOptionsChange(){
 	}
 }
 
-function setupButtonFunctionalityAndVisibility(){
-	$('#postGeneration_save').on('click',function(){
+function setupButtonFunctionalityAndVisibility() {
+	$('#postGeneration_save').on('click',function() {
 		$('#uploadTo').attr('disabled','disabled');
 		$('#filenameScheme').removeAttr('disabled');
 		$('#exampleFileName').show();
 	});
-	$('#postGeneration_upload').on('click',function(){
+	$('#postGeneration_upload').on('click',function() {
 		$('#uploadTo').removeAttr('disabled');
 		$('#filenameScheme').attr('disabled','disabled');
 		$('#exampleFileName').hide();
 
 	});
-	$('#restoreDefaults').on('click',function(){
+	$('#restoreDefaults').on('click',function() {
 		$('#uploadTo').val('http://warcreate.com/warcs/').attr('disabled', 'disabled');
 		$('#postGeneration_save').prop('checked', 'checked');
 		$('#postGeneration_upload').removeAttr('checked');
@@ -140,7 +140,7 @@ function setupButtonFunctionalityAndVisibility(){
 		showFilenameExample();
 		setSaveChangesButtonEnabledBasedOnOptionsChange();
 	});
-	$('#save').on('click', function(){
+	$('#save').on('click', function() {
 		var uploadToURI;
 		var filenameScheme;
 		if($('#postGeneration_upload').prop('checked')){
@@ -163,7 +163,7 @@ function setupButtonFunctionalityAndVisibility(){
 
 }
 
-function fetchSocialStandardSpecification(){
+function fetchSocialStandardSpecification() {
 	$.ajax({
 		url: $('#sequentialArchivingSource').val()
 	})
@@ -175,7 +175,7 @@ function fetchSocialStandardSpecification(){
 			var str = $(data).children().children()[homepage];
 			var chiln = $(str).children();
 			var specObject = {};
-			for(var ii=0; ii<chiln.length; ii++){
+			for(var ii = 0; ii < chiln.length; ii++){
 				specObject[chiln[ii].tagName] = chiln[ii].textContent;
 			}
 			specs.push(specObject);
@@ -183,7 +183,7 @@ function fetchSocialStandardSpecification(){
 			$('#supportedSequentialArchivingSites').append('<option title="' + obj.specification + '">' + obj.homepage + '</option>');
 		}
 		//attempt to fetch and parse a site-specific hierarchy specification so the section of the website can be extracted and used as the basis of a crawl
-		$('#supportedSequentialArchivingSites').change(function(){
+		$('#supportedSequentialArchivingSites').change(function() {
 			var specURI = $('#supportedSequentialArchivingSites option:selected').attr('title');
 			//console.log((specURI);
 			$.ajax({
@@ -193,7 +193,7 @@ function fetchSocialStandardSpecification(){
 				var specAsObj = jQuery.parseJSON(xml2json(data2, ''));
 				var siteSections = specAsObj.socialMediaWebsite.sections.socialMediaWebsiteSection;
 				$('#sections').empty(); //Kill the children (of the section list)
-				for(var sectionI=0; sectionI<siteSections.length; sectionI++){
+				for(var sectionI = 0; sectionI < siteSections.length; sectionI++){
 					//console.log((siteSections[sectionI].name + ' ' +siteSections[sectionI].url);
 					$('#sections').append('<li><span class="name">' + siteSections[sectionI].name + '</span><span class="url">' + siteSections[sectionI].url + '</span>');
 				}
@@ -209,7 +209,7 @@ function fetchSocialStandardSpecification(){
 
 //this doesn't work but I wanted to use it for debugging
 // ties up the browser for some reason
-function displayLocalStorageData(){
+function displayLocalStorageData() {
 	//console.log(('Local Storage, ho!');
 	var XX = '';
 	for (i=0; i<localStorage.length; i++)   {
@@ -224,7 +224,7 @@ function showFilenameExample() { //when the file format scheme changes, update t
 	$('#exampleFileName').html('Example: ' + moment().format($('#filenameScheme').val()) + '.warc');
 }
 
-function populatePendingContentTable(){
+function populatePendingContentTable() {
 	var targetTable = $('#pendingContentTable');
 	$('#pendingContentTable .data').remove();
 	for(var key=0; key < Object.keys(responseHeaders).length; key++){
@@ -276,5 +276,5 @@ window.onload = function() {
 
 	//show data ready to be used for WARC creation
 	//populatePendingContentTable();
-	$('#getPendingContent').click(function(){populatePendingContentTable();});
+	$('#getPendingContent').click(function() {populatePendingContentTable();});
 };
