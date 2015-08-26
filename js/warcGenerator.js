@@ -158,7 +158,7 @@ function generateWarc(o_request, o_sender, f_callback){
 	function makeWarcResponseHeaderWith(targetURI, now, warcConcurrentTo, resp, additionalContentLength){
 		var httpHeader = resp.substring(0,resp.indexOf('\r\n\r\n'));
 
-		if(httpHeader == ''){
+		if(httpHeader === ''){
 			httpHeader = resp;
 		}
 
@@ -203,7 +203,7 @@ function generateWarc(o_request, o_sender, f_callback){
 	var pattern = /\r\n(.*)\r\n----------------/g;
 	var myArray = pattern.exec(o_request.headers);
 	var str = '';
-	while(myArray != null){
+	while(myArray !== null){
 		str += myArray[1];
 		myArray = pattern.exec(o_request.headers);
 
@@ -258,7 +258,7 @@ function generateWarc(o_request, o_sender, f_callback){
 
 		if(
 		  responseHeaders[requestHeader] &&
-		  imgregexp.exec(responseHeaders[requestHeader]) != null  &&
+		  imgregexp.exec(responseHeaders[requestHeader]) !== null  &&
 		  responseHeaders[requestHeader].indexOf('icon') == -1 )
 		  {
 			//var imageDataObject = JSON.parse(localStorage['imageData']);
@@ -282,9 +282,9 @@ function generateWarc(o_request, o_sender, f_callback){
 						var ixx=0;
 						var sstr = '';
 						for(var index=0; index<byteCount; index++){
-							hexValueInt8Ary.set([result[rh][index]],ixx);
+							hexValueInt8Ary.set([result[rh][index]], ixx);
 							ixx++;
-						};
+						}
 
 
 						var responseHeaderString = makeWarcResponseHeaderWith(rh, now, warcConcurrentTo, responseHeaders[rh] + CRLF,hexValueInt8Ary.length + (CRLF + CRLF).length) + CRLF;
@@ -304,7 +304,7 @@ function generateWarc(o_request, o_sender, f_callback){
 
 					if(Object.keys(responsesToConcatenate).length == 0){
 
-						if(!localStorage['uploadTo'] || localStorage['uploadTo'].length == 0){
+						if(!localStorage.uploadTo || localStorage.uploadTo.length === 0){
 							saveAs(new Blob(arrayBuffers), fileName);
 						}else {
 							uploadWarc(arrayBuffers);
@@ -345,7 +345,7 @@ function generateWarc(o_request, o_sender, f_callback){
 
 		}else if(
 		  responseHeaders[requestHeader] &&
-		  cssregexp.exec(responseHeaders[requestHeader]) != null)
+		  cssregexp.exec(responseHeaders[requestHeader]) !== null)
 		{
 			if(cssURIs === null || !cssURIs){break;}
 			responsesToConcatenate[requestHeader] = 'pending';
@@ -434,7 +434,7 @@ function generateWarc(o_request, o_sender, f_callback){
 	//requestHeaders = null; requestHeaders = new Array();
 	//responseHeaders = null; responseHeaders = new Array();
 	//
-	if(Object.keys(responsesToConcatenate).length == 0){
+	if(Object.keys(responsesToConcatenate).length === 0){
 		saveAs(new Blob(arrayBuffers), fileName);
 	}else {
 		console.log('Still have to process URIs:' + Object.keys(responsesToConcatenate).join(' '));
@@ -464,7 +464,7 @@ function getVersion(callback) {
         xmlhttp.onload = function (e) {
             var manifest = JSON.parse(xmlhttp.responseText);
             callback(manifest.version);
-        }
+        };
         xmlhttp.send(null);
 }
 
@@ -482,7 +482,7 @@ function uploadWarc(abArray){
 		console.log('There was an error uploading the file.');
 	}*/
 
-	console.log('Uploading WARC to ' + localStorage['uploadTo']);
+	console.log('Uploading WARC to ' + localStorage.uploadTo);
 
 	var ajaxRequest = new XMLHttpRequest();
 
@@ -503,7 +503,7 @@ function uploadWarc(abArray){
 		chrome.notifications.update('id1',progressObj,function() {} );
 	}
 
-	ajaxRequest.open('POST', localStorage['uploadTo'], true);
+	ajaxRequest.open('POST', localStorage.uploadTo, true);
 
 	 ajaxRequest.onreadystatechange = function() {
 	 	updateNotification(25*ajaxRequest.readyState);
