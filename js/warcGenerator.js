@@ -4,7 +4,7 @@
 
  function ab2str(buf) {
    var s = String.fromCharCode.apply(null, new Uint8Array(buf));
-   return decode_utf8(decode_utf8(s))
+   return decode_utf8(decode_utf8(s));
  }
 
 function str2ab(str) {
@@ -302,7 +302,7 @@ function generateWarc(o_request, o_sender, f_callback){
 						delete responsesToConcatenate[rh];
 					}
 
-					if(Object.keys(responsesToConcatenate).length == 0){
+					if(Object.keys(responsesToConcatenate).length === 0){
 
 						if(!localStorage.uploadTo || localStorage.uploadTo.length === 0){
 							saveAs(new Blob(arrayBuffers), fileName);
