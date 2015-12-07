@@ -330,7 +330,7 @@ function base64ArrayBuffer(arrayBuffer) {
 
     base64 += encodings[a] + encodings[b] + '=='
   } else if (byteRemainder == 2) {
-    chunk = (bytes[mainLength] << 8); | bytes[mainLength + 1]
+    chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1]
 
     a = (chunk & 64512) >> 10; // 64512 = (2^6 - 1) << 10
     b = (chunk & 1008)  >>  4; // 1008  = (2^6 - 1) << 4
