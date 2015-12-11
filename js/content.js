@@ -24,6 +24,7 @@ function ab2str(buf) {
 }
 
 
+
 chrome.runtime.onConnect.addListener(function(port) {
   port.onMessage.addListener(function(msg) {
   	//console.log(('in content.js with method: '+msg.method);
@@ -219,7 +220,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 		var JSURLs = [];
 		var JSData = [];
 
-		for(var scriptI=0; scriptI<document.scripts.length; scriptI++){
+		for(var scriptI = 0; scriptI < document.scripts.length; scriptI++) {
 			JSURLs.push(document.scripts[scriptI].src);
 			$.ajax({
 				url: document.scripts[scriptI].src,
@@ -230,42 +231,19 @@ chrome.runtime.onConnect.addListener(function(port) {
 			});
 		}
 
+
+
 		var cssDataSerialized = styleSheetData.join('|||');
 		var cssURIsSerialized = styleSheetURLs.join('|||');
 		var jsDataSerialized = JSData.join('|||');
 		var jsURIsSerialized = JSURLs.join('|||');
 		var outlinksSerialized = outlinks.join('|||');
 
-		//console.log(('content.js: sending relayToImagesPost');
-		//all of this nonsense just to get the doctype to prepend!
-		var node = document.doctype;
-		var dtstr;
-		if(!node){dtstr = '';}
-		else{
-			dtstr = '<!DOCTYPE '
-				 + '' + node.name
-				 + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
-				 + (!node.publicId && node.systemId ? ' SYSTEM' : '')
-				 + (node.systemId ? ' "' + node.systemId + '"' : '')
-				 + '>';
-		}
+		
+        var domAsText = stringifyDOM();
 
-		var domAsText = document.documentElement.outerHTML;
-
-		// This accounts for foo.txt documents on the web, which chrome puts a wrapper around
-		var textDocumentStarterString = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">';
-		if(domAsText.substr(0, textDocumentStarterString.length) ==  textDocumentStarterString){
-			console.log('Adjusting WARC algorithm to account for text rather than HTML document.');
-
-			domAsText = $(document).find('pre').html(); //replace text w/ html wrapper with just text
-			dtstr = ''; //remove the doctype injection
-		}
-
-		//domAsText = domAsText.replace(/[\n\r]+/g,'');
-		//console.log(('length before post: '+domAsText.length);
 		port.postMessage({
-			//html: dtstr + document.all[0].outerHTML, //document.all is non-standard
-			html: dtstr + domAsText,//   document.documentElement.outerHTML,
+			html: domAsText,
 			uris: imageURIsSerialized,
 			data: imageDataSerialized,
 			cssuris: cssURIsSerialized,
@@ -281,6 +259,38 @@ chrome.runtime.onConnect.addListener(function(port) {
 
   });
 });
+
+function stringifyDOM() {
+  var domAsText = document.documentElement.outerHTML;
+  var docTypeString = getDoctype(); // Prepend the DOCTYPE
+  
+  var textDocumentStarterString = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">';
+  if(domAsText.substr(0, textDocumentStarterString.length) ==  textDocumentStarterString){
+	 console.log('Adjusting WARC algorithm to account for text rather than HTML document.');
+
+	 domAsText = $(document).find('pre').html(); //replace text w/ html wrapper with just text
+	 docTypeString = ''; //remove the doctype injection
+  }
+
+  domAsText = docTypeString + domAsText;
+
+  return domAsText;  
+}
+
+function getDoctype() {
+	var node = document.doctype;
+	var dtstr;
+	if(!node){dtstr = '';}
+	else{
+		dtstr = '<!DOCTYPE '
+			 + '' + node.name
+			 + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
+			 + (!node.publicId && node.systemId ? ' SYSTEM' : '')
+			 + (node.systemId ? ' "' + node.systemId + '"' : '')
+			 + '>';
+	}
+	return dtstr;
+}
 
 
 //from https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
