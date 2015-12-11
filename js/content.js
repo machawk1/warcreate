@@ -24,13 +24,12 @@ function ab2str(buf) {
 }
 
 
+var commPort;
 
 chrome.runtime.onConnect.addListener(function(port) {
+  commPort = port;
   port.onMessage.addListener(function(msg) {
-  	//console.log(('in content.js with method: '+msg.method);
   	if(msg.method == 'getImageData'){
-  		//console.log(('Getting image data');
-  		//console.log(document.images);
   		function fetchImage(u) {
 			var xhr = new XMLHttpRequest();
 			xhr.open('GET', u, true);
@@ -49,8 +48,6 @@ chrome.runtime.onConnect.addListener(function(port) {
 				ret[u] = myString;
 				delete imgObjs[u];
 
-				 //console.log('Ok, now postback image data');
-				 //console.error(u);
 				 var ohemefgee = {};
 				 ohemefgee[u] = stringUInt8Array;
 				 chrome.storage.local.set(ohemefgee,function(){
@@ -59,9 +56,6 @@ chrome.runtime.onConnect.addListener(function(port) {
 						console.error(chrome.runtime.lastError);
 					}
 				 });
-				 //console.log(('- Image data in local storage for '+u);
-				 //port.postMessage({imageData: JSON.stringify(ret),method: 'getImageDataRet',uri: u},function(e){});
-
 			};
 
 			xhr.onerror = function(e){
@@ -98,11 +92,7 @@ chrome.runtime.onConnect.addListener(function(port) {
 
   	}
 	else if(msg.method == 'getHTML'){
-		//console.log(('about to post getHTML message');
 		images = document.images;
-
-		//console.log(('LINKS:');
-		//console.log($('a'));
 
 		outlinks = [];
 		outlinksAddedRegistry = []; //hacky array to prevent duplicate outlinks
@@ -142,25 +132,20 @@ chrome.runtime.onConnect.addListener(function(port) {
 		});
 
 		outlinksAddedRegistry = null; //reclaim space, since we no longer need this check given we're through building outlinks
+        chrome.storage.local.set({'outlinks': outlinks});
 
 
 		var imageURIs = [];
 		var imageBase64Data = [];
-		//image conversion code
+		var img = {};
 	//*********************************
 	// Convert images to something portable and text-y
 	//*********************************
-		//console.log('Converting image data, '+images.length+' to convert');
-		//imagesI = 0;
 		for(var i = 0; i< images.length; i++){
-			// NOTE: image data is NOT fetched here, a subsequent Ajax call is made in warcGenerator.js 20130211 ~ line 188
-			//console.log((images[i].src);
 			var imageI = images[i];
 			if(!(imageI.src)){
-				//console.log('Image '+i+' had no src. Continuing to encode the others');
 				continue;
 			}
-			//console.log(('About to convert image '+(i+1)+'/'+images.length+': '+images[i].src);
 
 			var canvas = document.createElement('canvas');
 			canvas.width = imageI.width;
@@ -174,91 +159,48 @@ chrome.runtime.onConnect.addListener(function(port) {
 
 		var imageDataSerialized = imageBase64Data.join('|||');
 		var imageURIsSerialized = imageURIs.join('|||');
-		localStorage.imagesInDOM = imageURIsSerialized;
-	//*********************************
-	// Re-fetch CSS (limitation of webRequest, need to be able to get content on response, functionality unavailable, requires refetch)
-	//*********************************
-		//a better way to get all stylesheets but we cannot get them as text but instead an object with ruleslist
-		var styleSheetURLs = [];
-		var styleSheetData = [];
-
-		for(var ss=0; ss<document.styleSheets.length; ss++){
-			//iterate the rules trying to find any @imports to include in the WARC
-			for(var rules=0; document.styleSheets[ss].rules && rules<document.styleSheets[ss].rules.length; rules++){
-				if(document.styleSheets[ss].rules[rules].type == 3){
-					//we have a CSS import. Magic number, yes, but so is the definition
-					var foundCSSFile = absolute(document.styleSheets[ss].href,document.styleSheets[ss].rules[rules].href);
-
-					styleSheetURLs.push(foundCSSFile);
-
-					$.ajax({
-					  url: foundCSSFile,
-					  dataType: 'text',
-					  async: false
-					}).done(function(cssText){
-					  styleSheetData.push(cssText);
-					}).fail(function(e){
-						console.log('CSS fetch of ' + foundCSSFile + ' failed');
-            console.log(e);
-					});
-				}
-			}
-
-			styleSheetURLs.push(document.styleSheets[ss].href);
-			$.ajax({
-				url: document.styleSheets[ss].href,
-				dataType: 'text',
-				async: false
-			}).done(function(cssText){
-				styleSheetData.push(cssText);
-			});
-		}
-
-	//*********************************
-	// Re-fetch JS
-	//*********************************
-		var JSURLs = [];
-		var JSData = [];
-
-		for(var scriptI = 0; scriptI < document.scripts.length; scriptI++) {
-			JSURLs.push(document.scripts[scriptI].src);
-			$.ajax({
-				url: document.scripts[scriptI].src,
-				dataType: 'text',
-				async: false
-			}).done(function(jsText){
-				JSData.push(jsText);
-			});
-		}
-
-
-
-		var cssDataSerialized = styleSheetData.join('|||');
-		var cssURIsSerialized = styleSheetURLs.join('|||');
-		var jsDataSerialized = JSData.join('|||');
-		var jsURIsSerialized = JSURLs.join('|||');
-		var outlinksSerialized = outlinks.join('|||');
-
+		var img;
 		
-        var domAsText = stringifyDOM();
+		for(var imgI = 0; imgI < imageURIs.length; imgI++) {
+		  img[imageURIs] = imageBase64Data[imgI];
+		}
+		
+		chrome.storage.local.set({'img': img});
+		
+		localStorage.imagesInDOM = imageURIsSerialized;
 
-		port.postMessage({
-			html: domAsText,
-			uris: imageURIsSerialized,
-			data: imageDataSerialized,
-			cssuris: cssURIsSerialized,
-			cssdata: cssDataSerialized,
-			jsuris: jsURIsSerialized,
-			jsdata: jsDataSerialized,
-			outlinks: outlinksSerialized,
-			method: msg.method
-			});	//communicate back to code.js ~130 with image data
+		var cssCallbackToGetJS = function() {
+		  getJSData(serializeAndPostDocumentContents);
+		}
+
+        chrome.storage.local.set({'method': msg.method});
+
+		getCSSData(cssCallbackToGetJS);
+
 	}else {
 		//console.log(('Method unsupported in content.js: '+msg.method);
 	}
 
   });
 });
+
+
+function serializeAndPostDocumentContents() {
+	chrome.storage.local.get(['js','css','outlinks','method','img'], function(pageAttributes) {	
+	  var domAsText = stringifyDOM();
+
+     console.log(pageAttributes.method);
+
+	  commPort.postMessage({
+		html: domAsText,
+		img: pageAttributes.img,
+		css: pageAttributes.css,
+		js: pageAttributes.js,
+		outlinks: pageAttributes.outlinks,
+		method: pageAttributes.method
+	  });	//communicate back to code.js ~130 with image data
+   });
+}
 
 function stringifyDOM() {
   var domAsText = document.documentElement.outerHTML;
