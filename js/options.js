@@ -118,6 +118,8 @@ function setSaveChangesButtonEnabledBasedOnOptionsChange() {
 }
 
 function setupButtonFunctionalityAndVisibility() {
+    setWAILIntegrationEnabled();
+
 	$('#postGeneration_save').on('click',function() {
 		$('#uploadTo').attr('disabled','disabled');
 		$('#filenameScheme').removeAttr('disabled');
@@ -242,6 +244,27 @@ function populatePendingContentTable() {
 	//console.log(responseHeaders);
 	//console.log(Object.keys(responseHeaders));
 	//console.log(requestHeaders);
+}
+
+function setWAILIntegrationEnabled() {
+  var wailRelatedUI = $('#postGeneration_wail');
+  wailRelatedUI.prop('disabled', true)
+  $.ajax({
+    url: 'http://localhost:8888'
+  }).done(function(resp) {
+    if(resp.length > 0) {
+      wailRelatedUI.prop('disabled', false);
+      $('#startWayback').addClass('hidden');
+    }else {
+      console.log('Show UI to start Wayback here');
+      $('#startWayback').removeClass('hidden');
+    }
+  }).fail(function(xhr, status, error){
+     if(status === 'error') {
+       console.log('The connection to WAIL could not be made.');
+       $('#startWayback').replaceWith('<a href="http://matkelly.com/wail" class="warning" target="_blank">WARNING: WAIL not installed/running</a>');
+     }
+  });
 }
 
 window.onload = function() {

@@ -42,6 +42,11 @@ h3 {clear: both; padding-top: 1.0em; margin-bottom: 0;}
 #pendingContentTable td {width: 300px;  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9px;}
 #pendingContentTable #uri {width: 75%;}
 #pendingContentTable .req, #pendingContentTable .res {width: 100px;}
+
+#startWayback {margin-left: 1.0em;}
+.hidden {display: none;}
+.warning {color: white; background-color: red; padding: 1px 5px 1px 5px; margin-left: 3px;}
+
 </style>
 </head>
 <script type="text/javascript" src="../js/jquery-2.2.0.min.js"></script>
@@ -55,11 +60,26 @@ h3 {clear: both; padding-top: 1.0em; margin-bottom: 0;}
 <!--<label for="waybackWarcSource">Wayback WARC Source folder:</label><br /><input type="text" id="waybackWarcSource" value="C:\xampp\tomcat\webapps\ROOT\files1\"/><br />-->
 
 <h3>Handle generated WARCs by:</h3>
-<input type="radio" name="postGeneration" id="postGeneration_save" value="postGeneration_save" checked="checked" /><label for="output_save">Saving to downloads folder</label><br />
-<div id="filenameSchemeElements"><label for="filenameScheme">&gt; Filename Scheme</label><input type="text" name="filenameScheme" id="filenameScheme" value="YYYYMMDDHHMMssSSS" /><span id="exampleFileName"></span></div>
+<input type="radio" name="postGeneration" id="postGeneration_save" value="postGeneration_save" checked="checked" />
+<label for="postGeneration_save">Saving to downloads folder</label><br />
+
+<div id="filenameSchemeElements">
+  <label for="filenameScheme">&gt; Filename Scheme</label>
+  <input type="text" name="filenameScheme" id="filenameScheme" value="YYYYMMDDHHMMssSSS" />
+  <span id="exampleFileName"></span>
+</div>
+
 <!--<input type="radio" name="output" id="output_save_warc" value="output_save_warc" disabled="disabled" /><label for="output_save">Saving to Wayback-Accessible folder</label><br />-->
-<input type="radio" name="postGeneration" id="postGeneration_upload" value="postGeneration_upload" /><label for="output_display">Uploading to</label>: <input type="text" id="uploadTo" value="http://warcreate.com/warcs/" disabled="disabled" />
-<br /><button id="restoreDefaults">Restore Defaults</button><button id="save">Save Changes</button><p id="status">Changes Saved!</p><br />
+
+<input type="radio" name="postGeneration" id="postGeneration_upload" value="postGeneration_upload" />
+<label for="postGeneration_upload">Uploading to</label>: 
+<input type="text" id="uploadTo" value="http://warcreate.com/warcs/" disabled="disabled" /><br />
+
+<input type="radio" name="postGeneration" id="postGeneration_wail" value="postGeneration_wail" />
+<label for="postGeneration_wail">Replaying in WAIL <a href="wailinfo.html">?</a><button id="startWayback">Start Wayback</button></label>
+<br />
+
+<button id="restoreDefaults">Restore Defaults</button><button id="save">Save Changes</button><p id="status">Changes Saved!</p><br />
 
 <section id="sequentialArchivingSection">
   <h3>"Sequential Archiving"</h3>
