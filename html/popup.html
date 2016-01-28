@@ -1,11 +1,18 @@
 <html>
 <head>
+<meta charset=utf-8 />
 <script type="text/javascript" src="../js/jquery-2.2.0.min.js"></script>
 <script type="text/javascript" src="../js/jquery.rc4.js"></script>		<!-- Simple key-based hashing library -->
 <script type="text/javascript" src="../js/jquery.getimagedata.min.js"></script> <!-- To overcome Same Origin Policy -->
 <style type="text/css">
+body {width: 500px;}
 a {font-family: 'Futura', sans-serif; font-size: 0.8em; text-align: right; color: blue; display: block; margin: 1.0em 0 0 0;}
+input[type="button"] {width: 100%; max-width: 150px; clear: both;}
+input.halfWidth {width: 50%;}
 button:hover {cursor:pointer;}
+.underline {text-decoration: underline;}
+#buttonContainer input {margin: auto;}
+.hidden {display: none;}
 
 #errorText {color: red; font-weight: bold; display: none; text-align: center; font-size: 0.5em;}
 </style>
@@ -49,6 +56,21 @@ button:hover {cursor:pointer;}
 </fieldset>
 <input type="checkbox" name="memento" id="memento" /><label for="memento">Memento Compatible</label><br />-->
 <div id="buttonContainer">
+    <input type="button" id="generateWarc"  value="Generate WARC" /><br />
+    <input type="button" id="recordButton"  value="Start Recording" /><br />
+    <input type="button" id="capturePeriodically" value="Archive Periodically" />
+    <div id="capturePeriodicallyDetails" class="hidden">
+      <label for="every" class="underline">Archive Every:</label>
+      <input type="text" placeholder="0" class="halfWidth" />
+      <select>
+        <option>seconds</option>
+        <option>minutes</option>
+        <option>hours</option>
+      </select>
+      <button id="startPeriodic">Start</button>
+    </div>
+
+    
 <!--<input type="button" id="generateWarc"  value="Generate WARC" />
 <input type="button" id="clearLocalStorage" value="Clear LocalStorage" />-->
 	

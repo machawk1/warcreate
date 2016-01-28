@@ -2,6 +2,8 @@
 
 /* ************** BEGIN STRING UTILITY FUNCTIONS **************  */
 
+var debug = true;
+
  function ab2str(buf) {
    var s = String.fromCharCode.apply(null, new Uint8Array(buf));
    return decode_utf8(decode_utf8(s));
@@ -33,9 +35,9 @@ function lengthInUtf8Bytes(str) {
 
 /* ************** END STRING UTILITY FUNCTIONS **************  */
 
-function generateWarc(o_request, o_sender, f_callback){
+function generateWarc(o_request, o_sender, f_callback) {
 	if(o_request.method != 'generateWarc'){return; }
-	console.log('Running generateWarc code');
+	if(debug){console.log('Running generateWarc code');}
 
 	var CRLF = '\r\n';
 
@@ -379,6 +381,7 @@ function generateWarc(o_request, o_sender, f_callback){
 	//
 	if(Object.keys(responsesToConcatenate).length === 0){
 		saveAs(new Blob(arrayBuffers), fileName);
+		f_callback({msg: "warc generated"});
 	}else {
 		console.log('Still have to process URIs:' + Object.keys(responsesToConcatenate).join(' '));
 	}

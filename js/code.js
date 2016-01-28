@@ -14,15 +14,21 @@ var server = "http://warcreate.com";
 var path_recordingIcon = '../icons/recording.png';
 var path_warcreateIcon = '../icons/icon-38.png';
 
+var stopRecordingLabel = 'Stop Recording';
+var startRecordingLabel = 'Start Recording';
+
+var buttonLabel_generatingWARC = 'Generating WARC...';
+var buttonLabel_warcGenerated = '✓ WARC Generated!';
+
 // Called when the url of a tab changes.
 function checkForValidUrl(tabId, changeInfo, tab) {
   chrome.pageAction.show(tabId);
 }
 
 function alertContent(){
-    chrome.tabs.executeScript(null, {file:"js/jquery-2.2.0.min.js"}, function() {
-        chrome.tabs.executeScript(null, {file:"js/jquery.rc4.js"}, function() {
-            chrome.tabs.executeScript(null, { file: "js/alertContent.js" }, function(){
+    chrome.tabs.executeScript(null, {file:'js/jquery-2.2.0.min.js'}, function() {
+        chrome.tabs.executeScript(null, {file:'js/jquery.rc4.js'}, function() {
+            chrome.tabs.executeScript(null, { file: 'js/alertContent.js' }, function(){
 
             });
         });
@@ -37,10 +43,10 @@ function encodeImages(){
     var images = document.getElementsByTagName('img');
     var img = new Image();
     img.src = request.url;
-    var canvas = document.createElement("canvas");
+    var canvas = document.createElement('canvas');
     canvas.width = img.width;
     canvas.height = img.height;
-    var context = canvas.getContext("2d");
+    var context = canvas.getContext('2d');
 
     //console.log((i+": "+images[i].src+"  file type: "+fileType);
     var fileType = images[i].src.substr(images[i].src.length - 4).toLowerCase();
@@ -72,7 +78,7 @@ function encodeImages(){
 */
 function encrypt(){
     var key = document.getElementById('key').value;
-    if(key === ""){alert('First enter a key for encryption.'); return;}
+    if(key === ''){alert('First enter a key for encryption.'); return;}
     chrome.tabs.executeScript(null, {file:'js/jquery-2.2.0.min.js'}, function() {
         chrome.tabs.executeScript(null, {file:'js/jquery.rc4.js'}, function() {
             chrome.tabs.executeScript(null, {code: "var params = {k:'" + key + "'};"}, function(){
@@ -118,33 +124,46 @@ function sequential_generate_Warc(){
  * Prevent the cached from being wiped when navigating
 */
 function startRecording() {
-    console.log('starting recording process, start blinking the red icon');
+    if(debug) {
+      console.log('starting recording process, start blinking the red icon');
+    }
+    
     //change the WARCreate icon to blink red.
 
-    chrome.tabs.getSelected(null, function(tab) {
-    console.log('recording...');
-    chrome.storage.local.set({'recording': true}, function(){
-      console.log('The preference stating that we are in record mode has been saved.');
+    /*chrome.tabs.query({
+      active: true,
+      lastFocusedWindow: true
+    }, function(tabs) {
+    
+    });*/
+
+    if(debug){console.log('recording...');}
+    chrome.storage.local.set({'recording': true}, function() {
+      if(debug) {console.log('The preference stating that we are in record mode has been saved.');}
       changePageActionIcon(path_recordingIcon);
     });
-    });
+    $('#recordButton').prop('value', startRecordingLabel);
 }
 
 function stopRecording() {
   chrome.storage.local.set({'recording': false}, function(){
     changePageActionIcon(path_warcreateIcon);
   });
-
+  $('#recordButton').prop('value', stopRecordingLabel);
 }
 
 /**
  * UNUSED: Changes the pageAction icon to the URI passed in. Would be unnecessary if Chrome supported animated GIF here
 */
 function changePageActionIcon(iconPath) {
-  console.log('calling changePageActionIcon' + iconPath);
-  chrome.tabs.getSelected(null, function(tab) {
-    chrome.pageAction.setIcon({tabId:tab.id, path: iconPath});
+  if(debug) {console.log('calling changePageActionIcon' + iconPath);}
+  chrome.tabs.query({
+      active: true,
+      lastFocusedWindow: true
+  }, function(tabs) {
+      chrome.pageAction.setIcon({tabId:tabs[0].id, path: iconPath});
   });
+
 }
 
 /**
@@ -165,7 +184,10 @@ function generate_Warc(){
             chrome.tabs.executeScript(null, {file:'js/date.js'}, function() {		/* Good date formatting library */
                 var uris = [];
                 var datum = [];
-                chrome.tabs.getSelected(null, function(tab) {
+                changeGenerateWARCButton(buttonLabel_generatingWARC);
+				chrome.tabs.query({active: true,lastFocusedWindow: true},
+				function(tabs) {
+    			    var tab = tabs[0];
                     //chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id});
                     var port = chrome.tabs.connect(tab.id,{name: 'warcreate'});	//create a persistent connection
                     port.postMessage({url: tab.url, method: 'getHTML'});	//fetch the html of the page, in content.js
@@ -182,6 +204,7 @@ function generate_Warc(){
                             fileName = moment().format(localStorage.filenameScheme) + '.warc';
                         }
 
+                        
                         chrome.runtime.sendMessage({
                             url: tab.url,
                             method: 'generateWarc',
@@ -197,7 +220,9 @@ function generate_Warc(){
                          function(response) {	//the callback to sendRequest
                /*chrome.storage.local.set({'recording': false}, function(){
                  console.log('The preference stating that we are out of record mode has been saved.');
-               });*/
+               });*/         console.log('***');
+               				console.log(response);
+                             changeGenerateWARCButton(buttonLabel_warcGenerated);
                              return;
 
                         });
@@ -209,6 +234,10 @@ function generate_Warc(){
     });
 }
 
+
+function changeGenerateWARCButton(newLabel) {
+  $('#generateWarc').prop('value', newLabel);
+}
 
 /**
  * Sets up the popup activated when the extensions's icon is clicked.
@@ -232,34 +261,28 @@ window.onload = function(){
 
     caButtonDOM.value = 'Generate WARC for site';
 
-    //create buttons for popup
-    var gwButtonDOM = document.createElement('input');
-    gwButtonDOM.type = 'button';
-    gwButtonDOM.id = 'generateWarc';
-    gwButtonDOM.value = 'Generate WARC';
-
     var clsButtonDOM = document.createElement('input');
     clsButtonDOM.type = 'button';
     clsButtonDOM.id = 'clearLocalStorage';
     clsButtonDOM.value = 'Clear LocalStorage';
 
-    var recordButtonDOM = document.createElement('input');
-    recordButtonDOM.type = 'button';
-    recordButtonDOM.id = 'recordButton';
+    $('#capturePeriodically').click(replaceCapturePeriodicallyButton);
 
     // If in recording mode, set button to allow disabling of recording
     chrome.storage.local.get('recording', function(details) {
       if (details.recording) {
-        console.log('details.recording = ' + details.recording);
-        recordButtonDOM.value = 'Stop Recording';
-        recordButtonDOM.onclick = stopRecording;
+        if(debug) {console.log('details.recording = ' + details.recording);}
+        $('#recordButton').attr('value', stopRecordingLabel);
+        $('#recordButton').click(stopRecording);
         changePageActionIcon(path_recordingIcon);
       } else {
-        recordButtonDOM.value = 'Start Recording';
-        recordButtonDOM.onclick = startRecording;
+        $('#recordButton').attr('value', startRecordingLabel);
+        $('#recordButton').click(startRecording);
         changePageActionIcon(path_warcreateIcon);
       }
     });
+
+
 
     //For debugging, display content already captured
     //var dcButtonDOM = document.createElement('input'); dcButtonDOM.type = "button"; dcButtonDOM.id = "displayCaptured"; gwButtonDOM.value = "Show pending content";
@@ -276,9 +299,10 @@ window.onload = function(){
     if(!buttonContainer){return;}
 
     //add buttons to DOM
-    buttonContainer.appendChild(gwButtonDOM);
-    buttonContainer.appendChild(caButtonDOM);
-    buttonContainer.appendChild(recordButtonDOM);
+    //buttonContainer.appendChild(gwButtonDOM);
+    //buttonContainer.appendChild(caButtonDOM);
+    //buttonContainer.appendChild(recordButtonDOM);
+    //buttonContainer.appendChild(capturePeriodicallyButtonDOM);
 
     buttonContainer.appendChild(clsButtonDOM);
     buttonContainer.appendChild(status);
@@ -300,8 +324,14 @@ window.onload = function(){
     $(caButton).css('display','none');
 
     $(clsButton).css('display','none'); //clear local storage, used in debugging
-    caButton.onclick = sequential_generate_Warc;
+    //caButton.onclick = sequential_generate_Warc;
 };
+
+function replaceCapturePeriodicallyButton() {
+  $('#capturePeriodically').addClass('hidden');
+  $('#capturePeriodicallyDetails').removeClass('hidden');
+}
+
 // Listen for any changes to the URL of any tab.
 chrome.tabs.onUpdated.addListener(checkForValidUrl);
 

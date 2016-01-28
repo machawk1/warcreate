@@ -80,41 +80,45 @@ function checkURI(uri){
 
 var lastSavedStateString = ''; //string representation of the last saved state of the form inputs
 function setSaveChangesButtonEnabledBasedOnOptionsChange() {
+
 	if(lastSavedStateString !== '') {
 		var currentSavedState = $('#filenameScheme').val() +
 								$('#uploadTo').val() +
 								$('#collectionId').val() +
 								$('#collectionName').val() +
-								$('#postGeneration_save').is(':checked') +
-								$('#postGeneration_upload').is(':checked') +
-								$('#addCollectionMetadataCheckbox').is(':checked')
+								document.getElementById('postGeneration_save').checked +
+								document.getElementById('postGeneration_upload').checked +
+								document.getElementById('addCollectionMetadataCheckbox').checked
 								;
 
-		if(lastSavedStateString == currentSavedState){
+		if(lastSavedStateString === currentSavedState){
 			$('#save').attr('disabled','disabled');
 		}else {
 			$('#save').removeAttr('disabled');
 		}
+		console.log('currentval: ' + currentSavedState);
+		console.log('last saved: ' + lastSavedStateString);
 	}else {	//set the initial state
 		lastSavedStateString = 	$('#filenameScheme').val() +
 								$('#uploadTo').val() +
 								$('#collectionId').val() +
 								$('#collectionName').val() +
-								$('#postGeneration_save').is(':checked') +
-								$('#postGeneration_upload').is(':checked') +
-								$('#addCollectionMetadataCheckbox').is(':checked')
+								document.getElementById('postGeneration_save').checked +
+								document.getElementById('postGeneration_upload').checked +
+								document.getElementById('addCollectionMetadataCheckbox').checked
 								;
 
 		$('#save').attr('disabled','disabled');
-		$('#filenameScheme').on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
-		$('#uploadTo').on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
-		$('#postGeneration_save').on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
-		$('#postGeneration_upload').on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$('#filenameScheme').on('keyup', setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$('#uploadTo').on('keyup', setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$('#postGeneration_save').on('click', setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$('#postGeneration_upload').on('click', setSaveChangesButtonEnabledBasedOnOptionsChange);
 
-		$('#addCollectionMetadataCheckbox').on('click',setSaveChangesButtonEnabledBasedOnOptionsChange);
-		$('#collectionId').on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
-		$('#collectionName').on('keyup',setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$('#addCollectionMetadataCheckbox').on('click', setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$('#collectionId').on('keyup', setSaveChangesButtonEnabledBasedOnOptionsChange);
+		$('#collectionName').on('keyup', setSaveChangesButtonEnabledBasedOnOptionsChange);
 	}
+	console.log('LASTSAVED: '+ lastSavedStateString);
 }
 
 function setupButtonFunctionalityAndVisibility() {
