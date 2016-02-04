@@ -15,6 +15,8 @@ button:hover {cursor:pointer;}
 .hidden {display: none;}
 
 #errorText {color: red; font-weight: bold; display: none; text-align: center; font-size: 0.5em;}
+button#showOptions {border: 0; background-color: transparent; text-decoration: underline;}
+button#showOptions:hover {color: blue;}
 </style>
 
 
@@ -30,6 +32,7 @@ button:hover {cursor:pointer;}
 
 <script src="../js/moment-with-langs.min.js"></script>
 <script src="../js/code.js"></script>
+
 
 
 
@@ -69,6 +72,7 @@ button:hover {cursor:pointer;}
       </select>
       <button id="startPeriodic">Start</button>
     </div>
+    <p><button id="showOptions">options...</button></p>
 
     
 <!--<input type="button" id="generateWarc"  value="Generate WARC" />

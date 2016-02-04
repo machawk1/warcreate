@@ -9,7 +9,6 @@
 
 var debug = true;
 
-//var server = "http://localhost:8080";
 var server = "http://warcreate.com";
 var path_recordingIcon = '../icons/recording.png';
 var path_warcreateIcon = '../icons/icon-38.png';
@@ -95,7 +94,7 @@ function encrypt(){
  * TODO: Provide 'sequential archiving' wherein a site's hierarchy is referenced
  * and all pages referenced in the hierarchy are captured
 */
-function sequential_generate_Warc(){
+function sequential_generate_Warc() {
     var urls = [];
     $(localStorage.spec).find('url').each(function(index){
         urls.push($(this).text());
@@ -124,32 +123,23 @@ function sequential_generate_Warc(){
  * Prevent the cached from being wiped when navigating
 */
 function startRecording() {
-    if(debug) {
-      console.log('starting recording process, start blinking the red icon');
-    }
-    
-    //change the WARCreate icon to blink red.
-
-    /*chrome.tabs.query({
-      active: true,
-      lastFocusedWindow: true
-    }, function(tabs) {
-    
-    });*/
-
-    if(debug){console.log('recording...');}
+    console.log('startRecording()');
     chrome.storage.local.set({'recording': true}, function() {
-      if(debug) {console.log('The preference stating that we are in record mode has been saved.');}
       changePageActionIcon(path_recordingIcon);
     });
-    $('#recordButton').prop('value', startRecordingLabel);
+    $('#recordButton').val(stopRecordingLabel);
+    $('#recordButton').unbind('click');
+    $('#recordButton').on('click', stopRecording);
 }
 
 function stopRecording() {
+  console.log('stopRecording()');
   chrome.storage.local.set({'recording': false}, function(){
     changePageActionIcon(path_warcreateIcon);
   });
-  $('#recordButton').prop('value', stopRecordingLabel);
+  $('#recordButton').val(startRecordingLabel);
+  $('#recordButton').unbind('click');
+  $('#recordButton').on('click', startRecording);
 }
 
 /**
@@ -242,90 +232,39 @@ function changeGenerateWARCButton(newLabel) {
 /**
  * Sets up the popup activated when the extensions's icon is clicked.
 */
-window.onload = function(){
-    var background = chrome.extension.getBackgroundPage();
-
+$(document).ready(function() {
     var buttonContainer = document.getElementById('buttonContainer');
-
-    var sButton = document.getElementById('submit');
-    var acButton = document.getElementById('alertContent');
-    //var encryptButton = document.getElementById('encrypt');
-    var encodeButton = document.getElementById('encodeImages');
-
-    //if a website is recognized from the spec, show the "Cohesive archive"
-    var caButtonDOM = document.createElement('input');
-    caButtonDOM.type = 'button';
-    caButtonDOM.id = 'generateCohesiveWARC';
-    caButtonDOM.disabled = 'disabled';
-    var t;
-
-    caButtonDOM.value = 'Generate WARC for site';
-
-    var clsButtonDOM = document.createElement('input');
-    clsButtonDOM.type = 'button';
-    clsButtonDOM.id = 'clearLocalStorage';
-    clsButtonDOM.value = 'Clear LocalStorage';
-
     $('#capturePeriodically').click(replaceCapturePeriodicallyButton);
 
-    // If in recording mode, set button to allow disabling of recording
+    setupRecordingButton();
+
+    $('#generateWarc').click(generate_Warc);
+    //$('#recordButton').click(startRecording);
+    $('#showOptions').click(function() {
+      chrome.runtime.openOptionsPage();
+    });
+});
+
+// If in recording mode, set button to allow disabling of recording
+function setupRecordingButton() {
     chrome.storage.local.get('recording', function(details) {
-      if (details.recording) {
-        if(debug) {console.log('details.recording = ' + details.recording);}
-        $('#recordButton').attr('value', stopRecordingLabel);
-        $('#recordButton').click(stopRecording);
-        changePageActionIcon(path_recordingIcon);
+      var recordButton = $('#recordButton');
+      if(debug) {console.log('details.recording = ' + details.recording);}
+      if (details && details.recording) {
+        chrome.storage.local.set({'recording': true});
+        recordButton.val(stopRecordingLabel);
+        recordButton.on('click', stopRecording);
+        //changePageActionIcon(path_recordingIcon);
+        
       } else {
-        $('#recordButton').attr('value', startRecordingLabel);
-        $('#recordButton').click(startRecording);
-        changePageActionIcon(path_warcreateIcon);
+        chrome.storage.local.set({'recording': false});
+        recordButton.val(startRecordingLabel);
+        recordButton.on('click', startRecording);
+        //changePageActionIcon(path_warcreateIcon);
+        
       }
     });
-
-
-
-    //For debugging, display content already captured
-    //var dcButtonDOM = document.createElement('input'); dcButtonDOM.type = "button"; dcButtonDOM.id = "displayCaptured"; gwButtonDOM.value = "Show pending content";
-
-    var errorText = document.createElement('a');
-    errorText.id = 'errorText';
-    errorText.target = '_blank';
-
-    var status = document.createElement('input');
-    status.id = 'status';
-    status.type = 'text';
-    status.value = '';
-
-    if(!buttonContainer){return;}
-
-    //add buttons to DOM
-    //buttonContainer.appendChild(gwButtonDOM);
-    //buttonContainer.appendChild(caButtonDOM);
-    //buttonContainer.appendChild(recordButtonDOM);
-    //buttonContainer.appendChild(capturePeriodicallyButtonDOM);
-
-    buttonContainer.appendChild(clsButtonDOM);
-    buttonContainer.appendChild(status);
-    $(buttonContainer).prepend(errorText);
-    $('#status').css('display', 'none'); //initially hide the status block
-
-    var gwButton = document.getElementById('generateWarc');
-    gwButton.onclick = generate_Warc;
-
-    //$("#recordButton").click(startRecording);
-
-    var clsButton = document.getElementById('clearLocalStorage');
-
-    //future implementation for NEH HD-51670-13
-    // https://securegrants.neh.gov/publicquery/main.aspx?f=1&gn=HD-51670-13
-    var ulButton = document.getElementById('uploader');
-    var caButton = document.getElementById('generateCohesiveWARC');
-    $(ulButton).css('display','none');
-    $(caButton).css('display','none');
-
-    $(clsButton).css('display','none'); //clear local storage, used in debugging
-    //caButton.onclick = sequential_generate_Warc;
-};
+}
 
 function replaceCapturePeriodicallyButton() {
   $('#capturePeriodically').addClass('hidden');

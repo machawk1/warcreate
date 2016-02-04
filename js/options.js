@@ -271,7 +271,7 @@ function setWAILIntegrationEnabled() {
   });
 }
 
-window.onload = function() {
+$(document).ready(function() {
 	setupButtonFunctionalityAndVisibility();
 	$('#filenameScheme').on('keyup', showFilenameExample); //bind example display to text field change
 
@@ -304,4 +304,4 @@ window.onload = function() {
 	//show data ready to be used for WARC creation
 	//populatePendingContentTable();
 	$('#getPendingContent').click(function() {populatePendingContentTable();});
-};
+});
