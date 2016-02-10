@@ -24,38 +24,41 @@ function ab2str(buf) {
 }
 
 function fetchImage(u) {
-....var xhr = new XMLHttpRequest();
-....xhr.open('GET', u, true);
-....xhr.responseType = 'arraybuffer';
+    var ret = {};
+    var imgObjs = {};
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', u, true);
+    xhr.responseType = 'arraybuffer';
 
-....xhr.onload = function (e) {
-........var uInt8Array = new Uint8Array(this.response);
+    xhr.onload = function (e) {
+        var uInt8Array = new Uint8Array(this.response);
 
-........var stringUInt8Array = [];
-........for(var ii = 0; ii < uInt8Array.length; ii++) {
-............stringUInt8Array[ii] = uInt8Array[ii]+0;
-........}
+        var stringUInt8Array = [];
+        for(var ii = 0; ii < uInt8Array.length; ii++) {
+            stringUInt8Array[ii] = uInt8Array[ii]+0;
+        }
 
-........var myString = uInt8Array;
+        var myString = uInt8Array;
 
-........ret[u] = myString;
-........delete imgObjs[u];
+        ret[u] = myString;
+        delete imgObjs[u];
 
-........ var ohemefgee = {};
-........ ohemefgee[u] = stringUInt8Array;
-........ chrome.storage.local.set(ohemefgee, function() {
-............if(chrome.runtime.lastError) {
-................console.error('Error in set data');
-................console.error(chrome.runtime.lastError);
-............}
-........ });
-....};
+         var ohemefgee = {};
+         ohemefgee[u] = stringUInt8Array;
+         chrome.storage.local.set(ohemefgee, function() {
+            if(chrome.runtime.lastError) {
+                console.error('Error in set data');
+                console.error(chrome.runtime.lastError);
+            }
+         });
+    };
 
-....xhr.onerror = function(e) {
-........console.log('Error');
-....};
+    xhr.onerror = function(e) {
+        console.log('Error');
+    };
 
-....xhr.send();
+    xhr.send();
 }
 
 var commPort;
@@ -63,140 +66,138 @@ var commPort;
 chrome.runtime.onConnect.addListener(function(port) {
   commPort = port;
   port.onMessage.addListener(function(msg) {
-  ....if(msg.method == 'getImageData') {
-........var imgObjs = {};
-........//get the image URIs from the DOM
-........for(var image=0; image<document.images.length; image++) {
-............if(document.images[image].src.indexOf('data:') == -1) {
-................imgObjs[document.images[image].src] = 'foo'; //dummy data to-be-filled below programmatically
-............}
-........}
-........//get the image URIs embedded in CSS
-........var imagesInCSS = getallBgimages();
-........for(var imageInCSS=0; imageInCSS<imagesInCSS.length; imageInCSS++) {
-............imgObjs[imagesInCSS[imageInCSS]] = 'foo'; //dummy data to-be-filled below programmatically
-........}
+      if(msg.method == 'getImageData') {
+        var imgObjs = {};
+        //get the image URIs from the DOM
+        for(var image=0; image<document.images.length; image++) {
+            if(document.images[image].src.indexOf('data:') == -1) {
+                imgObjs[document.images[image].src] = 'foo'; //dummy data to-be-filled below programmatically
+            }
+        }
+        //get the image URIs embedded in CSS
+        var imagesInCSS = getallBgimages();
+        for(var imageInCSS=0; imageInCSS<imagesInCSS.length; imageInCSS++) {
+            imgObjs[imagesInCSS[imageInCSS]] = 'foo'; //dummy data to-be-filled below programmatically
+        }
 
 
-........var ret = {};
-
-........for(var uri in imgObjs) {
-............console.log('Fetching image at ' + uri);
-............if(uri.indexOf('data:') == -1) {
-................fetchImage(uri);
-............}
-........}
+        for(var uri in imgObjs) {
+            console.log('Fetching image at ' + uri);
+            if(uri.indexOf('data:') == -1) {
+                fetchImage(uri);
+            }
+        }
 
 
 
-  ....}
-....else if(msg.method == 'getHTML') {
-........images = document.images;
+      }
+    else if(msg.method == 'getHTML') {
+        images = document.images;
 
-........outlinks = [];
-........outlinksAddedRegistry = []; //hacky array to prevent duplicate outlinks
+        outlinks = [];
+        outlinksAddedRegistry = []; //hacky array to prevent duplicate outlinks
 
-........// outlinks as images [embedded resource], there are probably other types
-........$(images).each(function () {
-............if(!outlinksAddedRegistry[$(this).attr('src')]) {
-................outlinksAddedRegistry[$(this).attr('src')] = '';
-................outlinks.push($(this).attr('src') + ' E =EMBED_MISC');
-............}
-........});
+        // outlinks as images [embedded resource], there are probably other types
+        $(images).each(function () {
+            if(!outlinksAddedRegistry[$(this).attr('src')]) {
+                outlinksAddedRegistry[$(this).attr('src')] = '';
+                outlinks.push($(this).attr('src') + ' E =EMBED_MISC');
+            }
+        });
 
-........// outlinks as CSS //TODO, E =EMBED_MISC was made-up. Is this right?
-........$(document.styleSheets).each(function () {
-............if(!outlinksAddedRegistry[$(this).attr('href')] && $(this).attr('href')) {
-................outlinksAddedRegistry[$(this).attr('href')] = '';
-........   ........outlinks.push($(this).attr('href') + ' E =EMBED_MISC');
-........   ....}
-........});
+        // outlinks as CSS //TODO, E =EMBED_MISC was made-up. Is this right?
+        $(document.styleSheets).each(function () {
+            if(!outlinksAddedRegistry[$(this).attr('href')] && $(this).attr('href')) {
+                outlinksAddedRegistry[$(this).attr('href')] = '';
+                   outlinks.push($(this).attr('href') + ' E =EMBED_MISC');
+               }
+        });
 
-........// outlinks as JavaScripts
-........$(document.scripts).each(function () {
-........   if(....$(this).attr('href') && // Only include the externally embedded JS, not the inline
-........   ........!outlinksAddedRegistry[$(this).attr('href')]
-........   ) {
-........   ........outlinksAddedRegistry[$(this).attr('href')] = '';
-........   ........outlinks.push($(this).attr('href')+' E script/@src');
-........   }
-........});
+        // outlinks as JavaScripts
+        $(document.scripts).each(function () {
+           if(    $(this).attr('href') && // Only include the externally embedded JS, not the inline
+                   !outlinksAddedRegistry[$(this).attr('href')]
+           ) {
+                   outlinksAddedRegistry[$(this).attr('href')] = '';
+                   outlinks.push($(this).attr('href')+' E script/@src');
+           }
+        });
 
-........// outlinks as external links on page
-........$('a').each(function () {
-............if(!outlinksAddedRegistry[$(this).attr('href')]) {
-................outlinksAddedRegistry[$(this).attr('href')] = '';
-........  ........outlinks.push($(this).attr('href')+' L a/@href');
-........  ....}
-........});
+        // outlinks as external links on page
+        $('a').each(function () {
+            if(!outlinksAddedRegistry[$(this).attr('href')]) {
+                outlinksAddedRegistry[$(this).attr('href')] = '';
+                  outlinks.push($(this).attr('href')+' L a/@href');
+              }
+        });
 
-........outlinksAddedRegistry = null; //reclaim space, since we no longer need this check given we're through building outlinks
+        outlinksAddedRegistry = null; //reclaim space, since we no longer need this check given we're through building outlinks
         chrome.storage.local.set({'outlinks': outlinks});
 
 
-........var imageURIs = [];
-........var imageBase64Data = [];
-........var img = {};
-....//*********************************
-....// Convert images to something portable and text-y
-....//*********************************
-........for(var i = 0; i< images.length; i++) {
-............var imageI = images[i];
-............if(!(imageI.src)) {
-................continue;
-............}
+        var imageURIs = [];
+        var imageBase64Data = [];
+        var img = {};
+    //*********************************
+    // Convert images to something portable and text-y
+    //*********************************
+        for(var i = 0; i< images.length; i++) {
+            var imageI = images[i];
+            if(!(imageI.src)) {
+                continue;
+            }
 
-............var canvas = document.createElement('canvas');
-............canvas.width = imageI.width;
-............canvas.height = imageI.height;
+            var canvas = document.createElement('canvas');
+            canvas.width = imageI.width;
+            canvas.height = imageI.height;
 
-............var dataurl = canvas.toDataURL();
-............var datastartpos = dataurl.match(',').index + 1;
-............var dd = dataurl.substring(datastartpos);
+            var dataurl = canvas.toDataURL();
+            var datastartpos = dataurl.match(',').index + 1;
+            var dd = dataurl.substring(datastartpos);
 
-........}
+        }
 
-........var imageDataSerialized = imageBase64Data.join('|||');
-........var imageURIsSerialized = imageURIs.join('|||');
-........
-........for(var imgI = 0; imgI < imageURIs.length; imgI++) {
-........  img[imageURIs] = imageBase64Data[imgI];
-........}
-........
-........chrome.storage.local.set({'img': img});
-........
-........localStorage.imagesInDOM = imageURIsSerialized;
+        var imageDataSerialized = imageBase64Data.join('|||');
+        var imageURIsSerialized = imageURIs.join('|||');
+        
+        for(var imgI = 0; imgI < imageURIs.length; imgI++) {
+          img[imageURIs] = imageBase64Data[imgI];
+        }
+        
+        chrome.storage.local.set({'img': img});
+        
+        localStorage.imagesInDOM = imageURIsSerialized;
 
-........var cssCallbackToGetJS = function() {
-........  getJSData(serializeAndPostDocumentContents);
-........};
+        var cssCallbackToGetJS = function() {
+          getJSData(serializeAndPostDocumentContents);
+        };
 
         chrome.storage.local.set({'method': msg.method});
 
-........getCSSData(cssCallbackToGetJS);
+        getCSSData(cssCallbackToGetJS);
 
-....}else {
-........//console.log(('Method unsupported in content.js: '+msg.method);
-....}
+    }else {
+        //console.log(('Method unsupported in content.js: '+msg.method);
+    }
 
   });
 });
 
 
 function serializeAndPostDocumentContents() {
-....chrome.storage.local.get(['js','css','outlinks','method','img'], function(pageAttributes) {....
-....  var domAsText = stringifyDOM();
+    chrome.storage.local.get(['js','css','outlinks','method','img'], function(pageAttributes) {    
+      var domAsText = stringifyDOM();
 
      console.log(pageAttributes.method);
 
-....  commPort.postMessage({
-........html: domAsText,
-........img: pageAttributes.img,
-........css: pageAttributes.css,
-........js: pageAttributes.js,
-........outlinks: pageAttributes.outlinks,
-........method: pageAttributes.method
-....  });....//communicate back to code.js ~130 with image data
+      commPort.postMessage({
+        html: domAsText,
+        img: pageAttributes.img,
+        css: pageAttributes.css,
+        js: pageAttributes.js,
+        outlinks: pageAttributes.outlinks,
+        method: pageAttributes.method
+      });    //communicate back to code.js ~130 with image data
    });
 }
 
@@ -206,10 +207,10 @@ function stringifyDOM() {
   
   var textDocumentStarterString = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">';
   if(domAsText.substr(0, textDocumentStarterString.length) ==  textDocumentStarterString) {
-.... console.log('Adjusting WARC algorithm to account for text rather than HTML document.');
+     console.log('Adjusting WARC algorithm to account for text rather than HTML document.');
 
-.... domAsText = $(document).find('pre').html(); //replace text w/ html wrapper with just text
-.... docTypeString = ''; //remove the doctype injection
+     domAsText = $(document).find('pre').html(); //replace text w/ html wrapper with just text
+     docTypeString = ''; //remove the doctype injection
   }
 
   domAsText = docTypeString + domAsText;
@@ -218,18 +219,18 @@ function stringifyDOM() {
 }
 
 function getDoctype() {
-....var node = document.doctype;
-....var dtstr;
-....if(!node){dtstr = '';}
-....else {
-........dtstr = '<!DOCTYPE '
-............ + '' + node.name
-............ + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
-............ + (!node.publicId && node.systemId ? ' SYSTEM' : '')
-............ + (node.systemId ? ' "' + node.systemId + '"' : '')
-............ + '>';
-....}
-....return dtstr;
+    var node = document.doctype;
+    var dtstr;
+    if(!node){dtstr = '';}
+    else {
+        dtstr = '<!DOCTYPE '
+             + '' + node.name
+             + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
+             + (!node.publicId && node.systemId ? ' SYSTEM' : '')
+             + (node.systemId ? ' "' + node.systemId + '"' : '')
+             + '>';
+    }
+    return dtstr;
 }
 
 
@@ -295,6 +296,10 @@ function base64ArrayBuffer(arrayBuffer) {
 }
 
 function absolute(base, relative) {
+    if(!base) {
+      base = document.URL;
+    }
+
     var stack = base.split('/'),
         parts = relative.split('/');
     stack.pop(); // remove current file name (or empty string)
