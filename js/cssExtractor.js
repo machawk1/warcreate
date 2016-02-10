@@ -4,8 +4,6 @@ function findEmbeddedCSSURIs() {
   for(var cssFileIndex = 0; cssFileIndex < document.styleSheets.length; cssFileIndex++) {
 	for(var rules=0; document.styleSheets[cssFileIndex].rules && rules<document.styleSheets[cssFileIndex].rules.length; rules++){
 		if(document.styleSheets[cssFileIndex].rules[rules].type == 3){
-			//we have a CSS import. Magic number, yes, but so is the definition
-			console.log(cssFileIndex);
 			var foundCSSFile = absolute(document.styleSheets[cssFileIndex].href,document.styleSheets[cssFileIndex].rules[rules].href);
 			foundCSSFiles.push(foundCSSFile);
 		}

@@ -296,7 +296,10 @@ function base64ArrayBuffer(arrayBuffer) {
 }
 
 function absolute(base, relative) {
-    if(!base) {
+    if(relative.substr(0,2) === '//') { //Scheme-less URI
+      var scheme = document.URL.substr(0, document.URL.indexOf('//'));
+      return scheme + relative;
+    }else if(!base) {
       base = document.URL;
     }
 
