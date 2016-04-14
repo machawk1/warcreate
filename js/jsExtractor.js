@@ -20,12 +20,14 @@ function getJSData(cb) {
       url: document.scripts[ii].src,
       dataType: 'text'
     }).done(function(jsText){
-      console.log('ajax done');
       js[document.scripts[ii].src] = jsText;
       getJSDataAtIndex(++ii);
     }).fail(function(xhr, status, err) {
       console.log('An error occurred fetching '+ document.scripts[ii].src);
       console.log(err);
+      js[document.scripts[ii].src] = '(An adblocker prevented WARCreate from capturing this file)';
+      getJSDataAtIndex(++ii);
+      
     });
     
   }
