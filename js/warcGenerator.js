@@ -92,6 +92,8 @@ function generateWarc(o_request, o_sender, f_callback) {
   function makeWarcRequestHeaderWith(targetURI, now, warcConcurrentTo, warcRequest){
     var CRLF = '\r\n';
     
+    console.log(warcRequest);
+    
     var x =
       'WARC/1.0' + CRLF +
       'WARC-Type: request' + CRLF +

@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "WARCreate",
-  "version": "0.2016.2.4",
+  "version": "0.2016.4.14",
 
   "description": "Create Wayback-Consumable WARC Files from Any Webpage",
   "icons" : {

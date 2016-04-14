@@ -183,7 +183,6 @@ chrome.runtime.onConnect.addListener(function(port) {
   });
 });
 
-
 function serializeAndPostDocumentContents() {
     chrome.storage.local.get(['js','css','outlinks','method','img'], function(pageAttributes) {    
       var domAsText = stringifyDOM();
@@ -271,7 +270,7 @@ function base64ArrayBuffer(arrayBuffer) {
   }
 
   // Deal with the remaining bytes and padding
-  if (byteRemainder == 1) {
+  if (byteRemainder === 1) {
     chunk = bytes[mainLength];
 
     a = (chunk & 252) >> 2; // 252 = (2^6 - 1) << 2
@@ -308,15 +307,18 @@ function absolute(base, relative) {
     stack.pop(); // remove current file name (or empty string)
                  // (omit if "base" is the current folder without trailing slash)
 
-    if(relative.substr(0,1) == '/'){return window.location.origin+relative;} //where the @import is /cssFiles.css
+    if(relative.substr(0,1) == '/') {
+      return window.location.origin+relative;
+    } // Where the @import is /cssFiles.css
 
     for (var i=0; i<parts.length; i++) {
-        if (parts[i] == '.')
+        if (parts[i] === '.') {
             continue;
-        if (parts[i] == '..')
+        } else if (parts[i] === '..') {
             stack.pop();
-        else
+        } else {
             stack.push(parts[i]);
+        }
     }
     return stack.join('/');
 }

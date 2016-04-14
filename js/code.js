@@ -161,7 +161,7 @@ function changePageActionIcon(iconPath) {
  * string representative of the contents of the WARC file being generated.
 */
 function generate_Warc(){
-    //console.log(("generate_warc start");
+    console.log("generate_warc start");
 
     var imageData = [];
     var imageURIs = [];
@@ -177,16 +177,22 @@ function generate_Warc(){
                 changeGenerateWARCButton(buttonLabel_generatingWARC);
 				chrome.tabs.query({active: true,lastFocusedWindow: true},
 				function(tabs) {
+				  console.log('tab query cb');
     			    var tab = tabs[0];
                     //chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id});
                     var port = chrome.tabs.connect(tab.id,{name: 'warcreate'});	//create a persistent connection
-                    port.postMessage({url: tab.url, method: 'getHTML'});	//fetch the html of the page, in content.js
+                    port.postMessage({url: tab.url, method: 'getHTML'}
+                    ,function() {
+                      console.log('cb from posting getHTML message');
+                    }
+                    );	//fetch the html of the page, in content.js
 
                     var imageDataFilledTo = -1;
 
                     //perform the first listener, populate the binary image data
-                    //console.log(("adding listener");
+                    console.log("adding listener");
                     port.onMessage.addListener(function(msg) {	//get image base64 data
+                      console.log('listener invoked');
                         var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,'') + '.warc';
 
                         //If the user has specified a custom filename format, apply it here
@@ -194,6 +200,7 @@ function generate_Warc(){
                             fileName = moment().format(localStorage.filenameScheme) + '.warc';
                         }
 
+                        
                         
                         chrome.runtime.sendMessage({
                             url: tab.url,

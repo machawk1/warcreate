@@ -22,6 +22,7 @@ function getDOMCSSURIs() {
 }
 
 function getCSSData(cb) {
+ console.log('called getCSSData in cssExtractor.js')
     //a better way to get all stylesheets but we cannot get them as text but instead an object with ruleslist
     var styleSheetURLs = [];
     //var styleSheetData = [];
