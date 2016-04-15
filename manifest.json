@@ -36,7 +36,8 @@
 	 "http://*/*",
 	 "http://*/",
 	 "*://*/*",
-     "notifications"
+     "notifications",
+     "downloads"
   ],
   "options_page": "html/options.html",
   "short_name" : "WARCreate",

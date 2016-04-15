@@ -4,7 +4,6 @@ function getJSData(cb) {
   var js = {};
   
   function getJSDataAtIndex(ii) {   
-    console.log(ii);
     if(ii >= document.scripts.length) {
       chrome.storage.local.set({'js': js}, function() {
         cb();
@@ -15,6 +14,10 @@ function getJSData(cb) {
     
     
     console.log('ajax to ' + document.scripts[ii].src);
+    if(!document.scripts[ii].src) { // Inline script, continue
+      console.log('inline script');
+      return getJSDataAtIndex(++ii); 
+    }
     
     $.ajax({
       url: document.scripts[ii].src,

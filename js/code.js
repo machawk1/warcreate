@@ -178,27 +178,29 @@ function generate_Warc(){
 				chrome.tabs.query({active: true,lastFocusedWindow: true},
 				function(tabs) {
 				  console.log('tab query cb');
-    			    var tab = tabs[0];
-                    //chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id});
-                    var port = chrome.tabs.connect(tab.id,{name: 'warcreate'});	//create a persistent connection
-                    port.postMessage({url: tab.url, method: 'getHTML'}
-                    ,function() {
-                      console.log('cb from posting getHTML message');
-                    }
-                    );	//fetch the html of the page, in content.js
+    		  var tab = tabs[0];
+          //chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id});
+          var port = chrome.tabs.connect(tab.id,{name: 'warcreate'});	//create a persistent connection
+          port.postMessage({url: tab.url, method: 'getHTML'}, function() {console.log('cb from posting getHTML message');});	//fetch the html of the page, in content.js
 
-                    var imageDataFilledTo = -1;
+          var imageDataFilledTo = -1;
 
-                    //perform the first listener, populate the binary image data
-                    console.log("adding listener");
-                    port.onMessage.addListener(function(msg) {	//get image base64 data
-                      console.log('listener invoked');
-                        var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,'') + '.warc';
+          //perform the first listener, populate the binary image data
+          console.log("adding listener");
+          port.onMessage.addListener(function(msg) {	//get image base64 data
+            console.log('listener invoked');
+            console.log(msg);
+              var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,'') + '.warc';
 
-                        //If the user has specified a custom filename format, apply it here
-                        if(localStorage.filenameScheme && localStorage.filenameScheme.length > 0){
-                            fileName = moment().format(localStorage.filenameScheme) + '.warc';
-                        }
+              //If the user has specified a custom filename format, apply it here
+              if(localStorage.filenameScheme && localStorage.filenameScheme.length > 0){
+                  fileName = moment().format(localStorage.filenameScheme) + '.warc';
+              }
+
+
+//console.log('img data');
+//console.log(msg.data);
+//return;
 
                         
                         

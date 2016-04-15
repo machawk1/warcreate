@@ -2,7 +2,9 @@
 var server = 'http://warcreate.com';
 var outlinks = [];
 
+/*
 function fetchImage(u) {
+    console.log('Fetching image at ' + u);
     var xhr = new XMLHttpRequest();
     xhr.open('GET', u, true);
     xhr.responseType = 'arraybuffer';
@@ -10,6 +12,12 @@ function fetchImage(u) {
     xhr.onload = function (e) {
         var uInt8Array = new Uint8Array(this.response);
         delete imageUris[u];
+        imageUris[u] = uInt8Array;
+        chrome.storage.local.set(imageUris, function() {
+          if(chrome.runtime.lastError) {
+            console.log('There was an error setting the image data to localstorage');
+          }
+        });
         //console.log(('Fetched '+u+'  '+Object.keys(imageUris).length+' urls left to fetch');
         if(Object.keys(imageUris).length === 0) {
              //console.log(('All image data collected');
@@ -17,7 +25,7 @@ function fetchImage(u) {
     };
 
     xhr.send();
-}
+}*/
 
 function ab2str(buf) {
     return String.fromCharCode.apply(null, new Uint16Array(buf));
@@ -44,9 +52,10 @@ function fetchImage(u) {
         ret[u] = myString;
         delete imgObjs[u];
 
-         var ohemefgee = {};
-         ohemefgee[u] = stringUInt8Array;
-         chrome.storage.local.set(ohemefgee, function() {
+         var localStorageImages = {};
+         localStorageImages[u] = stringUInt8Array;
+         console.log('setting '+ u + ' in localstorage');
+         chrome.storage.local.set(localStorageImages, function() {
             if(chrome.runtime.lastError) {
                 console.error('Error in set data');
                 console.error(chrome.runtime.lastError);
@@ -82,7 +91,6 @@ chrome.runtime.onConnect.addListener(function(port) {
 
 
         for(var uri in imgObjs) {
-            console.log('Fetching image at ' + uri);
             if(uri.indexOf('data:') == -1) {
                 fetchImage(uri);
             }
@@ -93,47 +101,8 @@ chrome.runtime.onConnect.addListener(function(port) {
       }
     else if(msg.method == 'getHTML') {
         images = document.images;
-
-        outlinks = [];
-        outlinksAddedRegistry = []; //hacky array to prevent duplicate outlinks
-
-        // outlinks as images [embedded resource], there are probably other types
-        $(images).each(function () {
-            if(!outlinksAddedRegistry[$(this).attr('src')]) {
-                outlinksAddedRegistry[$(this).attr('src')] = '';
-                outlinks.push($(this).attr('src') + ' E =EMBED_MISC');
-            }
-        });
-
-        // outlinks as CSS //TODO, E =EMBED_MISC was made-up. Is this right?
-        $(document.styleSheets).each(function () {
-            if(!outlinksAddedRegistry[$(this).attr('href')] && $(this).attr('href')) {
-                outlinksAddedRegistry[$(this).attr('href')] = '';
-                   outlinks.push($(this).attr('href') + ' E =EMBED_MISC');
-               }
-        });
-
-        // outlinks as JavaScripts
-        $(document.scripts).each(function () {
-           if(    $(this).attr('href') && // Only include the externally embedded JS, not the inline
-                   !outlinksAddedRegistry[$(this).attr('href')]
-           ) {
-                   outlinksAddedRegistry[$(this).attr('href')] = '';
-                   outlinks.push($(this).attr('href')+' E script/@src');
-           }
-        });
-
-        // outlinks as external links on page
-        $('a').each(function () {
-            if(!outlinksAddedRegistry[$(this).attr('href')]) {
-                outlinksAddedRegistry[$(this).attr('href')] = '';
-                  outlinks.push($(this).attr('href')+' L a/@href');
-              }
-        });
-
-        outlinksAddedRegistry = null; //reclaim space, since we no longer need this check given we're through building outlinks
-        chrome.storage.local.set({'outlinks': outlinks});
-
+        setOutlinks();
+        console.log('processing '+images.length+' images');
 
         var imageURIs = [];
         var imageBase64Data = [];
@@ -141,8 +110,9 @@ chrome.runtime.onConnect.addListener(function(port) {
     //*********************************
     // Convert images to something portable and text-y
     //*********************************
-        for(var i = 0; i< images.length; i++) {
+        for(var i = 0; i < images.length; i++) {
             var imageI = images[i];
+
             if(!(imageI.src)) {
                 continue;
             }
@@ -154,19 +124,17 @@ chrome.runtime.onConnect.addListener(function(port) {
             var dataurl = canvas.toDataURL();
             var datastartpos = dataurl.match(',').index + 1;
             var dd = dataurl.substring(datastartpos);
+            imageURIs.push(images[i].src);
 
+            imageBase64Data.push(dd);
         }
-
-        var imageDataSerialized = imageBase64Data.join('|||');
-        var imageURIsSerialized = imageURIs.join('|||');
         
         for(var imgI = 0; imgI < imageURIs.length; imgI++) {
-          img[imageURIs] = imageBase64Data[imgI];
+          img[imageURIs[imgI]] = imageBase64Data[imgI];
         }
-        
         chrome.storage.local.set({'img': img});
         
-        localStorage.imagesInDOM = imageURIsSerialized;
+        localStorage.imagesInDOM = imageURIs;
 
         var cssCallbackToGetJS = function() {
           getJSData(serializeAndPostDocumentContents);
@@ -182,6 +150,52 @@ chrome.runtime.onConnect.addListener(function(port) {
 
   });
 });
+
+function setOutlinks() {
+  console.log('OUTLINKS: gathering');
+  images = document.images;
+
+  outlinks = [];
+  outlinksAddedRegistry = []; //hacky array to prevent duplicate outlinks
+
+  // outlinks as images [embedded resource], there are probably other types
+  $(images).each(function () {
+      if(!outlinksAddedRegistry[$(this).attr('src')]) {
+          outlinksAddedRegistry[$(this).attr('src')] = '';
+          outlinks.push($(this).attr('src') + ' E =EMBED_MISC');
+      }
+  });
+
+  // outlinks as CSS //TODO, E =EMBED_MISC was made-up. Is this right?
+  $(document.styleSheets).each(function () {
+      if(!outlinksAddedRegistry[$(this).attr('href')] && $(this).attr('href')) {
+          outlinksAddedRegistry[$(this).attr('href')] = '';
+             outlinks.push($(this).attr('href') + ' E =EMBED_MISC');
+         }
+  });
+
+  // outlinks as JavaScripts
+  $(document.scripts).each(function () {
+     if(    $(this).attr('href') && // Only include the externally embedded JS, not the inline
+             !outlinksAddedRegistry[$(this).attr('href')]
+     ) {
+             outlinksAddedRegistry[$(this).attr('href')] = '';
+             outlinks.push($(this).attr('href')+' E script/@src');
+     }
+  });
+
+  // outlinks as external links on page
+  $('a').each(function () {
+      if(!outlinksAddedRegistry[$(this).attr('href')]) {
+          outlinksAddedRegistry[$(this).attr('href')] = '';
+            outlinks.push($(this).attr('href')+' L a/@href');
+        }
+  });
+
+  outlinksAddedRegistry = null; //reclaim space, since we no longer need this check given we're through building outlinks
+  chrome.storage.local.set({'outlinks': outlinks});
+  console.log('OUTLINKS: saved to localStorage');
+}
 
 function serializeAndPostDocumentContents() {
     chrome.storage.local.get(['js','css','outlinks','method','img'], function(pageAttributes) {    

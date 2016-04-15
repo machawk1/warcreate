@@ -56,6 +56,9 @@ function generateWarc(o_request, o_sender, f_callback) {
   var nowHttp = new Date().toString('ddd dd MMM yyyy HH:mm:ss') + ' GMT';
   var fileName = o_request.file;
   var initURI = o_request.url;
+  
+  // Sanitize URI
+  initURI = initURI.substr(0, initURI.indexOf('#'));
 
   var warcInfoDescription =  'Crawl initiated from the WARCreate Google Chrome extension';
   var isPartOf = 'basic';
@@ -92,7 +95,7 @@ function generateWarc(o_request, o_sender, f_callback) {
   function makeWarcRequestHeaderWith(targetURI, now, warcConcurrentTo, warcRequest){
     var CRLF = '\r\n';
     
-    console.log(warcRequest);
+    if(!warcRequest) {warcRequest = '';}
     
     var x =
       'WARC/1.0' + CRLF +
@@ -143,6 +146,11 @@ function generateWarc(o_request, o_sender, f_callback) {
   //DUCTTAPE
   if(initURI.indexOf('twitter.com') > -1){
     responseHeaders[initURI] = responseHeaders[initURI].replace('text/javascript', 'text/html');
+  }
+  
+  if(!responseHeaders[initURI]) {
+    console.log('Something went wrong with responseHeader for ' +initURI);
+    console.log(responseHeaders);
   }
   //DUCTTAPE to fix bug #53
   responseHeaders[initURI] = responseHeaders[initURI].replace('HTTP/1.1 304 Not Modified', 'HTTP/1.1 200 OK');
@@ -213,7 +221,7 @@ function generateWarc(o_request, o_sender, f_callback) {
   var img, css, js;
 
   if(o_request.img) img = o_request.img;
-  if(o_request.js) js = o_request.js;
+  if(o_request.js) js = o_request.js;  
   if(o_request.css) css = o_request.css;
 
   var seedURL = true;
@@ -279,7 +287,17 @@ function generateWarc(o_request, o_sender, f_callback) {
           if(Object.keys(responsesToConcatenate).length === 0){
 
             if(!localStorage.uploadTo || localStorage.uploadTo.length === 0){
-              saveAs(new Blob(arrayBuffers), fileName);
+              var blob = new Blob(arrayBuffers);
+              //saveAs(blob, fileName);
+              
+              var saveAs = document.createElement('iframe');
+              saveAs.style.display = 'none';
+              saveAs.src = window.createObjectURL(blob);
+              chrome.downloads.download({
+                url:  saveAs.src,
+                filename: 'mkdc.html',
+                saveAs: true
+              });
             }else {
               uploadWarc(arrayBuffers);
             }
@@ -312,12 +330,12 @@ function generateWarc(o_request, o_sender, f_callback) {
       arrayBuffers.push(str2ab(respHeader+respContent+CRLF+CRLF));
       delete responsesToConcatenate[requestHeader];
 
-    }/*else if(
+    }else if(
       responseHeaders[requestHeader] &&
       responseHeaders[requestHeader].indexOf('Content-Type: application/javascript') > -1)
     {
       console.log(requestHeader + ' is a JS file');
-      var respHeader = responseHeaders[requestHeader] + CRLF + CRLF;
+ /*     var respHeader = responseHeaders[requestHeader] + CRLF + CRLF;
       var respContent = '';
 
       for(var jc=0; jc<jsURIs.length; jc++){
@@ -331,8 +349,8 @@ function generateWarc(o_request, o_sender, f_callback) {
       arrayBuffers.push(str2ab(jsResponseHeaderString));
 
       arrayBuffers.push(str2ab(respHeader+respContent+CRLF+CRLF));
-
-    }*/
+*/
+    }
     else {
       /*console.log(' (X) '+requestHeader+' is not an image or CSS file.');
       if(responseHeaders[requestHeader] && responseHeaders[requestHeader].indexOf('text/html') > -1){
@@ -381,13 +399,43 @@ function generateWarc(o_request, o_sender, f_callback) {
   //responseHeaders = null; responseHeaders = new Array();
   //
   if(Object.keys(responsesToConcatenate).length === 0){
-    saveAs(new Blob(arrayBuffers), fileName);
+    var blob = new Blob(arrayBuffers);
+    //saveAs(blob, fileName); // Simply Downloads the file
+    
+    var saveAs = document.createElement('iframe');
+    saveAs.style.display = 'none';
+    if(!!window.createObjectURL == false) {
+      saveAs.src = window.URL.createObjectURL(blob); 
+    }
+    else {
+      saveAs.src = window.createObjectURL(blob); 
+    }
+    
+    chrome.downloads.download({
+      url:  saveAs.src,
+      filename: './test.warc',
+      saveAs: true
+    }, function cb(downloadId) {
+      console.log('The download ID is ' + downloadId);
+      chrome.downloads.show(downloadId);
+    });
+    
     f_callback({msg: "warc generated"});
   }else {
     console.log('Still have to process URIs:' + Object.keys(responsesToConcatenate).join(' '));
   }
   //f_callback({x: jsonedData});
 }
+
+chrome.downloads.onDeterminingFilename.addListener(function(downloadItem, suggest) {
+  downloadItem.mime = 'application/warc';
+  if(downloadItem.filename.length > 5 && downloadItem.filename.substr(-5) != '.warc') {
+    downloadItem.filename = downloadItem.filename + '.warc';
+  }
+  console.log('called onDeterminingFilename!');
+  console.log(downloadItem);
+  console.log(suggest);
+});
 
 /* ************************************************************
 
