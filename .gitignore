@@ -6,20 +6,3 @@
 !.codeclimate.yml
 !.jshintrc
 !.travis.yml
-
-# Ignore Play! working directory #
-db
-eclipse
-lib
-log
-logs
-modules
-precompiled
-project/project
-project/target
-target
-tmp
-test-result
-server.pid
-*.iml
-*.eml
