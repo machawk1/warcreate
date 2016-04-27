@@ -5,6 +5,7 @@
 !.gitignore
 !.codeclimate.yml
 !.jshintrc
+!.travis.yml
 
 # Ignore Play! working directory #
 db

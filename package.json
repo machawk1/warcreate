@@ -1,0 +1,43 @@
+{
+  "name": "WARCreate",
+  "description": "Create WARC files from any webpage",
+  "author": {
+    "email": "mkelly@cs.odu.edu",
+    "name": "Mat Kelly",
+    "url": "http://www.cs.odu.edu/~mkelly/"
+  },
+  "keywords": [
+    "archive",
+    "web archive",
+    "warc",
+    "chrome",
+    "browser",
+    "extension"
+  ],
+  "license": "GPLv3",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/machawk1/warcreate.git"
+  },
+  "scripts": {
+    "test": "standard"
+  },
+  "devDependencies": {
+    "standard" :"^3.0.0"
+  },
+  "standard": {
+    "ignore": [
+      "js/base64.js",
+      "js/dnd-lib.js",
+      "js/downloadify/*",
+      "js/es6-shim.js",
+      "js/filler.min.js",
+      "js/FileSaver/*",
+      "js/FileSaver.js",
+      "js/jquery.ocupload-1.1.2.packed.js",
+      "js/jquery.rc4.js",
+      "js/upclick-min.js",
+      "js/xml2json.js"
+    ]
+  }
+}
