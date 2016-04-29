@@ -1,17 +1,16 @@
-/* global chrome, $ */
+/* global chrome, $, localStorage */
 
 /**
  * WARCreate for Google Chrome
  * "Create WARC files from any webpage"
  * by Mat Kelly <warcreate@matkelly.com>
- *
+ *window.alert(
  * See included LICENSE file for reuse information
  *
 */
 
 var debug = true
 
-var server = 'http://warcreate.com'
 var path_recordingIcon = '../icons/recording.png'
 var path_warcreateIcon = '../icons/icon-38.png'
 
@@ -22,23 +21,14 @@ var buttonLabel_generatingWARC = 'Generating WARC...'
 var buttonLabel_warcGenerated = '✓ WARC Generated!'
 
 // Called when the url of a tab changes.
-function checkForValidUrl(tabId, changeInfo, tab) {
+function checkForValidUrl (tabId, changeInfo, tab) {
   chrome.pageAction.show(tabId)
-}
-
-function alertContent() {
-  chrome.tabs.executeScript(null, {file:'js/jquery-2.2.0.min.js'}, function () {
-    chrome.tabs.executeScript(null, {file:'js/jquery.rc4.js'}, function () {
-      chrome.tabs.executeScript(null, { file: 'js/alertContent.js' }, function () {
-      })
-    })
-  })
 }
 
 /**
  * Converts images on the webpage into a binary string
 */
-function encodeImages() {
+function encodeImages () {
   var images = document.getElementsByTagName('img')
   var img = new Image()
   img.src = request.url
@@ -49,23 +39,26 @@ function encodeImages() {
 
   // console.log((i+': '+images[i].src+'  file type: '+fileType)
   var fileType = images[i].src.substr(images[i].src.length - 4).toLowerCase()
-  if (fileType === '.jpg' || fileType === 'jpeg') {fileType = 'image/jpeg'}
-  else if (fileType === '.png') {fileType = 'image/png'}
-  else if (fileType === '.gif') {fileType = 'image/gif'}
-  else {
-    var uTransformed = images[i].src.substring(0,images[i].src.indexOf('.jpg')) + '.jpg'
-    alert('error at image ' + i + ' ' + uTransformed) 
+  if (fileType === '.jpg' || fileType === 'jpeg') {
+    fileType = 'image/jpeg'
+  } else if (fileType === '.png') {
+    fileType = 'image/png'
+  } else if (fileType === '.gif') {
+    fileType = 'image/gif'
+  } else {
+    var uTransformed = images[i].src.substring(0, images[i].src.indexOf('.jpg')) + '.jpg'
+    window.alert('error at image ' + i + ' ' + uTransformed) 
     return 
   }
-  //console.log((i+': '+images[i].src+'  file type: '+fileType)
+  // console.log((i+': '+images[i].src+'  file type: '+fileType)
 
   try {
     var base64  = canvas.toDataURL(fileType)
     img.src = base64
-    //console.log(('Replaced image '+request.url+' with its base64 encoded form per canvas')
+    // console.log(('Replaced image '+request.url+' with its base64 encoded form per canvas')
   }
-  catch(e) {
-    alert('Encoding of inline binary content failed!')
+  catch (e) {
+    window.alert('Encoding of inline binary content failed!')
     console.log(e)
     return
   }
@@ -78,7 +71,7 @@ function encodeImages() {
 function encrypt () {
   var key = document.getElementById('key').value
   if (key === '') {
-    alert('First enter a key for encryption.')
+    window.alert('First enter a key for encryption.')
     return
   }
   chrome.tabs.executeScript(null, {file:'js/jquery-2.2.0.min.js'}, function () {
@@ -108,7 +101,7 @@ function sequential_generate_Warc () {
         if (info.status === 'complete') {
           generate_Warc()
           //chrome.tabs.remove(tab.tabId)
-          alert('done with ' + (uu + 1) + '/' + urls.length)
+          window.alert('done with ' + (uu + 1) + '/' + urls.length)
           if (++uu >= urls.length) { return }
             generateWarcFromNextURL(urls[uu])
           }
@@ -132,7 +125,7 @@ function startRecording () {
   $('#recordButton').on('click', stopRecording)
 }
 
-function stopRecording() {
+function stopRecording () {
   console.log('stopRecording()')
   chrome.storage.local.set({'recording': false}, function () {
     changePageActionIcon(path_warcreateIcon)
@@ -145,8 +138,8 @@ function stopRecording() {
 /**
  * UNUSED: Changes the pageAction icon to the URI passed in. Would be unnecessary if Chrome supported animated GIF here
 */
-function changePageActionIcon(iconPath) {
-  if (debug) {console.log('calling changePageActionIcon' + iconPath)}
+function changePageActionIcon (iconPath) {
+  if (debug) { console.log('calling changePageActionIcon' + iconPath) }
   chrome.tabs.query({
       active: true,
       lastFocusedWindow: true
@@ -160,7 +153,7 @@ function changePageActionIcon(iconPath) {
  * Calls and aggregates the results of the functions that progressively create a
  * string representative of the contents of the WARC file being generated.
 */
-function generate_Warc() {
+function generate_Warc () {
   console.log('generate_warc start')
 
   var imageData = []
@@ -179,8 +172,8 @@ function generate_Warc() {
         function (tabs) {
           console.log('tab query cb')
           var tab = tabs[0]
-          //chrome.pageAction.setIcon({path:'../icons/icon-running.png',tabId:tab.id})
-          var port = chrome.tabs.connect(tab.id,{name: 'warcreate'})	//create a persistent connection
+          // chrome.pageAction.setIcon({path:'../icons/icon-running.png',tabId:tab.id})
+          var port = chrome.tabs.connect(tab.id,{name: 'warcreate'})	// Create a persistent connection
           port.postMessage({url: tab.url, method: 'getHTML'}
           ,function () {
             console.log('cb from posting getHTML message')
@@ -190,7 +183,7 @@ function generate_Warc() {
 
           // Perform the first listener, populate the binary image data
           console.log('adding listener')
-          port.onMessage.addListener(function (msg) {	//get image base64 data
+          port.onMessage.addListener(function (msg) {	// Get image base64 data
             console.log('listener invoked')
             var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,'') + '.warc'
 
@@ -211,7 +204,7 @@ function generate_Warc() {
               jsURIs:  msg.jsuris,
               jsData:  msg.jsdata,
               outlinks: msg.outlinks},
-            function (response) {	//the callback to sendRequest
+            function (response) {	// The callback to sendRequest
               /* chrome.storage.local.set({'recording': false}, function () {
                 console.log('The preference stating that we are out of record mode has been saved.')
               }) */
@@ -241,14 +234,14 @@ $(document).ready(function () {
   setupRecordingButton()
 
   $('#generateWarc').click(generate_Warc)
-  //$('#recordButton').click(startRecording)
+  // $('#recordButton').click(startRecording)
   $('#showOptions').click(function () {
     chrome.runtime.openOptionsPage()
   })
 })
 
 // If in recording mode, set button to allow disabling of recording
-function setupRecordingButton() {
+function setupRecordingButton () {
   chrome.storage.local.get('recording', function (details) {
     var recordButton = $('#recordButton')
     if (debug) { console.log('details.recording = ' + details.recording) }
@@ -266,7 +259,7 @@ function setupRecordingButton() {
   })
 }
 
-function replaceCapturePeriodicallyButton() {
+function replaceCapturePeriodicallyButton () {
   $('#capturePeriodically').addClass('hidden')
   $('#capturePeriodicallyDetails').removeClass('hidden')
 }
@@ -311,7 +304,6 @@ chrome.webRequest.onHeadersReceived.addListener(
   },
   { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['responseHeaders','blocking'])
 
-
 /**
  * Stores HTTP request headers into an object array with URI as key.
 */
@@ -329,8 +321,8 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
         requestHeaders[req.url] += req.requestHeaders[key].name + ': ' + req.requestHeaders[key].value + CRLF
       }
     }
-  }, 
-  { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['requestHeaders','blocking'])
+  },
+  { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['requestHeaders', 'blocking'])
 
 /**
  * Captures information about redirects that otherwise would be transparent to
@@ -347,7 +339,7 @@ chrome.webRequest.onBeforeRedirect.addListener(function (resp) {
     }
   }
   // console.log((responseHeaders[resp.url])
-  }, { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId}, ['responseHeaders'])
+  }, { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['responseHeaders'])
 
 /* ************************************************************
 
@@ -360,7 +352,7 @@ chrome.webRequest.onBeforeRedirect.addListener(function (resp) {
  * Converts UTF-8 to base 64 data
 */
 function utf8_to_b64 (str) {
-    return window.btoa(unescape(encodeURIComponent(str)))
+  return window.btoa(unescape(encodeURIComponent(str)))
 }
 
 /**

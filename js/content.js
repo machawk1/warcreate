@@ -1,5 +1,3 @@
-//var server = 'http://localhost:8080';
-var server = 'http://warcreate.com';
 var outlinks = [];
 
 function fetchImage(u) {
