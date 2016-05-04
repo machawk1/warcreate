@@ -27,10 +27,10 @@ function checkForValidUrl (tabId, changeInfo, tab) {
 
 /**
  * Converts images on the webpage into a binary string
-*/
+
 function encodeImages () {
   var images = document.getElementsByTagName('img')
-  var img = new Image()
+  var img = new window.Image()
   img.src = request.url
   var canvas = document.createElement('canvas')
   canvas.width = img.width
@@ -47,8 +47,8 @@ function encodeImages () {
     fileType = 'image/gif'
   } else {
     var uTransformed = images[i].src.substring(0, images[i].src.indexOf('.jpg')) + '.jpg'
-    window.alert('error at image ' + i + ' ' + uTransformed) 
-    return 
+    window.alert('error at image ' + i + ' ' + uTransformed)
+    return
   }
   // console.log((i+': '+images[i].src+'  file type: '+fileType)
 
@@ -64,6 +64,7 @@ function encodeImages () {
   }
   $(images[i]).replaceWith(img)
 }
+*/
 
 /**
  * UNUSED: Desired functionality is to provide facilities to encrypt data in resulting WARC
@@ -74,9 +75,9 @@ function encrypt () {
     window.alert('First enter a key for encryption.')
     return
   }
-  chrome.tabs.executeScript(null, {file:'js/jquery-2.2.0.min.js'}, function () {
-    chrome.tabs.executeScript(null, {file:'js/jquery.rc4.js'}, function () {
-      chrome.tabs.executeScript(null, {code: "var params = {k:'" + key + "'};"}, function () {
+  chrome.tabs.executeScript(null, { file: 'js/jquery-2.2.0.min.js' }, function () {
+    chrome.tabs.executeScript(null, { file: 'js/jquery.rc4.js' }, function () {
+      chrome.tabs.executeScript(null, { code: "var params = {k:'" + key + "'};" }, function () {
         chrome.tabs.executeScript(null, { file: 'js/encryptPage.js' }, function () {
         })
       })
@@ -87,20 +88,20 @@ function encrypt () {
 /**
  * TODO: Provide 'sequential archiving' wherein a site's hierarchy is referenced
  * and all pages referenced in the hierarchy are captured
-*/
+
 function sequential_generate_Warc () {
   var urls = []
   $(localStorage.spec).find('url').each(function (index) {
     urls.push($(this).text())
   })
   var uu = 0
-  function generateWarcFromNextURL(nextUrl) {
+  function generateWarcFromNextURL (nextUrl) {
     chrome.tabs.create({url: nextUrl, active: true},
     function (tab) {
-      chrome.tabs.onUpdated.addListener(function (tabId,info) {
+      chrome.tabs.onUpdated.addListener(function (tabId, info) {
         if (info.status === 'complete') {
           generate_Warc()
-          //chrome.tabs.remove(tab.tabId)
+          // chrome.tabs.remove(tab.tabId)
           window.alert('done with ' + (uu + 1) + '/' + urls.length)
           if (++uu >= urls.length) { return }
             generateWarcFromNextURL(urls[uu])
@@ -111,6 +112,7 @@ function sequential_generate_Warc () {
   }
   generateWarcFromNextURL(urls[uu])
 }
+*/
 
 /**
  * Prevent the cached from being wiped when navigating
@@ -141,12 +143,11 @@ function stopRecording () {
 function changePageActionIcon (iconPath) {
   if (debug) { console.log('calling changePageActionIcon' + iconPath) }
   chrome.tabs.query({
-      active: true,
-      lastFocusedWindow: true
+    active: true,
+    lastFocusedWindow: true
   }, function (tabs) {
-      chrome.pageAction.setIcon({tabId:tabs[0].id, path: iconPath})
+    chrome.pageAction.setIcon({tabId: tabs[0].id, path: iconPath})
   })
-
 }
 
 /**
@@ -159,23 +160,23 @@ function generate_Warc () {
   var imageData = []
   var imageURIs = []
 
-  //console.log(('generate_warc')
+  // console.log(('generate_warc')
 
   // TODO: Refactor out this callback hell
-  chrome.tabs.executeScript(null, {file:'js/jquery-2.2.0.min.js'}, function () {	/* Dependency for hash library and general goodness*/
-    chrome.tabs.executeScript(null, {file:'js/jquery.rc4.js'}, function () {	/* Hash library */
-      chrome.tabs.executeScript(null, {file:'js/date.js'}, function () {		/* Good date formatting library */
+  chrome.tabs.executeScript(null, {file: 'js/jquery-2.2.0.min.js'}, function () {	/* Dependency for hash library and general goodness*/
+    chrome.tabs.executeScript(null, {file: 'js/jquery.rc4.js'}, function () {	/* Hash library */
+      chrome.tabs.executeScript(null, {file: 'js/date.js'}, function () {		/* Good date formatting library */
         var uris = []
         var datum = []
         changeGenerateWARCButton(buttonLabel_generatingWARC)
-        chrome.tabs.query({active: true,lastFocusedWindow: true},
+        chrome.tabs.query({active: true, lastFocusedWindow: true},
         function (tabs) {
           console.log('tab query cb')
           var tab = tabs[0]
           // chrome.pageAction.setIcon({path:'../icons/icon-running.png',tabId:tab.id})
-          var port = chrome.tabs.connect(tab.id,{name: 'warcreate'})	// Create a persistent connection
+          var port = chrome.tabs.connect(tab.id, {name: 'warcreate'})	// Create a persistent connection
           port.postMessage({url: tab.url, method: 'getHTML'}
-          ,function () {
+          , function () {
             console.log('cb from posting getHTML message')
           }) // Fetch the html of the page, in content.js
 
@@ -185,7 +186,7 @@ function generate_Warc () {
           console.log('adding listener')
           port.onMessage.addListener(function (msg) {	// Get image base64 data
             console.log('listener invoked')
-            var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g,'') + '.warc'
+            var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g, '') + '.warc'
 
             // If the user has specified a custom filename format, apply it here
             if (localStorage.filenameScheme && localStorage.filenameScheme.length > 0) {
@@ -201,8 +202,8 @@ function generate_Warc () {
               imgData: msg.data,
               cssURIs: msg.cssuris,
               cssData: msg.cssdata,
-              jsURIs:  msg.jsuris,
-              jsData:  msg.jsdata,
+              jsURIs: msg.jsuris,
+              jsData: msg.jsdata,
               outlinks: msg.outlinks},
             function (response) {	// The callback to sendRequest
               /* chrome.storage.local.set({'recording': false}, function () {
@@ -220,7 +221,7 @@ function generate_Warc () {
   })
 }
 
-function changeGenerateWARCButton(newLabel) {
+function changeGenerateWARCButton (newLabel) {
   $('#generateWarc').prop('value', newLabel)
 }
 
@@ -281,7 +282,7 @@ chrome.tabs.getSelected(null, function (tab) {
   chrome.storage.local.set({'lastTabId': tab.id})
   chrome.storage.local.get('lastTabId', function (result) {})
 
-  var port = chrome.tabs.connect(tab.id,{name: 'getImageData'})    // Create a persistent connection
+  var port = chrome.tabs.connect(tab.id, {name: 'getImageData'})    // Create a persistent connection
   port.postMessage({url: tab.url, method: 'getImageData'})
   port.onMessage.addListener(function (msg) {})
 })
@@ -302,7 +303,7 @@ chrome.webRequest.onHeadersReceived.addListener(
     }
     // console.log(responseHeaders[resp.url])
   },
-  { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['responseHeaders','blocking'])
+  { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['responseHeaders', 'blocking'])
 
 /**
  * Stores HTTP request headers into an object array with URI as key.
@@ -339,7 +340,7 @@ chrome.webRequest.onBeforeRedirect.addListener(function (resp) {
     }
   }
   // console.log((responseHeaders[resp.url])
-  }, { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['responseHeaders'])
+}, { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['responseHeaders'])
 
 /* ************************************************************
 
