@@ -337,6 +337,7 @@ chrome.tabs.getSelected(null, function (tab) {
 
   var port = chrome.tabs.connect(tab.id, {name: 'getImageData'})    // Create a persistent connection
   port.postMessage({url: tab.url, method: 'getImageData'})
+  port.postMessage({url: tab.url, method: 'getCSSAndJavaScriptData'})
   port.onMessage.addListener(function (msg) {})
 })
 

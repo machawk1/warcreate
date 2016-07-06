@@ -5,6 +5,7 @@
 
 var debug = true
 
+
 function lengthInUtf8Bytes (str) {
   // Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
   var m = encodeURIComponent(str).match(/%[89ABab]/g)
@@ -14,6 +15,15 @@ function lengthInUtf8Bytes (str) {
 /* ************** END STRING UTILITY FUNCTIONS **************  */
 
 function generateWarc (o_request, o_sender, f_callback) {
+  console.log('generating warc...')
+  chrome.notifications.create('generationProgress', {
+    type: 'progress',
+    iconUrl: chrome.extension.getURL('icons/icon-48.png'),
+    title: 'Generating WARC...',
+    message: 'test',
+    progress: 0
+  })
+
   if (o_request.method !== 'generateWarc') { return }
   if (debug) { console.log('Running generateWarc code') }
 

@@ -96,7 +96,9 @@ chrome.runtime.onConnect.addListener(function(port) {
             }
         }
       }
-    else if(msg.method == 'getHTML') {
+    else if(msg.method == 'getCSSAndJavaScriptData') {
+      prefetchCSSAndJavaScriptData()
+    } else if(msg.method == 'getHTML') {
         images = document.images
 
         outlinks = []
@@ -173,20 +175,25 @@ chrome.runtime.onConnect.addListener(function(port) {
         
         localStorage.imagesInDOM = imageURIsSerialized
 
-        var cssCallbackToGetJS = function () {
+        /*var cssCallbackToGetJS = function () {
           getJSData(serializeAndPostDocumentContents)
         }
+        getCSSData(cssCallbackToGetJS)*/
 
         chrome.storage.local.set({'method': msg.method})
-
-        getCSSData(cssCallbackToGetJS)
-
     }else {
         //console.log(('Method unsupported in content.js: '+msg.method);
     }
 
   })
 })
+
+function prefetchCSSAndJavaScriptData () {
+    var cssCallbackToGetJS = function () {
+      getJSData(serializeAndPostDocumentContents)
+    }
+    getCSSData(cssCallbackToGetJS)
+}
 
 function serializeAndPostDocumentContents () {
     chrome.storage.local.get(['js','css','outlinks','method','img'], function(pageAttributes) {    
