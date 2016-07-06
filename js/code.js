@@ -20,6 +20,14 @@ var startRecordingLabel = 'Start Recording'
 var buttonLabel_generatingWARC = 'Generating WARC...'
 var buttonLabel_warcGenerated = '✓ WARC Generated!'
 
+var notification_warcGenerated_title = 'WARC File Created'
+var notification_warcGenerated_message = 'Click a button below to perform a further action or close.'
+var notification_warcGenerated_buttons_viewFile = 'View file in system'
+var notification_warcGenerated_buttons_replay = 'Replay WARC file'
+
+var BUTTON_WARCGENERATED_INDEX_VIEWFILE = 0
+var BUTTON_WARCGENERATED_INDEX_REPLAY = 1
+
 // Called when the url of a tab changes.
 function checkForValidUrl (tabId, changeInfo, tab) {
   chrome.pageAction.show(tabId)
@@ -212,6 +220,9 @@ function generate_Warc () {
               console.log('***')
               console.log(response)
               changeGenerateWARCButton(buttonLabel_warcGenerated)
+
+              showWARCGeneratedNotification()
+              
               return
             })
           })
@@ -220,6 +231,28 @@ function generate_Warc () {
     })
   })
 }
+
+function showWARCGeneratedNotification() {
+  chrome.notifications.create({
+    type: 'basic',
+    iconUrl: chrome.extension.getURL('icons/icon-48.png'),
+    title: notification_warcGenerated_title,
+    message: notification_warcGenerated_message,
+    buttons: [
+      {title: notification_warcGenerated_buttons_viewFile},
+      {title: notification_warcGenerated_buttons_replay}
+    ]
+  })
+}
+
+chrome.notifications.onButtonClicked.addListener(function (notificationId, buttonIndex) {
+  if (buttonIndex === BUTTON_WARCGENERATED_INDEX_VIEWFILE) {
+    console.log('TODO: view WARC file')
+  } else if (buttonIndex === BUTTON_WARCGENERATED_INDEX_REPLAY) {
+    console.log('TODO: replay WARC')
+  }
+})
+
 
 function changeGenerateWARCButton (newLabel) {
   $('#generateWarc').prop('value', newLabel)
@@ -239,7 +272,27 @@ $(document).ready(function () {
   $('#showOptions').click(function () {
     chrome.runtime.openOptionsPage()
   })
+
+  $('#clearLocalStorage').click(clearLocalStorage)
+  
+  chrome.storage.local.get(null, function (items) {
+    console.log('Data in localStorage: ')
+    console.log(items)
+  })
 })
+
+function clearLocalStorage () {
+  chrome.storage.local.clear(function () {
+    chrome.storage.local.get(null, function (items) {
+      chrome.notifications.create({
+        type: 'basic',
+        iconUrl: chrome.extension.getURL('icons/icon-48.png'),
+        title: 'WARCreate',
+        message: 'Local Storage cleared'}
+      )
+    })
+  })
+}
 
 // If in recording mode, set button to allow disabling of recording
 function setupRecordingButton () {
@@ -393,6 +446,10 @@ chrome.webNavigation.onCompleted.addListener(function (details) {
     console.log('page load completed')
   }
 }, { urls: ['http://*/*', 'https://*/*'] }, ['responseHeaders'])
+
+chrome.tabs.onActivated.addListener(function (activeInfo) {
+  console.log('new tab activated, change icon to indicate whether resource have are ready to be written, i.e., WARCreate was active on pageload, tabId:'+activeInfo.tabId)
+})
 
 /**
  * UNUSED: A means of capturing any particular values that are only present in

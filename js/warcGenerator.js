@@ -5,30 +5,6 @@
 
 var debug = true
 
-function ab2str (buf) {
-  var s = String.fromCharCode.apply(null, new Uint8Array(buf))
-  return decode_utf8(decode_utf8(s))
-}
-
-function str2ab (str) {
-  var s = encode_utf8(str)
-  var buf = new ArrayBuffer(s.length) // 2 bytes for each char
-  var bufView = new Uint8Array(buf)
-  var strLen = s.length
-  for (var i = 0; i < strLen; i++) {
-    bufView[i] = s.charCodeAt(i)
-  }
-  return buf
-}
-
-function encode_utf8 (s) {
-  return unescape(encodeURIComponent(s))
-}
-
-function decode_utf8 (s) {
-  return decodeURIComponent(escape(s))
-}
-
 function lengthInUtf8Bytes (str) {
   // Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
   var m = encodeURIComponent(str).match(/%[89ABab]/g)
@@ -91,7 +67,12 @@ function generateWarc (o_request, o_sender, f_callback) {
   function makeWarcRequestHeaderWith (targetURI, now, warcConcurrentTo, warcRequest) {
     var CRLF = '\r\n'
 
-    console.log(warcRequest)
+    if (!warcRequest) {
+      console.log('warcRequest is not defined!')
+      console.log(targetURI)
+      console.log(warcRequest)
+      console.log(requestHeaders)
+    }
 
     var x =
       'WARC/1.0' + CRLF +
@@ -105,9 +86,12 @@ function generateWarc (o_request, o_sender, f_callback) {
       warcRequest + CRLF + CRLF
     return x
   }
-
+  
+  console.log('Making initial WARC request record with ' + initURI);
+  console.log(requestHeaders[initURI])
   var warcRequestHeader = makeWarcRequestHeaderWith(initURI, now, warcConcurrentTo, warcRequest)
-
+  console.log('Initial WARC request created')
+  
   var outlinks = o_request.outlinks // isA Array
   var outlinkStr = ''
 
@@ -218,8 +202,10 @@ function generateWarc (o_request, o_sender, f_callback) {
   var fontregexp = new RegExp('content-type:[ ]*font/', 'i')
 
   for (var requestHeader in requestHeaders) {
-    if (requestHeader === initURI) { continue } // The 'seed' will not have a body, we handle this above, skip
-
+    if (requestHeader === initURI || !requestHeader || !requestHeaders[requestHeader]) { continue } // The 'seed' will not have a body, we handle this above, skip
+    
+    console.log('Making a secondary WARC request')
+    console.log(requestHeaders)
     var requestHeaderString = makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF
     arrayBuffers.push(str2ab(requestHeaderString))
 

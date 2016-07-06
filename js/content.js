@@ -1,6 +1,8 @@
 var outlinks = [];
 
+/*
 function fetchImage(u) {
+    console.log('yyy')
     var xhr = new XMLHttpRequest();
     xhr.open('GET', u, true);
     xhr.responseType = 'arraybuffer';
@@ -16,47 +18,56 @@ function fetchImage(u) {
 
     xhr.send();
 }
-
-function ab2str(buf) {
-    return String.fromCharCode.apply(null, new Uint16Array(buf));
-}
+*/
 
 function fetchImage(u) {
-    var ret = {};
-    var imgObjs = {};
+    var ret = {}
+    var imgObjs = {}
     
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', u, true);
-    xhr.responseType = 'arraybuffer';
+    var xhr = new XMLHttpRequest()
+    xhr.open('GET', u, true)
+    xhr.responseType = 'arraybuffer'
 
     xhr.onload = function (e) {
-        var uInt8Array = new Uint8Array(this.response);
+        var uInt8Array = new Uint8Array(this.response)
 
         var stringUInt8Array = [];
         for(var ii = 0; ii < uInt8Array.length; ii++) {
-            stringUInt8Array[ii] = uInt8Array[ii]+0;
+            stringUInt8Array[ii] = uInt8Array[ii]+0
         }
 
-        var myString = uInt8Array;
+        var myString = uInt8Array
 
-        ret[u] = myString;
-        delete imgObjs[u];
-
-         var ohemefgee = {};
-         ohemefgee[u] = stringUInt8Array;
-         chrome.storage.local.set(ohemefgee, function() {
-            if(chrome.runtime.lastError) {
-                console.error('Error in set data');
-                console.error(chrome.runtime.lastError);
-            }
-         });
-    };
+        ret[u] = myString
+        delete imgObjs[u]
+        
+        // Store image bytes in localstorage w/ URI as key
+        
+        var imgData = {}
+        imgData[u] = stringUInt8Array
+        storeImageInLocalStorage(imgData)
+    }
 
     xhr.onerror = function(e) {
-        console.log('Error');
-    };
+        console.log('Error')
+    }
 
-    xhr.send();
+    xhr.send()
+}
+
+function storeImageInLocalStorage (imgData) {
+    chrome.storage.local.set(imgData, function() {
+        if(chrome.runtime.lastError) {
+            console.error('Error in set data')
+            console.error(chrome.runtime.lastError)
+        } else {
+          console.log('Fetched image ' + Object.keys(imgData)[0])
+        }/* else {
+          chrome.storage.local.get(null, function(items) {
+            console.log(items)
+          })
+        } */
+     })
 }
 
 var commPort;
