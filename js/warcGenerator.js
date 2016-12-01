@@ -63,7 +63,7 @@ function generateWarc (o_request, o_sender, f_callback) {
 
   var warcHeader =
     'WARC/1.0' + CRLF +
-    'WARC-Type: warcinfo ' + CRLF +
+    'WARC-Type: warcinfo' + CRLF +
     'WARC-Date: ' + now + CRLF +
     'WARC-Filename: ' + fileName + CRLF +
     'WARC-Record-ID: ' + guidGenerator() + CRLF +
