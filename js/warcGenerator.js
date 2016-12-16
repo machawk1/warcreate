@@ -25,6 +25,14 @@ function decode_utf8 (s) {
   return decodeURIComponent(escape(s))
 }
 
+// from http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
+function guidGenerator () {
+  var S4 = function () {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
+  }
+  return '<urn:uuid:' + (S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4()) + '>'
+}
+
 function lengthInUtf8Bytes (str) {
   // Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
   var m = encodeURIComponent(str).match(/%[89ABab]/g)
@@ -36,14 +44,9 @@ function lengthInUtf8Bytes (str) {
 function generateWarc (o_request, o_sender, f_callback) {
   if (o_request.method !== 'generateWarc') { return }
   var CRLF = '\r\n'
-
-  // from http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
-  function guidGenerator () {
-    var S4 = function () {
-      return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
-    }
-    return '<urn:uuid:' + (S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4()) + '>'
-  }
+  
+  console.log(o_request.responseHeaders)
+  return
 
   var now = new Date().toISOString()
   now = now.substr(0, now.indexOf('.')) + 'Z'

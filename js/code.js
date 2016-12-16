@@ -122,6 +122,8 @@ function generate_Warc () {
 
           var imageDataFilledTo = -1
 
+
+
           port.onMessage.addListener(function (msg) { // get image base64 data		
             var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g, '') + '.warc'
 
@@ -139,7 +141,8 @@ function generate_Warc () {
               imgData: msg.data,
               css: msg.css,
               js: msg.js,
-              outlinks: msg.outlinks
+              outlinks: msg.outlinks,
+              'responseHeaders': responseHeaders
             },
             function (response) { // the callback to sendRequest
               return
@@ -165,26 +168,37 @@ window.onload = function () {
 
   // if a website is recognized from the spec, show the "Cohesive archive"
   var caButtonDOM = document.createElement('input')
-  caButtonDOM.type = 'button'; caButtonDOM.id = 'generateCohesiveWARC';  caButtonDOM.disabled = 'disabled'
+  caButtonDOM.type = 'button'
+  caButtonDOM.id = 'generateCohesiveWARC'
+  caButtonDOM.disabled = 'disabled'
+  
   var t
 
   caButtonDOM.value = 'Generate WARC for site'
 
   // create buttons for popup
   var gwButtonDOM = document.createElement('input')
-  gwButtonDOM.type = 'button'; gwButtonDOM.id = 'generateWarc'; gwButtonDOM.value = 'Generate WARC'
+  gwButtonDOM.type = 'button'
+  gwButtonDOM.id = 'generateWarc'
+  gwButtonDOM.value = 'Generate WARC'
+  
   var clsButtonDOM = document.createElement('input')
-  clsButtonDOM.type = 'button'; clsButtonDOM.id = 'clearLocalStorage'; clsButtonDOM.value = 'Clear LocalStorage'
+  clsButtonDOM.type = 'button'
+  clsButtonDOM.id = 'clearLocalStorage'
+  clsButtonDOM.value = 'Clear LocalStorage'
 
   // For debugging, display content already captured
   // var dcButtonDOM = document.createElement('input'); dcButtonDOM.type = "button"; dcButtonDOM.id = "displayCaptured"; gwButtonDOM.value = "Show pending content"
 
   var errorText = document.createElement('a')
   errorText.id = 'errorText'; errorText.target = '_blank'
+  
   var status = document.createElement('input')
-  status.id = 'status'; status.type = 'text'; status.value = ''
+  status.id = 'status'
+  status.type = 'text'
+  status.value = ''
 
-  if (!buttonContainer) {return;}
+  if (!buttonContainer) { return }
 
   // add buttons to DOM
   buttonContainer.appendChild(gwButtonDOM)
@@ -231,27 +245,6 @@ chrome.tabs.getSelected(null, function (tab) {
 
   var port = chrome.tabs.connect(tab.id, {name: 'getImageData'}) // create a persistent connection
   port.postMessage({url: tab.url, method: 'getImageData'})
-  port.onMessage.addListener(function (msg) {
-    /*if(msg.method == "getImageDataRet"){ //OBSOLETE HERE BELOW, 
-    	var imageURIsForWhichWeHaveData = Object.keys(JSON.parse(msg.imageData))
-    	for(var uu=0; uu<imageURIsForWhichWeHaveData.length; uu++){
-    		console.log("- Image data in local storage for "+imageURIsForWhichWeHaveData[uu])
-    	}
-
-    	chrome.storage.local.set({'imageData':msg.imageData},
-    		function(){
-    			console.log("Checking if there was an error in setting the data")
-    			if(chrome.runtime.lastError){
-    				alert("Error in set data")
-    			}else {
-    				console.log("There was no data for setting this image in Chrome.Storage.Local")
-    			}
-    		}
-    	
-    	);	
-    	//localStorage["imageData"] = msg.imageData
-    }*/
-  })
 })
 
 /**
@@ -259,6 +252,8 @@ chrome.tabs.getSelected(null, function (tab) {
 */
 chrome.webRequest.onHeadersReceived.addListener(
   function (resp) {
+    console.log('header received!')
+    console.log(resp.url)
     responseHeaders[resp.url] = ''
     responseHeaders[resp.url] += resp.statusLine + CRLF
 

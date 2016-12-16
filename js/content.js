@@ -159,8 +159,16 @@ function serializeJS () {
   var jsFetchPromises = []
   for (var scriptI = 0; scriptI < document.scripts.length; scriptI++) {
     //JSURLs.push(document.scripts[scriptI].src)
+    console.log(document.scripts[scriptI].src)
+    
+    // Headers retrieved here are not complete like ones received from curl, hmm, maybe X-origin issue?
     var jsFetchPromise = fetch(document.scripts[scriptI].src)
     .then(function(resp) {
+      resp.headers.forEach(function(i,e) {
+        console.log(e + ': ' + i)
+      })
+      console.log(resp.headers.get('date'))
+
       return resp.text()
     }).then(function(j) {
       return Promise.resolve(j)
@@ -204,10 +212,10 @@ chrome.extension.onConnect.addListener(function (port) {
     } else if (msg.method == 'getHTML') {    
       Promise.all([serializeJS(), serializeStyleSheets()])
       .then(function(resp) {
-        console.log(resp)
         var jsFiles = resp[0]
         var cssFiles = resp[1]
         
+        // Re-associate the URI with the fetched payload
         var js = {}
         for (var scriptI = 0; scriptI < document.scripts.length; scriptI++) {
           js[document.scripts[scriptI].src] = jsFiles[scriptI]
@@ -216,9 +224,7 @@ chrome.extension.onConnect.addListener(function (port) {
         for (var ss = 0; ss < document.styleSheets.length; ss++) {
           css[document.styleSheets[ss].href] = cssFiles[ss]
         }
-        console.log(js)
-        console.log(css)
-        console.log(msg.method)
+
         port.postMessage({
           'js': js,
           'css': css,
