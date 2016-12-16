@@ -60,8 +60,3 @@ for (var s = 0; s < scripts.length; s++) {
 }
 
 convertImagesToBase64()
-
-// var content = document.documentElement.innerHTML
-// var encryptedContent = $.rc4EncryptStr(	content,	key)
-// $('body').append("<br />Encrypted Content: "+encryptedContent)
-// $('body').append("<br />Encrypted Content: "+content)

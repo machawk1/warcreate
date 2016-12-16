@@ -1,4 +1,4 @@
-// var server = "http://localhost:8080"
+/* global chrome, $ */
 var server = 'http://warcreate.com'
 var outlinks = []
 
@@ -23,218 +23,219 @@ function ab2str (buf) {
   return String.fromCharCode.apply(null, new Uint16Array(buf))
 }
 
-chrome.extension.onConnect.addListener(function (port) {
-  port.onMessage.addListener(function (msg) {
-    // console.log(("in content.js with method: "+msg.method)
-    if (msg.method == 'getImageData') {
-      // console.log(("Getting image data")
-      // console.log(document.images)
-      function fetchImage (u) {
-        var xhr = new XMLHttpRequest()
-        xhr.open('GET', u, true)
-        xhr.responseType = 'arraybuffer'
+function fetchImage (u) {
+  var xhr = new XMLHttpRequest()
+  xhr.open('GET', u, true)
+  xhr.responseType = 'arraybuffer'
 
-        xhr.onload = function (e) {
-          var uInt8Array = new Uint8Array(this.response)
+  xhr.onload = function (e) {
+    var uInt8Array = new Uint8Array(this.response)
 
-          var stringUInt8Array = []
-          for (var ii = 0; ii < uInt8Array.length; ii++) {
-            stringUInt8Array[ii] = uInt8Array[ii] + 0
-          }
+    var stringUInt8Array = []
+    for (var ii = 0; ii < uInt8Array.length; ii++) {
+      stringUInt8Array[ii] = uInt8Array[ii] + 0
+    }
 
-          var myString = uInt8Array
+    var myString = uInt8Array
 
-          ret[u] = myString
-          delete imgObjs[u]
+    ret[u] = myString
+    delete imgObjs[u]
 
-          // console.log("Ok, now postback image data"); 
-          // console.error(u); 
-          var ohemefgee = {}
-          ohemefgee[u] = stringUInt8Array
-          chrome.storage.local.set(ohemefgee, function () {
-            if (chrome.runtime.lastError) {
-              console.error('Error in set data')
-              console.error(chrome.runtime.lastError)
-            }
-          })
-          // console.log(("- Image data in local storage for "+u)
-          // port.postMessage({imageData: JSON.stringify(ret),method: "getImageDataRet",uri: u},function(e){})
-
-        }
-
-        xhr.onerror = function (e) {
-          console.log('Error')
-        }
-
-        xhr.send()
+    var xxx = {}
+    xxx[u] = stringUInt8Array
+    chrome.storage.local.set(xxx, function () {
+      if (chrome.runtime.lastError) {
+        console.error('Error in set data')
+        console.error(chrome.runtime.lastError)
       }
+    })
+  }
 
-      var imgObjs = {}
-      // get the image URIs from the DOM
-      for (var image = 0; image < document.images.length; image++) {
-        if (document.images[image].src.indexOf('data:') == -1) {
-          imgObjs[document.images[image].src] = 'foo'; // dummy data to-be-filled below programmatically
-        }
-      }
-      // get the image URIs embedded in CSS
-      var imagesInCSS = getallBgimages()
-      for (var imageInCSS = 0; imageInCSS < imagesInCSS.length; imageInCSS++) {
-        imgObjs[imagesInCSS[imageInCSS]] = 'foo'; // dummy data to-be-filled below programmatically
-      }
+  xhr.onerror = function (e) {
+    console.log('Error')
+  }
 
-      var ret = {}
+  xhr.send()
+}
 
-      for (var uri in imgObjs) {
-        console.log('Fetching image at ' + uri)
-        if (uri.indexOf('data:') == -1) {
-          fetchImage(uri)
-        }
+function getImageData () {
+    var imgObjs = {}
+    
+    // Get image URIs from the DOM
+    for (var image = 0; image < document.images.length; image++) {
+      if (document.images[image].src.indexOf('data:') == -1) {
+        imgObjs[document.images[image].src] = 'foo'; // dummy data to-be-filled below programmatically
       }
     }
-    else if (msg.method == 'getHTML') {
-      // console.log(("about to post getHTML message")
-      images = document.images
+    // Get image URIs embedded in CSS
+    var imagesInCSS = getallBgimages()
+    for (var imageInCSS = 0; imageInCSS < imagesInCSS.length; imageInCSS++) {
+      imgObjs[imagesInCSS[imageInCSS]] = 'foo'; // dummy data to-be-filled below programmatically
+    }
 
-      // console.log(("LINKS:")
-      // console.log($("a"))
+    var ret = {}
 
-      outlinks = []
-      outlinksAddedRegistry = [] // hacky array to prevent duplicate outlinks
+    for (var uri in imgObjs) {
+      console.log('Fetching image at ' + uri)
+      if (uri.indexOf('data:') == -1) {
+        fetchImage(uri)
+      }
+    }
+}
 
-      // outlinks as images [embedded resource], there are probably other types
-      $(images).each(function () {
-        if (!outlinksAddedRegistry[$(this).attr('src')]) {
-          outlinksAddedRegistry[$(this).attr('src')] = ''
-          outlinks.push($(this).attr('src') + ' E =EMBED_MISC')
-        }
-      })
+function generateOutlinks () {
+    var outlinks = []
+    
+    // Img outlinks
+    $(document.images).each(function () {
+      outlinks.push($(this).attr('src') + ' E =EMBED_MISC')
+    })
 
-      // outlinks as CSS //TODO, E =EMBED_MISC was made-up. Is this right?
-      $(document.styleSheets).each(function () {
-        if (!outlinksAddedRegistry[$(this).attr('href')]) {
-          outlinksAddedRegistry[$(this).attr('href')] = ''
-          outlinks.push($(this).attr('href') + ' E =EMBED_MISC')
-        }
-      })
+    // CSS outlinks
+    $(document.styleSheets).each(function () {
+      outlinks.push($(this).attr('href') + ' E =EMBED_MISC')
+    })
 
-      // outlinks as JavaScripts
-      $(document.scripts).each(function () {
-        if ($(this).attr('href') && // Only include the externally embedded JS, not the inline
-          !outlinksAddedRegistry[$(this).attr('href')]
-        ) {
-          outlinksAddedRegistry[$(this).attr('href')] = ''
-          outlinks.push($(this).attr('href') + ' E script/@src')
-        }
-      })
-
-      // outlinks as external links on page
-      $('a').each(function () {
-        if (!outlinksAddedRegistry[$(this).attr('href')]) {
-          outlinksAddedRegistry[$(this).attr('href')] = ''
-          outlinks.push($(this).attr('href') + ' L a/@href')
-        }
-      })
-
-      outlinksAddedRegistry = null; // reclaim space, since we no longer need this check given we're through building outlinks
-
-      var imageURIs = []
-      var imageBase64Data = []
-      // image conversion code
-      // *********************************	
-      // Convert images to something portal and text-y
-      // *********************************
-      // console.log("Converting image data, "+images.length+" to convert")
-      // imagesI = 0
-      for (var i = 0; i < images.length; i++) {
-        // NOTE: image data is NOT fetched here, a subsequent Ajax call is made in warcGenerator.js 20130211 ~ line 188
-        // console.log((images[i].src)
-        var image = images[i]
-        if (!(image.src)) {
-          // console.log("Image "+i+" had no src. Continuing to encode the others"); 
-          continue;}
-          // console.log(("About to convert image "+(i+1)+"/"+images.length+": "+images[i].src)
-
-        var canvas = document.createElement('canvas')
-        canvas.width = image.width
-        canvas.height = image.height
-
-        var dataurl = canvas.toDataURL()
-        var datastartpos = dataurl.match(',').index + 1
-        var dd = dataurl.substring(datastartpos)
+    // JS outlinks
+    $(document.scripts).each(function () {
+      var src = ''
+      if ($(this).attr('href')) {
+        src = $(this).attr('href')
+      } else if ($(this).attr('src')) {
+        src = $(this).attr('src')
       }
 
-      var imageDataSerialized = imageBase64Data.join('|||')
-      var imageURIsSerialized = imageURIs.join('|||')
-      localStorage['imagesInDOM'] = imageURIsSerialized
-      // *********************************	
-      // Re-fetch CSS (limitation of webRequest, need to be able to get content on response, functionality unavailable, requires refetch)
-      // *********************************
-      // a better way to get all stylesheets but we cannot get them as text but instead an object with ruleslist
-      var styleSheetURLs = []
-      var styleSheetData = []
+      outlinks.push(src + ' E script/@src')
+    })
 
-      for (var ss = 0; ss < document.styleSheets.length; ss++) {
-        styleSheetURLs.push(document.styleSheets[ss].href)
-        $.ajax({
-          url: document.styleSheets[ss].href,
-          dataType: 'text',
-          async: false
-        }).done(function (cssText) {
-          styleSheetData.push(cssText)
+    // outlinks as external links on page
+    $('a').each(function () {
+      outlinks.push($(this).attr('href') + ' L a/@href')
+    })
+
+    return outlinks
+}
+
+function serializeImages () {
+  images = document.images
+
+  for (var i = 0; i < images.length; i++) {
+    var image = images[i]
+    if (!(image.src)) { continue }
+
+    var canvas = document.createElement('canvas')
+    canvas.width = image.width
+    canvas.height = image.height
+
+    var dataurl = canvas.toDataURL()
+    var datastartpos = dataurl.match(',').index + 1
+    var dd = dataurl.substring(datastartpos)
+  }
+
+  var imageDataSerialized = imageBase64Data.join('|||')
+  var imageURIsSerialized = imageURIs.join('|||')
+  localStorage['imagesInDOM'] = imageURIsSerialized
+  return {uris: imageURIsSerialized, data: imageDataSerialized}
+}
+
+function serializeStyleSheets () {
+  var cssFetchPromises = []
+  var styleSheetURLs = []
+  for (var ss = 0; ss < document.styleSheets.length; ss++) {
+    styleSheetURLs.push(document.styleSheets[ss].href)
+    var cssFetchPromise = fetch(document.styleSheets[ss].href)
+    .then(function(resp) {
+      return resp.text() 
+    }).then(function(j) {
+      return Promise.resolve(j)
+    })
+    cssFetchPromises.push(cssFetchPromise)
+  }
+    
+    return Promise.all(cssFetchPromises)
+}
+
+function serializeJS () {
+  var jsFetchPromises = []
+  for (var scriptI = 0; scriptI < document.scripts.length; scriptI++) {
+    //JSURLs.push(document.scripts[scriptI].src)
+    var jsFetchPromise = fetch(document.scripts[scriptI].src)
+    .then(function(resp) {
+      return resp.text()
+    }).then(function(j) {
+      return Promise.resolve(j)
+    })
+    jsFetchPromises.push(jsFetchPromise)
+  }
+  
+  return Promise.all(jsFetchPromises)
+}
+
+function getHTML () {
+    // Append missing DOCTYPE
+    var node = document.doctype
+    var dtstr
+    if (!node) {dtstr = '';}else {
+      dtstr = '<!DOCTYPE '
+        + '' + node.name
+        + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
+        + (!node.publicId && node.systemId ? ' SYSTEM' : '')
+        + (node.systemId ? ' "' + node.systemId + '"' : '')
+        + '>'
+    }
+
+    var domAsText = document.documentElement.outerHTML
+
+    // This accounts for foo.txt documents on the web, which chrome puts a wrapper around
+    var textDocumentStarterString = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">'
+    if (domAsText.substr(0, textDocumentStarterString.length) == textDocumentStarterString) {
+      console.log('Adjusting WARC algorithm to account for text rather than HTML document.')
+
+      domAsText = $(document).find('pre').html() // Replace text w/ html wrapper with just text
+      dtstr = '' // Remove the doctype injection
+    }
+    return domAsText
+}
+
+chrome.extension.onConnect.addListener(function (port) {
+  port.onMessage.addListener(function (msg) {
+    if (msg.method == 'getImageData') {
+      getImageData()
+    } else if (msg.method == 'getHTML') {    
+      Promise.all([serializeJS(), serializeStyleSheets()])
+      .then(function(resp) {
+        console.log(resp)
+        var jsFiles = resp[0]
+        var cssFiles = resp[1]
+        
+        var js = {}
+        for (var scriptI = 0; scriptI < document.scripts.length; scriptI++) {
+          js[document.scripts[scriptI].src] = jsFiles[scriptI]
+        }
+        var css = {}
+        for (var ss = 0; ss < document.styleSheets.length; ss++) {
+          css[document.styleSheets[ss].href] = cssFiles[ss]
+        }
+        console.log(js)
+        console.log(css)
+        console.log(msg.method)
+        port.postMessage({
+          'js': js,
+          'css': css,
+          'html': getHTML(),
+          outlinks: generateOutlinks(),
+        
+          method: msg.method
         })
-      }
-      // *********************************	
-      // Re-fetch JS
-      // *********************************
-      var JSURLs = []
-      var JSData = []
+        
+      })
 
-      for (var scriptI = 0; scriptI < document.scripts.length; scriptI++) {
-        JSURLs.push(document.scripts[scriptI].src)
-        $.ajax({
-          url: document.scripts[scriptI].src,
-          dataType: 'text',
-          async: false
-        }).done(function (jsText) {
-          JSData.push(jsText)
-        })
-      }
-
-      var cssDataSerialized = styleSheetData.join('|||')
-      var cssURIsSerialized = styleSheetURLs.join('|||')
-      var jsDataSerialized = JSData.join('|||')
-      var jsURIsSerialized = JSURLs.join('|||')
-      var outlinksSerialized = outlinks.join('|||')
-
-      // console.log(("content.js: sending relayToImagesPost")
-      // all of this nonsense just to get the doctype to prepend!
-      var node = document.doctype
-      var dtstr
-      if (!node) {dtstr = '';}else {
-        dtstr = '<!DOCTYPE '
-          + '' + node.name
-          + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
-          + (!node.publicId && node.systemId ? ' SYSTEM' : '')
-          + (node.systemId ? ' "' + node.systemId + '"' : '')
-          + '>'
-      }
-
-      var domAsText = document.documentElement.outerHTML
-
-      // This accounts for foo.txt documents on the web, which chrome puts a wrapper around
-      var textDocumentStarterString = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">'
-      if (domAsText.substr(0, textDocumentStarterString.length) == textDocumentStarterString) {
-        console.log('Adjusting WARC algorithm to account for text rather than HTML document.')
-
-        domAsText = $(document).find('pre').html() // replace text w/ html wrapper with just text
-        dtstr = '' // remove the doctype injection
-      }
-
-      // domAsText = domAsText.replace(/[\n\r]+/g,"")
-      // console.log(("length before post: "+domAsText.length)
+   }
+  })
+})
+/*
       port.postMessage({
-        // html: dtstr + document.all[0].outerHTML, //document.all is non-standard
-        html: dtstr + domAsText, //   document.documentElement.outerHTML, 
+        html: dtstr + domAsText, 
         uris: imageURIsSerialized,
         data: imageDataSerialized,
         cssuris: cssURIsSerialized,
@@ -243,12 +244,18 @@ chrome.extension.onConnect.addListener(function (port) {
         jsdata: jsDataSerialized,
         outlinks: outlinksSerialized,
         method: msg.method
-      }); // communicate back to code.js ~130 with image data
-    }else {
-      // console.log(("Method unsupported in content.js: "+msg.method)
-    }
-  })
-})
+      })
+      return
+
+
+      var cssDataSerialized = styleSheetData.join('|||')
+      var cssURIsSerialized = styleSheetURLs.join('|||')
+      var jsDataSerialized = JSData.join('|||')
+      var jsURIsSerialized = JSURLs.join('|||')
+      var outlinksSerialized = outlinks.join('|||')
+
+
+*/
 
 // from https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
 function utf8_to_b64 (str) {

@@ -7,9 +7,6 @@
  *
 */
 
-// var server = "http://localhost:8080"
-var server = 'http://warcreate.com'
-
 // Called when the url of a tab changes.
 function checkForValidUrl (tabId, changeInfo, tab) {
   chrome.pageAction.show(tabId)
@@ -35,19 +32,22 @@ function encodeImages () {
   canvas.height = img.height
   var context = canvas.getContext('2d')
 
-  // console.log((i+": "+images[i].src+"  file type: "+fileType)
   var fileType = images[i].src.substr(images[i].src.length - 4).toLowerCase()
-  if (fileType == '.jpg' || fileType == 'jpeg') {fileType = 'image/jpeg';}
-  else if (fileType == '.png') {fileType = 'image/png';}
-  else if (fileType == '.gif') {fileType = 'image/gif';}else {
+  if (fileType == '.jpg' || fileType == 'jpeg') {
+    fileType = 'image/jpeg'
+  } else if (fileType == '.png') {
+    fileType = 'image/png'
+  } else if (fileType == '.gif') {
+    fileType = 'image/gif'
+  } else {
     var uTransformed = images[i].src.substring(0, images[i].src.indexOf('.jpg')) + '.jpg'
-    alert('error at image ' + i + ' ' + uTransformed); return; }
-    // console.log((i+": "+images[i].src+"  file type: "+fileType)
+    alert('error at image ' + i + ' ' + uTransformed)
+    return
+  }
 
   try {
     var base64 = canvas.toDataURL(fileType)
     img.src = base64
-  // console.log(("Replaced image "+request.url+" with its base64 encoded form per canvas")
   } catch(e) {
     alert('Encoding of inline binary content failed!')
     console.log(e)
@@ -122,11 +122,7 @@ function generate_Warc () {
 
           var imageDataFilledTo = -1
 
-          // perform the first listener, populate the binary image data
-          // console.log(("adding listener")
           port.onMessage.addListener(function (msg) { // get image base64 data		
-            // console.log(("About to generateWARC(). Next should be callback.")
-
             var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g, '') + '.warc'
 
             // If the user has specified a custom filename format, apply it here
@@ -141,66 +137,13 @@ function generate_Warc () {
               file: fileName,
               imgURIs: msg.uris,
               imgData: msg.data,
-              cssURIs: msg.cssuris,
-              cssData: msg.cssdata,
-              jsURIs: msg.jsuris,
-              jsData: msg.jsdata,
-            outlinks: msg.outlinks},
-              function (response) { // the callback to sendRequest
-                return
-              /*
-              //OBSOLETE SAVE CODE BELOW, GOOD FOR FETCHING RESOURCE POST-LOAD
-              
-							console.log("generateWARC callback executed, about to write to file")
-							
-							//var bb = new BlobBuilder
-							//bb.append(response.d)
-							//localStorage['data'] = response.d
-							
-							function uploadSuccess(d,t,j){
-								console.log("* Upload succeeded! Three call variables follow this message.")
-								console.log(d)
-								console.log(t)
-								console.log(j)
-							}
-							
-							function uploadFail(x,t,e){
-								console.log("There was an error uploading the file.")
-							}
-							
-							console.log("Here's the data that's to be written")
-							console.log(response.x)
-							
-						
-							if(!localStorage['uploadTo'] || localStorage['uploadTo'].length == 0){
-								//saveAs(bb.getBlob("text/plain;charset=utf-8"), fileName)
-								console.log("Responding!")
-								console.log(response.x)
-								console.log(JSON.parse(response.x).data)
-								//saveAs(JSON.parse(response.x).data, fileName)
-				
-							} else {
-								console.log("Uploading!"+localStorage['uploadTo'])
-								
-								$.ajax({
-									type: "POST",
-									url: localStorage['uploadTo'],
-									data: {data: response.d}//localStorage['data']} //testing file upload
-									}
-								  )
-								.done(uploadSuccess)
-								.fail(uploadFail)
-							}
-							
-							
-							console.log("Done!")
-							chrome.pageAction.setIcon({path:"../icons/icon-check.png",tabId:tab.id})
-							responseHeaders = new Array()
-							requestHeaders = new Array()
-							imageData = new Array()
-							var imageURIs = new Array()
-							msg = null;*/
-              })
+              css: msg.css,
+              js: msg.js,
+              outlinks: msg.outlinks
+            },
+            function (response) { // the callback to sendRequest
+              return
+            })
           })
         })
       })
@@ -218,7 +161,6 @@ window.onload = function () {
 
   var sButton = document.getElementById('submit')
   var acButton = document.getElementById('alertContent')
-  // var encryptButton = document.getElementById('encrypt')
   var encodeButton = document.getElementById('encodeImages')
 
   // if a website is recognized from the spec, show the "Cohesive archive"
