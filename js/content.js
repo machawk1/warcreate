@@ -2,60 +2,18 @@
 var server = 'http://warcreate.com'
 var outlinks = []
 
-function fetchImage (u) {
-  var xhr = new XMLHttpRequest()
-  xhr.open('GET', u, true)
-  xhr.responseType = 'arraybuffer'
-
-  xhr.onload = function (e) {
-    var uInt8Array = new Uint8Array(this.response)
-    delete imageUris[u]
-    // console.log(("Fetched "+u+"  "+Object.keys(imageUris).length+" urls left to fetch")
-    if (Object.keys(imageUris).length == 0) {
-      // console.log(("All image data collected");   
-    }
-  }
-
-  xhr.send()
-}
-
 function ab2str (buf) {
   return String.fromCharCode.apply(null, new Uint16Array(buf))
 }
 
 function fetchImage (u) {
-  var xhr = new XMLHttpRequest()
-  xhr.open('GET', u, true)
-  xhr.responseType = 'arraybuffer'
-
-  xhr.onload = function (e) {
-    var uInt8Array = new Uint8Array(this.response)
-
-    var stringUInt8Array = []
-    for (var ii = 0; ii < uInt8Array.length; ii++) {
-      stringUInt8Array[ii] = uInt8Array[ii] + 0
-    }
-
-    var myString = uInt8Array
-
-    ret[u] = myString
-    delete imgObjs[u]
-
-    var xxx = {}
-    xxx[u] = stringUInt8Array
-    chrome.storage.local.set(xxx, function () {
-      if (chrome.runtime.lastError) {
-        console.error('Error in set data')
-        console.error(chrome.runtime.lastError)
-      }
-    })
-  }
-
-  xhr.onerror = function (e) {
-    console.log('Error')
-  }
-
-  xhr.send()
+  fetch(u)
+  .then(function (res) {
+    return resp.arrayBuffer()
+  })
+  .then(function (buffer) {
+    return Promise.resolve(buffer)
+  })
 }
 
 function getImageData () {
@@ -75,12 +33,13 @@ function getImageData () {
 
     var ret = {}
 
+    var imgPromises = []
+    // Create a promise for each image
     for (var uri in imgObjs) {
-      console.log('Fetching image at ' + uri)
-      if (uri.indexOf('data:') == -1) {
-        fetchImage(uri)
-      }
+      imgPromises.push(uri)
     }
+
+    return Promise.all(imgPromises)    
 }
 
 function generateOutlinks () {
@@ -162,17 +121,23 @@ function serializeJS () {
     console.log(document.scripts[scriptI].src)
     
     // Headers retrieved here are not complete like ones received from curl, hmm, maybe X-origin issue?
+    console.log(document.scripts[scriptI].src)
     var jsFetchPromise = fetch(document.scripts[scriptI].src)
     .then(function(resp) {
       resp.headers.forEach(function(i,e) {
         console.log(e + ': ' + i)
       })
+      return
       console.log(resp.headers.get('date'))
 
       return resp.text()
     }).then(function(j) {
       return Promise.resolve(j)
     })
+  .catch(function(err) {
+    console.log('err')
+    console.log(err)
+  }) 
     jsFetchPromises.push(jsFetchPromise)
   }
   
@@ -208,7 +173,7 @@ function getHTML () {
 chrome.extension.onConnect.addListener(function (port) {
   port.onMessage.addListener(function (msg) {
     if (msg.method == 'getImageData') {
-      getImageData()
+      return getImageData()
     } else if (msg.method == 'getHTML') {    
       Promise.all([serializeJS(), serializeStyleSheets()])
       .then(function(resp) {

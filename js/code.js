@@ -117,11 +117,10 @@ function generate_Warc () {
         var datum = []
         chrome.tabs.getSelected(null, function (tab) {
           // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
-          var port = chrome.tabs.connect(tab.id, {name: 'warcreate'}) // create a persistent connection
-          port.postMessage({url: tab.url, method: 'getHTML'}); // fetch the html of the page, in content.js
+          var port = chrome.tabs.connect(tab.id, {name: 'warcreate'}) // Create a persistent connection
+          port.postMessage({url: tab.url, method: 'getHTML'}) // Fetch the html of the page, in content.js
 
           var imageDataFilledTo = -1
-
 
 
           port.onMessage.addListener(function (msg) { // get image base64 data		
