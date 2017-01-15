@@ -102,6 +102,9 @@ function serializeStyleSheets () {
   var styleSheetURLs = []
   for (var ss = 0; ss < document.styleSheets.length; ss++) {
     styleSheetURLs.push(document.styleSheets[ss].href)
+    if (document.styleSheets[ss].href === null) {
+      continue // Inline stylesheet, no need to fetch
+    }
     var cssFetchPromise = fetch(document.styleSheets[ss].href)
     .then(function(resp) {
       return resp.text() 
@@ -111,7 +114,7 @@ function serializeStyleSheets () {
     cssFetchPromises.push(cssFetchPromise)
   }
     
-    return Promise.all(cssFetchPromises)
+  return Promise.all(cssFetchPromises)
 }
 
 function serializeJS () {

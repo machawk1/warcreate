@@ -112,40 +112,38 @@ function generate_Warc () {
   // console.log(("generate_warc")
   chrome.tabs.executeScript(null, {file: 'js/jquery-2.1.1.min.js'}, function () { /* Dependency for hash library and general goodness*/
     chrome.tabs.executeScript(null, {file: 'js/jquery.rc4.js'}, function () { /* Hash library */
-      chrome.tabs.executeScript(null, {file: 'js/date.js'}, function () { /* Good date formatting library */
-        var uris = []
-        var datum = []
-        chrome.tabs.getSelected(null, function (tab) {
-          // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
-          var port = chrome.tabs.connect(tab.id, {name: 'warcreate'}) // Create a persistent connection
-          port.postMessage({url: tab.url, method: 'getHTML'}) // Fetch the html of the page, in content.js
+      var uris = []
+      var datum = []
+      chrome.tabs.getSelected(null, function (tab) {
+        // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
+        var port = chrome.tabs.connect(tab.id, {name: 'warcreate'}) // Create a persistent connection
+        port.postMessage({url: tab.url, method: 'getHTML'}) // Fetch the html of the page, in content.js
 
-          var imageDataFilledTo = -1
+        var imageDataFilledTo = -1
 
 
-          port.onMessage.addListener(function (msg) { // get image base64 data		
-            var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g, '') + '.warc'
+        port.onMessage.addListener(function (msg) { // get image base64 data		
+          var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g, '') + '.warc'
 
-            // If the user has specified a custom filename format, apply it here
-            if (localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0) {
-              fileName = moment().format(localStorage['filenameScheme']) + '.warc'
-            }
+          // If the user has specified a custom filename format, apply it here
+          if (localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0) {
+            fileName = moment().format(localStorage['filenameScheme']) + '.warc'
+          }
 
-            chrome.extension.sendRequest({
-              url: tab.url,
-              method: 'generateWarc',
-              docHtml: msg.html,
-              file: fileName,
-              imgURIs: msg.uris,
-              imgData: msg.data,
-              css: msg.css,
-              js: msg.js,
-              outlinks: msg.outlinks,
-              'responseHeaders': responseHeaders
-            },
-            function (response) { // the callback to sendRequest
-              return
-            })
+          chrome.extension.sendRequest({
+            url: tab.url,
+            method: 'generateWarc',
+            docHtml: msg.html,
+            file: fileName,
+            imgURIs: msg.uris,
+            imgData: msg.data,
+            css: msg.css,
+            js: msg.js,
+            outlinks: msg.outlinks,
+            'responseHeaders': responseHeaders
+          },
+          function (response) { // the callback to sendRequest
+            return
           })
         })
       })
