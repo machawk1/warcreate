@@ -1,5 +1,10 @@
 /* global chrome */
 
+var warcfileURI = '' // The Chrome notifications API isn't mature enough to surface data, even via buttons
+
+var version
+getVersion(function (ver) { version = ver })
+
 /* ************** BEGIN STRING UTILITY FUNCTIONS **************  */
 
 function ab2str (buf) {
@@ -41,27 +46,7 @@ function lengthInUtf8Bytes (str) {
 
 /* ************** END STRING UTILITY FUNCTIONS **************  */
 
-function generateWarc (o_request, o_sender, f_callback) {
-  if (o_request.method !== 'generateWarc') { return }
-  var CRLF = '\r\n'
-  
-  console.log(o_request.responseHeaders)
-  return
-
-  var now = new Date().toISOString()
-  now = now.substr(0, now.indexOf('.')) + 'Z'
-
-  var nowHttp = new Date().toString('ddd dd MMM yyyy HH:mm:ss') + ' GMT'
-  var fileName = o_request.file
-  var initURI = o_request.url
-
-  var warcInfoDescription = 'Crawl initiated from the WARCreate Google Chrome extension'
-  var isPartOf = 'basic'
-  if (localStorage.getItem('collectionId') || localStorage.getItem('collectionName')) {
-    warcInfoDescription = 'collectionId=' + localStorage.getItem('collectionId') + ', collectionName="' + localStorage.getItem('collectionName') + '"'
-    isPartOf = localStorage.getItem('collectionId')
-  }
-
+function generateWARCINFOHeader (isPartOf, warcInfoDescription, fileName, now) {
   var warcHeaderContent =
   'software: WARCreate/' + version + ' http://warcreate.com' + CRLF +
     'format: WARC File Format 1.0' + CRLF +
@@ -80,38 +65,72 @@ function generateWarc (o_request, o_sender, f_callback) {
     'WARC-Record-ID: ' + guidGenerator() + CRLF +
     'Content-Type: application/warc-fields' + CRLF +
     'Content-Length: ' + warcHeaderContent.length + CRLF
+    
+  return {'header': warcHeaderContent, 'content': warcHeader}
+}
+
+function makeWarcRequestHeaderWith (targetURI, now, warcConcurrentTo, warcRequest) {
+  var CRLF = '\r\n'
+  var x =
+  'WARC/1.0' + CRLF +
+    'WARC-Type: request' + CRLF +
+    'WARC-Target-URI: ' + targetURI + CRLF +
+    'WARC-Date: ' + now + CRLF +
+    'WARC-Concurrent-To: ' + warcConcurrentTo + CRLF +
+    'WARC-Record-ID: ' + guidGenerator() + CRLF +
+    'Content-Type: application/http; msgtype=request' + CRLF +
+    'Content-Length: ' + (warcRequest.length + 2) + CRLF + CRLF +
+    warcRequest + CRLF + CRLF
+  return x
+}
+
+function generateWarc (o_request, o_sender, f_callback) {
+  console.log('reading in warcGenerator')
+  console.log(o_request.method)
+  if (o_request.method !== 'generateWarc') { return }
+  var CRLF = '\r\n'
+  
+  console.log('JavaScript data to be written to WARC')
+  console.log(o_request.js)
+  console.log(o_request)
+  console.log(o_request.css)
+  return
+
+
+  var now = new Date().toISOString()
+  now = now.substr(0, now.indexOf('.')) + 'Z'
+
+  var nowHttp = new Date().toString('ddd dd MMM yyyy HH:mm:ss') + ' GMT'
+  var fileName = o_request.file
+  var initURI = o_request.url
+
+  var warcInfoDescription = 'Crawl initiated from the WARCreate Google Chrome extension'
+  var isPartOf = 'basic'
+  if (localStorage.getItem('collectionId') || localStorage.getItem('collectionName')) {
+    warcInfoDescription = 'collectionId=' + localStorage.getItem('collectionId') + ', collectionName="' + localStorage.getItem('collectionName') + '"'
+    isPartOf = localStorage.getItem('collectionId')
+  }
+
+  var warcinfoRecord = generateWARCINFOHeader(isPartOf, warcInfoDescription, fileName, now)
+
+  var warcHeaderContent = warcinfoRecord.header
+  var warcHeader = warcinfoRecord.content
 
   var warcRequest = requestHeaders[initURI]
 
   var warcConcurrentTo = guidGenerator()
 
-  function makeWarcRequestHeaderWith (targetURI, now, warcConcurrentTo, warcRequest) {
-    var CRLF = '\r\n'
-    var x =
-    'WARC/1.0' + CRLF +
-      'WARC-Type: request' + CRLF +
-      'WARC-Target-URI: ' + targetURI + CRLF +
-      'WARC-Date: ' + now + CRLF +
-      'WARC-Concurrent-To: ' + warcConcurrentTo + CRLF +
-      'WARC-Record-ID: ' + guidGenerator() + CRLF +
-      'Content-Type: application/http; msgtype=request' + CRLF +
-      'Content-Length: ' + (warcRequest.length + 2) + CRLF + CRLF +
-      warcRequest + CRLF + CRLF
-    return x
-  }
-
-
-
   var warcRequestHeader = makeWarcRequestHeaderWith(initURI, now, warcConcurrentTo, warcRequest)
   var outlinks = o_request.outlinks
   var outlinkStr = ''
+    
   for (var outlink in outlinks) {
     var href = outlinks[outlink]
     if (href.indexOf('mailto:') > -1) { continue }
 
-    if (href.substr(0, 1) !== 'h') { href = initURI + href } // resolve fragment and internal links
+    if (href.substr(0, 1) !== 'h') { href = initURI + href } // Resolve fragment and internal links
 
-    href = href.substr(0, 8) + href.substr(8).replace(/\/\//g, '/') // replace double slashes outside of scheme
+    href = href.substr(0, 8) + href.substr(8).replace(/\/\//g, '/') // Replace double slashes outside of scheme
     outlinkStr += 'outlink: ' + href + CRLF
   }
 
@@ -356,10 +375,6 @@ function uploadWarc (abArray) {
   }
   ajaxRequest.send(blobFromArrayBuffers)
 }
-var warcfileURI = '' // The Chrome notifications API isn't mature enough to surface data, even via buttons
-
-var version
-getVersion(function (ver) { version = ver })
 
 /* ************************************************************
 

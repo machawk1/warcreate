@@ -44,31 +44,43 @@ function getImageData () {
 
 function generateOutlinks () {
     var outlinks = []
+    var href = $(this).attr('href')
+    var src = $(this).attr('src')
     
     // Img outlinks
     $(document.images).each(function () {
-      outlinks.push($(this).attr('src') + ' E =EMBED_MISC')
+      if (src === undefined || !src) { return true } // Check for undef & null
+      outlinks.push(src + ' E =EMBED_MISC')
     })
 
     // CSS outlinks
     $(document.styleSheets).each(function () {
-      outlinks.push($(this).attr('href') + ' E =EMBED_MISC')
+      if (href === undefined || !href) { return true } // Check for undef & null
+      outlinks.push(href + ' E =EMBED_MISC')
     })
 
     // JS outlinks
     $(document.scripts).each(function () {
-      var src = ''
-      if ($(this).attr('href')) {
-        src = $(this).attr('href')
+      // Check for undef & null
+      if ((href === undefined || !href) &&
+          (src === undefined || !src)) {
+          return true
+      }
+      
+      var srcVal = ''
+      if (href) {
+        srcVal = href
       } else if ($(this).attr('src')) {
-        src = $(this).attr('src')
+        srcVal = src
       }
 
-      outlinks.push(src + ' E script/@src')
+      outlinks.push(srcVal + ' E script/@src')
     })
 
     // outlinks as external links on page
+    //TOFIX, checking for undefined directly below prevents no outlinks
     $('a').each(function () {
+      //if (href === undefined) { return true } // Check for undef & null
       outlinks.push($(this).attr('href') + ' L a/@href')
     })
 
@@ -107,13 +119,20 @@ function serializeStyleSheets () {
     }
     var cssFetchPromise = fetch(document.styleSheets[ss].href)
     .then(function(resp) {
+      var h = resp.headers.entries()
+      console.log('before')
+      for (var h2 of h) {
+        console.log(h2)
+      }
+      console.log('after')
+      console.log('boing')
       return resp.text() 
     }).then(function(j) {
       return Promise.resolve(j)
     })
     cssFetchPromises.push(cssFetchPromise)
   }
-    
+  
   return Promise.all(cssFetchPromises)
 }
 
@@ -121,16 +140,19 @@ function serializeJS () {
   var jsFetchPromises = []
   for (var scriptI = 0; scriptI < document.scripts.length; scriptI++) {
     //JSURLs.push(document.scripts[scriptI].src)
+    console.log('Fetching V...')
     console.log(document.scripts[scriptI].src)
     
     // Headers retrieved here are not complete like ones received from curl, hmm, maybe X-origin issue?
     console.log(document.scripts[scriptI].src)
     var jsFetchPromise = fetch(document.scripts[scriptI].src)
     .then(function(resp) {
+      console.log('headers:')
+      console.log(resp.headers)
       resp.headers.forEach(function(i,e) {
         console.log(e + ': ' + i)
       })
-      return
+      //return
       console.log(resp.headers.get('date'))
 
       return resp.text()
@@ -186,10 +208,12 @@ chrome.extension.onConnect.addListener(function (port) {
         // Re-associate the URI with the fetched payload
         var js = {}
         for (var scriptI = 0; scriptI < document.scripts.length; scriptI++) {
+          if (!document.scripts[scriptI].src) { continue }
           js[document.scripts[scriptI].src] = jsFiles[scriptI]
         }
         var css = {}
         for (var ss = 0; ss < document.styleSheets.length; ss++) {
+          if (!document.styleSheets[ss].href) { continue }
           css[document.styleSheets[ss].href] = cssFiles[ss]
         }
 
@@ -200,36 +224,11 @@ chrome.extension.onConnect.addListener(function (port) {
           outlinks: generateOutlinks(),
         
           method: msg.method
-        })
-        
+        }) 
       })
-
    }
   })
 })
-/*
-      port.postMessage({
-        html: dtstr + domAsText, 
-        uris: imageURIsSerialized,
-        data: imageDataSerialized,
-        cssuris: cssURIsSerialized,
-        cssdata: cssDataSerialized,
-        jsuris: jsURIsSerialized,
-        jsdata: jsDataSerialized,
-        outlinks: outlinksSerialized,
-        method: msg.method
-      })
-      return
-
-
-      var cssDataSerialized = styleSheetData.join('|||')
-      var cssURIsSerialized = styleSheetURLs.join('|||')
-      var jsDataSerialized = JSData.join('|||')
-      var jsURIsSerialized = JSURLs.join('|||')
-      var outlinksSerialized = outlinks.join('|||')
-
-
-*/
 
 // from https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
 function utf8_to_b64 (str) {

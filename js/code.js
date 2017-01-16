@@ -116,19 +116,33 @@ function generate_Warc () {
       var datum = []
       chrome.tabs.getSelected(null, function (tab) {
         // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
-        var port = chrome.tabs.connect(tab.id, {name: 'warcreate'}) // Create a persistent connection
-        port.postMessage({url: tab.url, method: 'getHTML'}) // Fetch the html of the page, in content.js
+        
+        // Send message to fetch HTML and obtains response body for any
+        //  resource representations we don't have
+        
+        // Create a persistent connection
+        var port = chrome.tabs.connect(tab.id, {name: 'warcreate'})
+        port.postMessage({url: tab.url, method: 'getHTML'}, function() {
+          console.log('resp received for getHTML msg')
+        }) // Fetch the html of the page, in content.js
 
         var imageDataFilledTo = -1
 
-
-        port.onMessage.addListener(function (msg) { // get image base64 data		
+        port.onMessage.addListener(function (msg) { // get image base64 data	
           var fileName = (new Date().toISOString()).replace(/:|\-|\T|\Z|\./g, '') + '.warc'
 
           // If the user has specified a custom filename format, apply it here
           if (localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0) {
             fileName = moment().format(localStorage['filenameScheme']) + '.warc'
           }
+
+          console.log('Sending generateWarc msg')
+          console.log(msg)
+          console.log('... w/ JS content:')
+          console.log(msg.js)
+          console.log('... w/ CSS:')
+          console.log(msg.css)
+          
 
           chrome.extension.sendRequest({
             url: tab.url,
