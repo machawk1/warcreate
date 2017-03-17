@@ -40,7 +40,6 @@ function generateWarc (o_request, o_sender, f_callback) {
   var now = new Date().toISOString()
   now = now.substr(0, now.indexOf('.')) + 'Z'
 
-  var nowHttp = new Date().toString('ddd dd MMM yyyy HH:mm:ss') + ' GMT'
   var fileName = o_request.file
   var initURI = o_request.url
 
@@ -155,9 +154,6 @@ function generateWarc (o_request, o_sender, f_callback) {
       httpHeader = resp
     }
 
-    var countCorrect = httpHeader.match(/\r\n/g).length // Number of lines in xx below
-
-    // var contentLength = (encodeURI(resp).split(/%..|./).length - 1)
     var contentLength = lengthInUtf8Bytes(resp)
     if (additionalContentLength) { contentLength += additionalContentLength } // (arraybuffer + string).length don't mix ;)
 
@@ -168,10 +164,7 @@ function generateWarc (o_request, o_sender, f_callback) {
       'WARC-Date: ' + now + CRLF +
       'WARC-Record-ID: ' + guidGenerator() + CRLF +
       'Content-Type: application/http; msgtype=response' + CRLF +
-      // 'Content-Length: ' + (unescape(encodeURIComponent(resp)).length + countCorrect) + CRLF   //11260 len
-      // 'Content-Length: ' + (resp.length) + CRLF;// + countCorrect) + CRLF
       'Content-Length: ' + contentLength + CRLF
-      // 'Content-Length: ' + lengthInUtf8Bytes(resp) + CRLF
 
     return xx
   }
@@ -195,7 +188,7 @@ function generateWarc (o_request, o_sender, f_callback) {
   arrayBuffers.push(str2ab(warcResponseHeader + CRLF))
   arrayBuffers.push(str2ab(warcResponse + CRLF + CRLF))
 
-  var imgURIs, imgData, cssURIs, cssData, jsURIs, jsData
+  var cssURIs, cssData, jsURIs, jsData
 
   var img, css, js
 
@@ -232,10 +225,7 @@ function generateWarc (o_request, o_sender, f_callback) {
           var rawImageDataAsBytes = result[rh]
 
           if (rawImageDataAsBytes) { // We have the data in chrome.storage.local
-            var imgRawString = ''
-
             var byteCount = result[rh].length
-            var imagesAsObjectsFromJSON = rawImageDataAsBytes // Redundant of above but testing
 
             var hexValueArrayBuffer = new ArrayBuffer(byteCount)
             var hexValueInt8Ary = new Int8Array(hexValueArrayBuffer)

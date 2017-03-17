@@ -27,7 +27,6 @@ function getCSSData (cb) {
   console.log('called getCSSData in cssExtractor.js')
   // A better way to get all stylesheets but we cannot get them as text but instead an object with ruleslist
   var styleSheetURLs = []
-  // var styleSheetData = []
   var css = {}
 
   var domCSSFileURIs = getDOMCSSURIs() // Synchronous

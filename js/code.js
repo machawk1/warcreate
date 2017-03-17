@@ -164,10 +164,6 @@ function changePageActionIcon (iconPath) {
 */
 function generate_Warc () {
   console.log('generate_warc start')
-
-  var imageData = []
-  var imageURIs = []
-
   // console.log(('generate_warc')
 
   // TODO: Refactor out this callback hell
