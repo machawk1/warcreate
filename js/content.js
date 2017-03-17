@@ -23,7 +23,7 @@ function fetchImage(u) {
 function fetchImage(u) {
     var ret = {}
     var imgObjs = {}
-    
+
     var xhr = new XMLHttpRequest()
     xhr.open('GET', u, true)
     xhr.responseType = 'arraybuffer'
@@ -40,9 +40,9 @@ function fetchImage(u) {
 
         ret[u] = myString
         delete imgObjs[u]
-        
+
         // Store image bytes in localstorage w/ URI as key
-        
+
         var imgData = {}
         imgData[u] = stringUInt8Array
         storeImageInLocalStorage(imgData)
@@ -166,13 +166,13 @@ chrome.runtime.onConnect.addListener(function(port) {
 
         var imageDataSerialized = imageBase64Data.join('|||')
         var imageURIsSerialized = imageURIs.join('|||')
-        
+
         for(var imgI = 0; imgI < imageURIs.length; imgI++) {
           img[imageURIs] = imageBase64Data[imgI]
         }
-        
+
         chrome.storage.local.set({'img': img})
-        
+
         localStorage.imagesInDOM = imageURIsSerialized
 
         /*var cssCallbackToGetJS = function () {
@@ -196,7 +196,7 @@ function prefetchCSSAndJavaScriptData () {
 }
 
 function serializeAndPostDocumentContents () {
-    chrome.storage.local.get(['js','css','outlinks','method','img'], function(pageAttributes) {    
+    chrome.storage.local.get(['js','css','outlinks','method','img'], function(pageAttributes) {
       var domAsText = stringifyDOM()
 
      console.log(pageAttributes.method);
@@ -215,7 +215,7 @@ function serializeAndPostDocumentContents () {
 function stringifyDOM () {
   var domAsText = document.documentElement.outerHTML
   var docTypeString = getDoctype() // Prepend the DOCTYPE
-  
+
   var textDocumentStarterString = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">'
   if (domAsText.substr(0, textDocumentStarterString.length) ==  textDocumentStarterString) {
      console.log('Adjusting WARC algorithm to account for text rather than HTML document.')

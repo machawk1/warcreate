@@ -96,12 +96,12 @@ function generateWarc (o_request, o_sender, f_callback) {
       warcRequest + CRLF + CRLF
     return x
   }
-  
+
   console.log('Making initial WARC request record with ' + initURI);
   console.log(requestHeaders[initURI])
   var warcRequestHeader = makeWarcRequestHeaderWith(initURI, now, warcConcurrentTo, warcRequest)
   console.log('Initial WARC request created')
-  
+
   var outlinks = o_request.outlinks // isA Array
   var outlinkStr = ''
 
@@ -213,7 +213,7 @@ function generateWarc (o_request, o_sender, f_callback) {
 
   for (var requestHeader in requestHeaders) {
     if (requestHeader === initURI || !requestHeader || !requestHeaders[requestHeader]) { continue } // The 'seed' will not have a body, we handle this above, skip
-    
+
     console.log('Making a secondary WARC request')
     console.log(requestHeaders)
     var requestHeaderString = makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF

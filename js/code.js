@@ -222,7 +222,7 @@ function generate_Warc () {
               changeGenerateWARCButton(buttonLabel_warcGenerated)
 
               showWARCGeneratedNotification()
-              
+
               return
             })
           })
@@ -274,7 +274,7 @@ $(document).ready(function () {
   })
 
   $('#clearLocalStorage').click(clearLocalStorage)
-  
+
   chrome.storage.local.get(null, function (items) {
     console.log('Data in localStorage: ')
     console.log(items)

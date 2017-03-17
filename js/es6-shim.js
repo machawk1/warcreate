@@ -856,4 +856,3 @@
     main(); // CommonJS and <script>
   }
 })();
-
