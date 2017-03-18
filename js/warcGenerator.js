@@ -178,15 +178,16 @@ function generateWarc (o_request, o_sender, f_callback) {
     myArray = pattern.exec(o_request.headers)
   }
 
-  var arrayBuffers = [] // We will load all of the data in-order in the arrayBuffers array then combine with the file blob to writeout
-
-  arrayBuffers.push(str2ab(warcHeader + CRLF))
-  arrayBuffers.push(str2ab(warcHeaderContent + CRLF + CRLF))
-  arrayBuffers.push(str2ab(warcRequestHeader + CRLF))
-  arrayBuffers.push(str2ab(warcMetadataHeader + CRLF))
-  arrayBuffers.push(str2ab(warcMetadata + CRLF + CRLF))
-  arrayBuffers.push(str2ab(warcResponseHeader + CRLF))
-  arrayBuffers.push(str2ab(warcResponse + CRLF + CRLF))
+  // We will load all of the data in-order in the arrayBuffers array then combine with the file blob to writeout
+  var arrayBuffers = [
+    str2ab(warcHeader + CRLF),
+    str2ab(warcHeaderContent + CRLF + CRLF),
+    str2ab(warcRequestHeader + CRLF),
+    str2ab(warcMetadataHeader + CRLF),
+    str2ab(warcMetadata + CRLF + CRLF),
+    str2ab(warcResponseHeader + CRLF),
+    str2ab(warcResponse + CRLF + CRLF)
+  ]
 
   var cssURIs, cssData, jsURIs, jsData
 
