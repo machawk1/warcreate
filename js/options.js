@@ -39,7 +39,6 @@ function restore_options () {
   // console.log(('Restoring options')
   // console.log((localStorage)
 
-  var handling
   if (localStorage.handlingMethod === 'save') {
     document.getElementById('output_save').checked = 'checked'
     document.getElementById('output_display').removeAttribute('checked')

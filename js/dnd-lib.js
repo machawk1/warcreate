@@ -62,7 +62,7 @@ function DNDFileController(id) {
     return false;
   };
 
-  
+
   el_.addEventListener("dragenter", this.dragenter, false);
   el_.addEventListener("dragover", this.dragover, false);
   el_.addEventListener("dragleave", this.dragleave, false);

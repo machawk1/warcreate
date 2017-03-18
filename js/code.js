@@ -164,10 +164,6 @@ function changePageActionIcon (iconPath) {
 */
 function generate_Warc () {
   console.log('generate_warc start')
-
-  var imageData = []
-  var imageURIs = []
-
   // console.log(('generate_warc')
 
   // TODO: Refactor out this callback hell
@@ -222,7 +218,7 @@ function generate_Warc () {
               changeGenerateWARCButton(buttonLabel_warcGenerated)
 
               showWARCGeneratedNotification()
-              
+
               return
             })
           })
@@ -274,7 +270,7 @@ $(document).ready(function () {
   })
 
   $('#clearLocalStorage').click(clearLocalStorage)
-  
+
   chrome.storage.local.get(null, function (items) {
     console.log('Data in localStorage: ')
     console.log(items)

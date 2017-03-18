@@ -17,9 +17,9 @@ function getJSData (cb) {
   })
 }
 
-function createAjaxJSRequests () {  
+function createAjaxJSRequests () {
   var deferreds = []
-  
+
   for (var ii = document.scripts.length - 1; ii>= 0; ii--) {
     if (document.scripts[ii].src === '') {continue}
     console.log('creating deferred for ' + document.scripts[ii].src)

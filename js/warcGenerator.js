@@ -12,6 +12,14 @@ function lengthInUtf8Bytes (str) {
   return str.length + (m ? m.length : 0)
 }
 
+// from http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
+function guidGenerator () {
+  var S4 = function () {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
+  }
+  return '<urn:uuid:' + (S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4()) + '>'
+}
+
 /* ************** END STRING UTILITY FUNCTIONS **************  */
 
 function generateWarc (o_request, o_sender, f_callback) {
@@ -29,18 +37,9 @@ function generateWarc (o_request, o_sender, f_callback) {
 
   var CRLF = '\r\n'
 
-  // from http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
-  function guidGenerator () {
-    var S4 = function () {
-      return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
-    }
-    return '<urn:uuid:' + (S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4()) + '>'
-  }
-
   var now = new Date().toISOString()
   now = now.substr(0, now.indexOf('.')) + 'Z'
 
-  var nowHttp = new Date().toString('ddd dd MMM yyyy HH:mm:ss') + ' GMT'
   var fileName = o_request.file
   var initURI = o_request.url
 
@@ -51,24 +50,26 @@ function generateWarc (o_request, o_sender, f_callback) {
     isPartOf = localStorage.getItem('collectionId')
   }
 
-  var warcHeaderContent =
-    'software: WARCreate/' + version + ' http://warcreate.com' + CRLF +
-    'format: WARC File Format 1.0' + CRLF +
-    'conformsTo: http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf' + CRLF +
-    'isPartOf: ' + isPartOf + CRLF +
-    'description: ' + warcInfoDescription + CRLF +
-    'robots: ignore' + CRLF +
-    'http-header-user-agent: ' + navigator.userAgent + CRLF +
+  var warcHeaderContent = [
+    'software: WARCreate/' + version + ' http://warcreate.com',
+    'format: WARC File Format 1.0',
+    'conformsTo: http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf',
+    'isPartOf: ' + isPartOf,
+    'description: ' + warcInfoDescription,
+    'robots: ignore',
+    'http-header-user-agent: ' + navigator.userAgent,
     'http-header-from: warcreate@matkelly.com' + CRLF + CRLF
+  ].join(CRLF)
 
-  var warcHeader =
-    'WARC/1.0' + CRLF +
-    'WARC-Type: warcinfo' + CRLF +
-    'WARC-Date: ' + now + CRLF +
-    'WARC-Filename: ' + fileName + CRLF +
-    'WARC-Record-ID: ' + guidGenerator() + CRLF +
-    'Content-Type: application/warc-fields' + CRLF +
+  var warcHeader = [
+    'WARC/1.0',
+    'WARC-Type: warcinfo',
+    'WARC-Date: ' + now,
+    'WARC-Filename: ' + fileName,
+    'WARC-Record-ID: ' + guidGenerator(),
+    'Content-Type: application/warc-fields',
     'Content-Length: ' + warcHeaderContent.length + CRLF
+  ].join(CRLF)
 
   var warcRequest = requestHeaders[initURI]
 
@@ -84,24 +85,25 @@ function generateWarc (o_request, o_sender, f_callback) {
       console.log(requestHeaders)
     }
 
-    var x =
-      'WARC/1.0' + CRLF +
-      'WARC-Type: request' + CRLF +
-      'WARC-Target-URI: ' + targetURI + CRLF +
-      'WARC-Date: ' + now + CRLF +
-      'WARC-Concurrent-To: ' + warcConcurrentTo + CRLF +
-      'WARC-Record-ID: ' + guidGenerator() + CRLF +
-      'Content-Type: application/http; msgtype=request' + CRLF +
-      'Content-Length: ' + (warcRequest.length + 2) + CRLF + CRLF +
+    var x = [
+      'WARC/1.0',
+      'WARC-Type: request',
+      'WARC-Target-URI: ' + targetURI,
+      'WARC-Date: ' + now,
+      'WARC-Concurrent-To: ' + warcConcurrentTo,
+      'WARC-Record-ID: ' + guidGenerator(),
+      'Content-Type: application/http; msgtype=request',
+      'Content-Length: ' + (warcRequest.length + 2) + CRLF,
       warcRequest + CRLF + CRLF
+    ].join(CRLF)
     return x
   }
-  
+
   console.log('Making initial WARC request record with ' + initURI);
   console.log(requestHeaders[initURI])
   var warcRequestHeader = makeWarcRequestHeaderWith(initURI, now, warcConcurrentTo, warcRequest)
   console.log('Initial WARC request created')
-  
+
   var outlinks = o_request.outlinks // isA Array
   var outlinkStr = ''
 
@@ -119,15 +121,16 @@ function generateWarc (o_request, o_sender, f_callback) {
   // Includes initial URI var warcMetadata = 'outlink: '+ initURI + CRLF + outlinkStr;
   var warcMetadata = outlinkStr
 
-  var warcMetadataHeader =
-    'WARC/1.0' + CRLF +
-    'WARC-Type: metadata' + CRLF +
-    'WARC-Target-URI: ' + initURI + CRLF +
-    'WARC-Date: ' + now + CRLF +
-    'WARC-Concurrent-To: <urn:uuid:dddc4ba2-c1e1-459b-8d0d-a98a20b87e96>' + CRLF +
-    'WARC-Record-ID: <urn:uuid:6fef2a49-a9ba-4b40-9f4a-5ca5db1fd5c6>' + CRLF +
-    'Content-Type: application/warc-fields' + CRLF +
+  var warcMetadataHeader = [
+    'WARC/1.0',
+    'WARC-Type: metadata',
+    'WARC-Target-URI: ' + initURI,
+    'WARC-Date: ' + now,
+    'WARC-Concurrent-To: <urn:uuid:dddc4ba2-c1e1-459b-8d0d-a98a20b87e96>',
+    'WARC-Record-ID: <urn:uuid:6fef2a49-a9ba-4b40-9f4a-5ca5db1fd5c6>',
+    'Content-Type: application/warc-fields',
     'Content-Length: ' + warcMetadata.length + CRLF
+  ].join(CRLF)
 
   // targetURI
   // DUCTTAPE
@@ -155,25 +158,18 @@ function generateWarc (o_request, o_sender, f_callback) {
       httpHeader = resp
     }
 
-    var countCorrect = httpHeader.match(/\r\n/g).length // Number of lines in xx below
-
-    // var contentLength = (encodeURI(resp).split(/%..|./).length - 1)
     var contentLength = lengthInUtf8Bytes(resp)
     if (additionalContentLength) { contentLength += additionalContentLength } // (arraybuffer + string).length don't mix ;)
 
-    var xx =
-      'WARC/1.0' + CRLF +
-      'WARC-Type: response' + CRLF +
-      'WARC-Target-URI: ' + targetURI + CRLF +
-      'WARC-Date: ' + now + CRLF +
-      'WARC-Record-ID: ' + guidGenerator() + CRLF +
-      'Content-Type: application/http; msgtype=response' + CRLF +
-      // 'Content-Length: ' + (unescape(encodeURIComponent(resp)).length + countCorrect) + CRLF   //11260 len
-      // 'Content-Length: ' + (resp.length) + CRLF;// + countCorrect) + CRLF
+    return [
+      'WARC/1.0',
+      'WARC-Type: response',
+      'WARC-Target-URI: ' + targetURI,
+      'WARC-Date: ' + now,
+      'WARC-Record-ID: ' + guidGenerator(),
+      'Content-Type: application/http; msgtype=response',
       'Content-Length: ' + contentLength + CRLF
-      // 'Content-Length: ' + lengthInUtf8Bytes(resp) + CRLF
-
-    return xx
+    ].join(CRLF)
   }
 
   var warcResponseHeader = makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse, 0) // htmlLengthCorrection)
@@ -185,17 +181,18 @@ function generateWarc (o_request, o_sender, f_callback) {
     myArray = pattern.exec(o_request.headers)
   }
 
-  var arrayBuffers = [] // We will load all of the data in-order in the arrayBuffers array then combine with the file blob to writeout
+  // We will load all of the data in-order in the arrayBuffers array then combine with the file blob to writeout
+  var arrayBuffers = [
+    str2ab(warcHeader + CRLF),
+    str2ab(warcHeaderContent + CRLF + CRLF),
+    str2ab(warcRequestHeader + CRLF),
+    str2ab(warcMetadataHeader + CRLF),
+    str2ab(warcMetadata + CRLF + CRLF),
+    str2ab(warcResponseHeader + CRLF),
+    str2ab(warcResponse + CRLF + CRLF)
+  ]
 
-  arrayBuffers.push(str2ab(warcHeader + CRLF))
-  arrayBuffers.push(str2ab(warcHeaderContent + CRLF + CRLF))
-  arrayBuffers.push(str2ab(warcRequestHeader + CRLF))
-  arrayBuffers.push(str2ab(warcMetadataHeader + CRLF))
-  arrayBuffers.push(str2ab(warcMetadata + CRLF + CRLF))
-  arrayBuffers.push(str2ab(warcResponseHeader + CRLF))
-  arrayBuffers.push(str2ab(warcResponse + CRLF + CRLF))
-
-  var imgURIs, imgData, cssURIs, cssData, jsURIs, jsData
+  var cssURIs, cssData, jsURIs, jsData
 
   var img, css, js
 
@@ -213,7 +210,7 @@ function generateWarc (o_request, o_sender, f_callback) {
 
   for (var requestHeader in requestHeaders) {
     if (requestHeader === initURI || !requestHeader || !requestHeaders[requestHeader]) { continue } // The 'seed' will not have a body, we handle this above, skip
-    
+
     console.log('Making a secondary WARC request')
     console.log(requestHeaders)
     var requestHeaderString = makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader]) + CRLF
@@ -232,10 +229,7 @@ function generateWarc (o_request, o_sender, f_callback) {
           var rawImageDataAsBytes = result[rh]
 
           if (rawImageDataAsBytes) { // We have the data in chrome.storage.local
-            var imgRawString = ''
-
             var byteCount = result[rh].length
-            var imagesAsObjectsFromJSON = rawImageDataAsBytes // Redundant of above but testing
 
             var hexValueArrayBuffer = new ArrayBuffer(byteCount)
             var hexValueInt8Ary = new Int8Array(hexValueArrayBuffer)
