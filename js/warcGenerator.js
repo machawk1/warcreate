@@ -161,7 +161,7 @@ function generateWarc (o_request, o_sender, f_callback) {
     var contentLength = lengthInUtf8Bytes(resp)
     if (additionalContentLength) { contentLength += additionalContentLength } // (arraybuffer + string).length don't mix ;)
 
-    var xx = [
+    return [
       'WARC/1.0',
       'WARC-Type: response',
       'WARC-Target-URI: ' + targetURI,
@@ -170,8 +170,6 @@ function generateWarc (o_request, o_sender, f_callback) {
       'Content-Type: application/http; msgtype=response',
       'Content-Length: ' + contentLength + CRLF
     ].join(CRLF)
-
-    return xx
   }
 
   var warcResponseHeader = makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse, 0) // htmlLengthCorrection)
