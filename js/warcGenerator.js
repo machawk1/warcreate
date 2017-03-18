@@ -12,6 +12,14 @@ function lengthInUtf8Bytes (str) {
   return str.length + (m ? m.length : 0)
 }
 
+// from http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
+function guidGenerator () {
+  var S4 = function () {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
+  }
+  return '<urn:uuid:' + (S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4()) + '>'
+}
+
 /* ************** END STRING UTILITY FUNCTIONS **************  */
 
 function generateWarc (o_request, o_sender, f_callback) {
@@ -28,14 +36,6 @@ function generateWarc (o_request, o_sender, f_callback) {
   if (debug) { console.log('Running generateWarc code') }
 
   var CRLF = '\r\n'
-
-  // from http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
-  function guidGenerator () {
-    var S4 = function () {
-      return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
-    }
-    return '<urn:uuid:' + (S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4()) + '>'
-  }
 
   var now = new Date().toISOString()
   now = now.substr(0, now.indexOf('.')) + 'Z'
