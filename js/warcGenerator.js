@@ -50,24 +50,26 @@ function generateWarc (o_request, o_sender, f_callback) {
     isPartOf = localStorage.getItem('collectionId')
   }
 
-  var warcHeaderContent =
-    'software: WARCreate/' + version + ' http://warcreate.com' + CRLF +
-    'format: WARC File Format 1.0' + CRLF +
-    'conformsTo: http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf' + CRLF +
-    'isPartOf: ' + isPartOf + CRLF +
-    'description: ' + warcInfoDescription + CRLF +
-    'robots: ignore' + CRLF +
-    'http-header-user-agent: ' + navigator.userAgent + CRLF +
+  var warcHeaderContent = [
+    'software: WARCreate/' + version + ' http://warcreate.com',
+    'format: WARC File Format 1.0',
+    'conformsTo: http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf',
+    'isPartOf: ' + isPartOf,
+    'description: ' + warcInfoDescription,
+    'robots: ignore',
+    'http-header-user-agent: ' + navigator.userAgent,
     'http-header-from: warcreate@matkelly.com' + CRLF + CRLF
+  ].join(CRLF)
 
-  var warcHeader =
-    'WARC/1.0' + CRLF +
-    'WARC-Type: warcinfo' + CRLF +
-    'WARC-Date: ' + now + CRLF +
-    'WARC-Filename: ' + fileName + CRLF +
-    'WARC-Record-ID: ' + guidGenerator() + CRLF +
-    'Content-Type: application/warc-fields' + CRLF +
+  var warcHeader = [
+    'WARC/1.0',
+    'WARC-Type: warcinfo',
+    'WARC-Date: ' + now,
+    'WARC-Filename: ' + fileName,
+    'WARC-Record-ID: ' + guidGenerator(),
+    'Content-Type: application/warc-fields',
     'Content-Length: ' + warcHeaderContent.length + CRLF
+  ].join(CRLF)
 
   var warcRequest = requestHeaders[initURI]
 
@@ -83,16 +85,17 @@ function generateWarc (o_request, o_sender, f_callback) {
       console.log(requestHeaders)
     }
 
-    var x =
-      'WARC/1.0' + CRLF +
-      'WARC-Type: request' + CRLF +
-      'WARC-Target-URI: ' + targetURI + CRLF +
-      'WARC-Date: ' + now + CRLF +
-      'WARC-Concurrent-To: ' + warcConcurrentTo + CRLF +
-      'WARC-Record-ID: ' + guidGenerator() + CRLF +
-      'Content-Type: application/http; msgtype=request' + CRLF +
-      'Content-Length: ' + (warcRequest.length + 2) + CRLF + CRLF +
+    var x = [
+      'WARC/1.0',
+      'WARC-Type: request',
+      'WARC-Target-URI: ' + targetURI,
+      'WARC-Date: ' + now,
+      'WARC-Concurrent-To: ' + warcConcurrentTo,
+      'WARC-Record-ID: ' + guidGenerator(),
+      'Content-Type: application/http; msgtype=request',
+      'Content-Length: ' + (warcRequest.length + 2) + CRLF,
       warcRequest + CRLF + CRLF
+    ].join(CRLF)
     return x
   }
 
@@ -118,15 +121,16 @@ function generateWarc (o_request, o_sender, f_callback) {
   // Includes initial URI var warcMetadata = 'outlink: '+ initURI + CRLF + outlinkStr;
   var warcMetadata = outlinkStr
 
-  var warcMetadataHeader =
-    'WARC/1.0' + CRLF +
-    'WARC-Type: metadata' + CRLF +
-    'WARC-Target-URI: ' + initURI + CRLF +
-    'WARC-Date: ' + now + CRLF +
-    'WARC-Concurrent-To: <urn:uuid:dddc4ba2-c1e1-459b-8d0d-a98a20b87e96>' + CRLF +
-    'WARC-Record-ID: <urn:uuid:6fef2a49-a9ba-4b40-9f4a-5ca5db1fd5c6>' + CRLF +
-    'Content-Type: application/warc-fields' + CRLF +
+  var warcMetadataHeader = [
+    'WARC/1.0',
+    'WARC-Type: metadata',
+    'WARC-Target-URI: ' + initURI,
+    'WARC-Date: ' + now,
+    'WARC-Concurrent-To: <urn:uuid:dddc4ba2-c1e1-459b-8d0d-a98a20b87e96>',
+    'WARC-Record-ID: <urn:uuid:6fef2a49-a9ba-4b40-9f4a-5ca5db1fd5c6>',
+    'Content-Type: application/warc-fields',
     'Content-Length: ' + warcMetadata.length + CRLF
+  ].join(CRLF)
 
   // targetURI
   // DUCTTAPE
@@ -157,14 +161,15 @@ function generateWarc (o_request, o_sender, f_callback) {
     var contentLength = lengthInUtf8Bytes(resp)
     if (additionalContentLength) { contentLength += additionalContentLength } // (arraybuffer + string).length don't mix ;)
 
-    var xx =
-      'WARC/1.0' + CRLF +
-      'WARC-Type: response' + CRLF +
-      'WARC-Target-URI: ' + targetURI + CRLF +
-      'WARC-Date: ' + now + CRLF +
-      'WARC-Record-ID: ' + guidGenerator() + CRLF +
-      'Content-Type: application/http; msgtype=response' + CRLF +
+    var xx = [
+      'WARC/1.0',
+      'WARC-Type: response',
+      'WARC-Target-URI: ' + targetURI,
+      'WARC-Date: ' + now,
+      'WARC-Record-ID: ' + guidGenerator(),
+      'Content-Type: application/http; msgtype=response',
       'Content-Length: ' + contentLength + CRLF
+    ].join(CRLF)
 
     return xx
   }
