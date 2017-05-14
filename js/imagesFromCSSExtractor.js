@@ -2,7 +2,7 @@
 function getallBgimages () {
   var url, B = [], A = document.getElementsByTagName('*')
   A = B.slice.call(A, 0, A.length)
-  while(A.length){
+  while (A.length) {
     url = document.deepCss(A.shift(), 'background-image')
     if (url) url = /url\(['"]?([^")]+)/.exec(url) || []
     url = url[1]
@@ -28,7 +28,7 @@ Array.prototype.indexOf = Array.prototype.indexOf ||
 function (what, index) {
   index = index || 0
   var L = this.length
-  while(index < L){
+  while (index < L) {
     if (this[index] === what) return index
     ++index
   }

@@ -12,7 +12,7 @@ function fetchImage (u) {
     delete imageUris[u]
     // console.log(("Fetched "+u+"  "+Object.keys(imageUris).length+" urls left to fetch")
     if (Object.keys(imageUris).length == 0) {
-      // console.log(("All image data collected");   
+      // console.log(("All image data collected");
     }
   }
 
@@ -47,8 +47,8 @@ chrome.extension.onConnect.addListener(function (port) {
           ret[u] = myString
           delete imgObjs[u]
 
-          // console.log("Ok, now postback image data"); 
-          // console.error(u); 
+          // console.log("Ok, now postback image data");
+          // console.error(u);
           var ohemefgee = {}
           ohemefgee[u] = stringUInt8Array
           chrome.storage.local.set(ohemefgee, function () {
@@ -59,7 +59,6 @@ chrome.extension.onConnect.addListener(function (port) {
           })
           // console.log(("- Image data in local storage for "+u)
           // port.postMessage({imageData: JSON.stringify(ret),method: "getImageDataRet",uri: u},function(e){})
-
         }
 
         xhr.onerror = function (e) {
@@ -73,13 +72,13 @@ chrome.extension.onConnect.addListener(function (port) {
       // get the image URIs from the DOM
       for (var image = 0; image < document.images.length; image++) {
         if (document.images[image].src.indexOf('data:') == -1) {
-          imgObjs[document.images[image].src] = 'foo'; // dummy data to-be-filled below programmatically
+          imgObjs[document.images[image].src] = 'foo' // dummy data to-be-filled below programmatically
         }
       }
       // get the image URIs embedded in CSS
       var imagesInCSS = getallBgimages()
       for (var imageInCSS = 0; imageInCSS < imagesInCSS.length; imageInCSS++) {
-        imgObjs[imagesInCSS[imageInCSS]] = 'foo'; // dummy data to-be-filled below programmatically
+        imgObjs[imagesInCSS[imageInCSS]] = 'foo' // dummy data to-be-filled below programmatically
       }
 
       var ret = {}
@@ -90,8 +89,7 @@ chrome.extension.onConnect.addListener(function (port) {
           fetchImage(uri)
         }
       }
-    }
-    else if (msg.method == 'getHTML') {
+    } else if (msg.method == 'getHTML') {
       // console.log(("about to post getHTML message")
       images = document.images
 
@@ -135,12 +133,12 @@ chrome.extension.onConnect.addListener(function (port) {
         }
       })
 
-      outlinksAddedRegistry = null; // reclaim space, since we no longer need this check given we're through building outlinks
+      outlinksAddedRegistry = null // reclaim space, since we no longer need this check given we're through building outlinks
 
       var imageURIs = []
       var imageBase64Data = []
       // image conversion code
-      // *********************************	
+      // *********************************
       // Convert images to something portal and text-y
       // *********************************
       // console.log("Converting image data, "+images.length+" to convert")
@@ -150,8 +148,9 @@ chrome.extension.onConnect.addListener(function (port) {
         // console.log((images[i].src)
         var image = images[i]
         if (!(image.src)) {
-          // console.log("Image "+i+" had no src. Continuing to encode the others"); 
-          continue;}
+          // console.log("Image "+i+" had no src. Continuing to encode the others");
+          continue
+        }
           // console.log(("About to convert image "+(i+1)+"/"+images.length+": "+images[i].src)
 
         var canvas = document.createElement('canvas')
@@ -166,7 +165,7 @@ chrome.extension.onConnect.addListener(function (port) {
       var imageDataSerialized = imageBase64Data.join('|||')
       var imageURIsSerialized = imageURIs.join('|||')
       localStorage['imagesInDOM'] = imageURIsSerialized
-      // *********************************	
+      // *********************************
       // Re-fetch CSS (limitation of webRequest, need to be able to get content on response, functionality unavailable, requires refetch)
       // *********************************
       // a better way to get all stylesheets but we cannot get them as text but instead an object with ruleslist
@@ -183,7 +182,7 @@ chrome.extension.onConnect.addListener(function (port) {
           styleSheetData.push(cssText)
         })
       }
-      // *********************************	
+      // *********************************
       // Re-fetch JS
       // *********************************
       var JSURLs = []
@@ -210,13 +209,13 @@ chrome.extension.onConnect.addListener(function (port) {
       // all of this nonsense just to get the doctype to prepend!
       var node = document.doctype
       var dtstr
-      if (!node) {dtstr = '';}else {
-        dtstr = '<!DOCTYPE '
-          + '' + node.name
-          + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
-          + (!node.publicId && node.systemId ? ' SYSTEM' : '')
-          + (node.systemId ? ' "' + node.systemId + '"' : '')
-          + '>'
+      if (!node) { dtstr = '' } else {
+        dtstr = '<!DOCTYPE ' +
+          '' + node.name +
+          (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '') +
+          (!node.publicId && node.systemId ? ' SYSTEM' : '') +
+          (node.systemId ? ' "' + node.systemId + '"' : '') +
+          '>'
       }
 
       var domAsText = document.documentElement.outerHTML
@@ -234,7 +233,7 @@ chrome.extension.onConnect.addListener(function (port) {
       // console.log(("length before post: "+domAsText.length)
       port.postMessage({
         // html: dtstr + document.all[0].outerHTML, //document.all is non-standard
-        html: dtstr + domAsText, //   document.documentElement.outerHTML, 
+        html: dtstr + domAsText, //   document.documentElement.outerHTML,
         uris: imageURIsSerialized,
         data: imageDataSerialized,
         cssuris: cssURIsSerialized,
@@ -243,8 +242,8 @@ chrome.extension.onConnect.addListener(function (port) {
         jsdata: jsDataSerialized,
         outlinks: outlinksSerialized,
         method: msg.method
-      }); // communicate back to code.js ~130 with image data
-    }else {
+      }) // communicate back to code.js ~130 with image data
+    } else {
       // console.log(("Method unsupported in content.js: "+msg.method)
     }
   })

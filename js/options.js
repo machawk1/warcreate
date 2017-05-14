@@ -12,7 +12,7 @@ function save_options () {
   if (document.getElementById('addCollectionMetadataCheckbox').checked) {
     localStorage['collectionId'] = $('#collectionId').val()
     localStorage['collectionName'] = $('#collectionName').val()
-  }else {
+  } else {
     localStorage.removeItem('collectionId')
     localStorage.removeItem('collectionName')
   }
@@ -28,12 +28,12 @@ function save_options () {
 }
 // Restores select box state to saved value from localStorage.
 function restore_options () {
-  /*var warcSRC = localStorage["warcSRC"]
+  /* var warcSRC = localStorage["warcSRC"]
   var waybackWarcSource = document.getElementById("waybackWarcSource")
   if (!warcSRC || warcSRC == "") {
 	waybackWarcSource.value = "C:\\xampp\\tomcat\\webapps\\ROOT\\files1\\"; //TODO, remove this obsolete code!
     return
-  }*/
+  } */
   // console.log(("Restoring options")
   // console.log((localStorage)
 
@@ -41,8 +41,7 @@ function restore_options () {
   if (localStorage['handlingMethod'] == 'save') {
     document.getElementById('output_save').checked = 'checked'
     document.getElementById('output_display').removeAttribute('checked')
-  }
-  else if (localStorage['handlingMethod'] == 'display') {
+  } else if (localStorage['handlingMethod'] == 'display') {
     document.getElementById('output_save').removeAttribute('checked')
     document.getElementById('output_display').checked = 'checked'
   }
@@ -71,7 +70,7 @@ function checkURI (uri) {
     req.open('GET', uri, false)
     req.send(null)
     return req.status
-  } catch(e) {
+  } catch (e) {
     return -1
   }
 }
@@ -89,10 +88,10 @@ function setSaveChangesButtonEnabledBasedOnOptionsChange () {
 
     if (lastSavedStateString == currentSavedState) {
       $('#save').attr('disabled', 'disabled')
-    }else {
+    } else {
       $('#save').removeAttr('disabled')
     }
-  }else { // set the initial state
+  } else { // set the initial state
     lastSavedStateString = $('#filenameScheme').val() +
     $('#uploadTo').val() +
     $('#collectionId').val() +
@@ -141,7 +140,7 @@ function setupButtonFunctionalityAndVisibility () {
     if ($('#postGeneration_upload').prop('checked')) {
       uploadToURI = $('#uploadTo').val()
       filenameScheme = ''
-    }else {
+    } else {
       uploadToURI = ''
       filenameScheme = $('#filenameScheme').val()
     }
@@ -162,7 +161,7 @@ function fetchSocialStandardSpecification () {
     url: $('#sequentialArchivingSource').val()
   })
     .done(function (data) {
-      // console.log(("Done fetching base spec!");	
+      // console.log(("Done fetching base spec!");
       var specs = []
       for (var homepage = 0; homepage < $(data).children().children().children('homepage').length; homepage++) {
         // convert the XML spec to JS objects. This is ridiculously verbose. There has to be a cleaner way.
@@ -186,7 +185,7 @@ function fetchSocialStandardSpecification () {
           .done(function (data2) {
             var specAsObj = jQuery.parseJSON(xml2json(data2, ''))
             var siteSections = specAsObj.socialMediaWebsite.sections.socialMediaWebsiteSection
-            $('#sections').empty(); // Kill the children (of the section list)
+            $('#sections').empty() // Kill the children (of the section list)
             for (var sectionI = 0; sectionI < siteSections.length; sectionI++) {
               // console.log((siteSections[sectionI].name + " " +siteSections[sectionI].url)
               $('#sections').append('<li><span class="name">' + siteSections[sectionI].name + '</span><span class="url">' + siteSections[sectionI].url + '</span>')
@@ -209,7 +208,6 @@ function displayLocalStorageData () {
     break
   }
   // console.log((XX)
-
 }
 
 function showFilenameExample () { // when the file format scheme changes, update the example
@@ -249,7 +247,7 @@ window.onload = function () {
     // hide/disable the "save to downloads" options if the user's current setting is "upload to"
     $('#filenameScheme').attr('disabled', 'disabled')
     $('#exampleFileName').hide()
-  }else if (localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0) {
+  } else if (localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0) {
     $('#filenameScheme').val(localStorage['filenameScheme'])
   }
 
@@ -267,5 +265,5 @@ window.onload = function () {
 
   // show data ready to be used for WARC creation
   // populatePendingContentTable()
-  $('#getPendingContent').click(function () {populatePendingContentTable();})
+  $('#getPendingContent').click(function () { populatePendingContentTable() })
 }

@@ -11,7 +11,7 @@ if (content == 'dummy') { // used if page contains encrypted content and not fie
 var decryptedContent
 try {
   decryptedContent = $.rc4DecryptStr(content, key)
-} catch(err) {
+} catch (err) {
   decryptedContent = '(Decryption error)'
 }
 

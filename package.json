@@ -20,10 +20,19 @@
     "url": "git://github.com/machawk1/warcreate.git"
   },
   "scripts": {
-    "test": "standard"
+    "test": "standard",
+    "lint": "standard --verbose | snazzy",
+    "linting-errors-fix": "standard --fix"
   },
   "devDependencies": {
-    "standard" :"^3.0.0"
+    "snazzy": "^7.0.0",
+    "standard": "^10.0.2"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "node": true
+    }
   },
   "standard": {
     "ignore": [
@@ -38,6 +47,22 @@
       "js/jquery.rc4.js",
       "js/upclick-min.js",
       "js/xml2json.js"
+    ],
+    "globals": [
+      "chrome",
+      "localStorage",
+      "alert",
+      "Image",
+      "Blob",
+      "XMLHttpRequest",
+      "navigator",
+      "params",
+      "requestHeaders",
+      "responseHeaders",
+      "saveAs",
+      "$",
+      "jQuery",
+      "xml2json"
     ]
   }
 }

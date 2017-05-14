@@ -23,11 +23,10 @@ function convertImagesToBase64 () {
     // context.drawImage(img,0,0)
     console.log(i + ': ' + images[i].src + '  file type: ' + fileType)
     var fileType = images[i].src.substr(images[i].src.length - 4).toLowerCase()
-    if (fileType == '.jpg' || fileType == 'jpeg') {fileType = 'image/jpeg';}
-    else if (fileType == '.png') {fileType = 'image/png';}
-    else if (fileType == '.gif') {fileType = 'image/gif';}else {
+    if (fileType == '.jpg' || fileType == 'jpeg') { fileType = 'image/jpeg' } else if (fileType == '.png') { fileType = 'image/png' } else if (fileType == '.gif') { fileType = 'image/gif' } else {
       var uTransformed = images[i].src.substring(0, images[i].src.indexOf('.jpg')) + '.jpg'
-      alert('error at image ' + i + ' ' + uTransformed); continue; console.log(uTransformed);return;}
+      alert('error at image ' + i + ' ' + uTransformed); continue; console.log(uTransformed); return
+    }
     console.log(i + ': ' + images[i].src + '  file type: ' + fileType)
 
     try {
@@ -41,7 +40,7 @@ function convertImagesToBase64 () {
 
     // chrome.extension.sendRequest({url: img.src})
     // chrome.extension.getBackgroundPage().adjustImage(img.src)
-    } catch(e) {
+    } catch (e) {
       console.log(e)
       return
     }

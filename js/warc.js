@@ -6,7 +6,8 @@ Warc = function (srcStr) {
 
     function WarcRecord () {
       this.str = ''
-      function WarcInfoHeader () {var str
+      function WarcInfoHeader () {
+        var str
         addLine('WARC/1.0')
       }
       function WarcInfoContent () {}
@@ -22,5 +23,5 @@ Warc = function (srcStr) {
       function addLine (str) {
         this.str += str + '\r\n'
       }
-  }
+    }
 }
