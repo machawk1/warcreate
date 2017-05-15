@@ -11,7 +11,7 @@ function fetchImage (u) {
     var uInt8Array = new Uint8Array(this.response)
     delete imageUris[u]
     // console.log(("Fetched "+u+"  "+Object.keys(imageUris).length+" urls left to fetch")
-    if (Object.keys(imageUris).length == 0) {
+    if (Object.keys(imageUris).length === 0) {
       // console.log(("All image data collected");
     }
   }
@@ -23,55 +23,152 @@ function ab2str (buf) {
   return String.fromCharCode.apply(null, new Uint16Array(buf))
 }
 
+/**
+ * Exact functionality of the fetchImage method except returns a promise that calls the resolve
+ * function after the image data has been set in local storage.
+ * calls the reject function if chrome.lasterror is defined or the XHR requests onerror method is called
+ * per #90
+ */
+function fetchImagePromise (u, ret, imgObjs) {
+  return new Promise(function (resolve, reject) {
+    var xhr = new XMLHttpRequest()
+    xhr.open('GET', u, true)
+    xhr.responseType = 'arraybuffer'
+    xhr.onload = function (e) {
+      var uInt8Array = new Uint8Array(this.response)
+
+      var stringUInt8Array = []
+      for (var ii = 0; ii < uInt8Array.length; ii++) {
+        stringUInt8Array[ii] = uInt8Array[ii] + 0
+      }
+
+      ret[u] = uInt8Array
+      delete imgObjs[u]
+
+      // console.log("Ok, now postback image data");
+      // console.error(u);
+      var ohemefgee = {}
+      ohemefgee[u] = stringUInt8Array
+      chrome.storage.local.set(ohemefgee, function () {
+        if (chrome.runtime.lastError) {
+          console.error('Error in set data')
+          console.error(chrome.runtime.lastError)
+          reject(chrome.runtime.lastError)
+        } else {
+          resolve()
+        }
+      })
+      // console.log(("- Image data in local storage for "+u)
+      // port.postMessage({imageData: JSON.stringify(ret),method: "getImageDataRet",uri: u},function(e){})
+    }
+
+    xhr.onerror = function (e) {
+      console.log('Error fetchImagePromise content.js', e)
+      reject(e)
+    }
+
+    xhr.send()
+  })
+}
+
+/**
+ * Exact functionality of the fetchCssData method except returns a promise that calls the resolve
+ * on done or error
+ * per #90
+ */
+function fetchCssDataPromise (href, styleSheetData) {
+  return new Promise(function (resolve, reject) {
+    $.ajax({
+      url: href,
+      dataType: 'text',
+      async: false
+    }).done(function (cssText) {
+      styleSheetData.push(cssText)
+      resolve()
+    }).error(function (jqXHR, textStatus, errorThrown) {
+      console.error('there was an error fetching css data content.js', textStatus, errorThrown)
+      resolve()
+    })
+  })
+}
+
+/**
+ * Exact functionality of the fetchScriptData method except returns a promise that calls the resolve
+ * on done or error
+ * per #90
+ */
+function fetchScriptDataPromise (src, JSData) {
+  return new Promise(function (resolve, reject) {
+    $.ajax({
+      url: src,
+      dataType: 'text',
+      async: false
+    }).done(function (jsText) {
+      JSData.push(jsText)
+      resolve()
+    }).error(function (jqXHR, textStatus, errorThrown) {
+      console.error('there was an error fetching script data content.js', textStatus, errorThrown)
+      resolve()
+    })
+  })
+}
+
 chrome.extension.onConnect.addListener(function (port) {
-  port.onMessage.addListener(function (msg) {
+  /*
+   per #90 added the async modifier to the function
+   NOTE: any error thrown in this function not caught explicitly
+   will cause on unhandled rejection error. This may or may not
+   be a node.js only thing (will cause node to halt in a future release)
+   but the handling of should take place for good standards and practises
+   */
+  port.onMessage.addListener(async function (msg) {
     // console.log(("in content.js with method: "+msg.method)
-    if (msg.method == 'getImageData') {
+    if (msg.method === 'getImageData') {
       // console.log(("Getting image data")
       // console.log(document.images)
-      function fetchImage (u) {
-        var xhr = new XMLHttpRequest()
-        xhr.open('GET', u, true)
-        xhr.responseType = 'arraybuffer'
-
-        xhr.onload = function (e) {
-          var uInt8Array = new Uint8Array(this.response)
-
-          var stringUInt8Array = []
-          for (var ii = 0; ii < uInt8Array.length; ii++) {
-            stringUInt8Array[ii] = uInt8Array[ii] + 0
-          }
-
-          var myString = uInt8Array
-
-          ret[u] = myString
-          delete imgObjs[u]
-
-          // console.log("Ok, now postback image data");
-          // console.error(u);
-          var ohemefgee = {}
-          ohemefgee[u] = stringUInt8Array
-          chrome.storage.local.set(ohemefgee, function () {
-            if (chrome.runtime.lastError) {
-              console.error('Error in set data')
-              console.error(chrome.runtime.lastError)
-            }
-          })
-          // console.log(("- Image data in local storage for "+u)
-          // port.postMessage({imageData: JSON.stringify(ret),method: "getImageDataRet",uri: u},function(e){})
-        }
-
-        xhr.onerror = function (e) {
-          console.log('Error')
-        }
-
-        xhr.send()
-      }
+      // function fetchImage (u) {
+      //   var xhr = new XMLHttpRequest()
+      //   xhr.open('GET', u, true)
+      //   xhr.responseType = 'arraybuffer'
+      //
+      //   xhr.onload = function (e) {
+      //     var uInt8Array = new Uint8Array(this.response)
+      //
+      //     var stringUInt8Array = []
+      //     for (var ii = 0; ii < uInt8Array.length; ii++) {
+      //       stringUInt8Array[ii] = uInt8Array[ii] + 0
+      //     }
+      //
+      //     var myString = uInt8Array
+      //
+      //     ret[u] = myString
+      //     delete imgObjs[u]
+      //
+      //     // console.log("Ok, now postback image data");
+      //     // console.error(u);
+      //     var ohemefgee = {}
+      //     ohemefgee[u] = stringUInt8Array
+      //     chrome.storage.local.set(ohemefgee, function () {
+      //       if (chrome.runtime.lastError) {
+      //         console.error('Error in set data')
+      //         console.error(chrome.runtime.lastError)
+      //       }
+      //     })
+      //     // console.log(("- Image data in local storage for "+u)
+      //     // port.postMessage({imageData: JSON.stringify(ret),method: "getImageDataRet",uri: u},function(e){})
+      //   }
+      //
+      //   xhr.onerror = function (e) {
+      //     console.log('Error')
+      //   }
+      //
+      //   xhr.send()
+      // }
 
       var imgObjs = {}
       // get the image URIs from the DOM
       for (var image = 0; image < document.images.length; image++) {
-        if (document.images[image].src.indexOf('data:') == -1) {
+        if (document.images[image].src.indexOf('data:') === -1) {
           imgObjs[document.images[image].src] = 'foo' // dummy data to-be-filled below programmatically
         }
       }
@@ -85,25 +182,33 @@ chrome.extension.onConnect.addListener(function (port) {
 
       for (var uri in imgObjs) {
         console.log('Fetching image at ' + uri)
-        if (uri.indexOf('data:') == -1) {
-          fetchImage(uri)
+        if (uri.indexOf('data:') === -1) {
+          // the execution of this function will "halt" until this function resolves or rejects.
+          // WARCreate now iteratively fetches each image this ensures warc generation will not happen
+          // until at least all images have been fetched. The idiom when awaiting a function (must return promise)
+          // when the caller of the function does not handle rejections is to wrap it in try/catch
+          try {
+            await fetchImagePromise(uri, ret, imgObjs)
+          } catch (error) {
+            console.error('there was an error in fetchImagePromise content.js', error)
+          }
         }
       }
-    } else if (msg.method == 'getHTML') {
+    } else if (msg.method === 'getHTML') {
       // console.log(("about to post getHTML message")
-      images = document.images
+      var images = document.images
 
       // console.log(("LINKS:")
       // console.log($("a"))
 
       outlinks = []
-      outlinksAddedRegistry = [] // hacky array to prevent duplicate outlinks
+      var outlinksAddedRegistry = [] // hacky array to prevent duplicate outlinks
 
       // outlinks as images [embedded resource], there are probably other types
       $(images).each(function () {
         if (!outlinksAddedRegistry[$(this).attr('src')]) {
           outlinksAddedRegistry[$(this).attr('src')] = ''
-          outlinks.push($(this).attr('src') + ' E =EMBED_MISC')
+          outlinks.push(`${$(this).attr('src')} E =EMBED_MISC`)
         }
       })
 
@@ -111,17 +216,19 @@ chrome.extension.onConnect.addListener(function (port) {
       $(document.styleSheets).each(function () {
         if (!outlinksAddedRegistry[$(this).attr('href')]) {
           outlinksAddedRegistry[$(this).attr('href')] = ''
-          outlinks.push($(this).attr('href') + ' E =EMBED_MISC')
+          // fixes #80
+          outlinks.push(`${$(this).attr('href')} E link/@href`)
         }
       })
 
       // outlinks as JavaScripts
       $(document.scripts).each(function () {
-        if ($(this).attr('href') && // Only include the externally embedded JS, not the inline
-          !outlinksAddedRegistry[$(this).attr('href')]
+        // MAT!!! you were looking for the scripts URL via HREF not SRC!!!!!!!!!!!!!! fixes #81
+        if ($(this).attr('src') && // Only include the externally embedded JS, not the inline
+          !outlinksAddedRegistry[$(this).attr('src')]
         ) {
-          outlinksAddedRegistry[$(this).attr('href')] = ''
-          outlinks.push($(this).attr('href') + ' E script/@src')
+          outlinksAddedRegistry[$(this).attr('src')] = ''
+          outlinks.push(`${$(this).attr('src')} E script/@src`)
         }
       })
 
@@ -129,7 +236,7 @@ chrome.extension.onConnect.addListener(function (port) {
       $('a').each(function () {
         if (!outlinksAddedRegistry[$(this).attr('href')]) {
           outlinksAddedRegistry[$(this).attr('href')] = ''
-          outlinks.push($(this).attr('href') + ' L a/@href')
+          outlinks.push(`${$(this).attr('href')} L a/@href`)
         }
       })
 
@@ -146,16 +253,16 @@ chrome.extension.onConnect.addListener(function (port) {
       for (var i = 0; i < images.length; i++) {
         // NOTE: image data is NOT fetched here, a subsequent Ajax call is made in warcGenerator.js 20130211 ~ line 188
         // console.log((images[i].src)
-        var image = images[i]
-        if (!(image.src)) {
+        var anImage = images[i]
+        if (!(anImage.src)) {
           // console.log("Image "+i+" had no src. Continuing to encode the others");
           continue
         }
-          // console.log(("About to convert image "+(i+1)+"/"+images.length+": "+images[i].src)
+        // console.log(("About to convert image "+(i+1)+"/"+images.length+": "+images[i].src)
 
         var canvas = document.createElement('canvas')
-        canvas.width = image.width
-        canvas.height = image.height
+        canvas.width = anImage.width
+        canvas.height = anImage.height
 
         var dataurl = canvas.toDataURL()
         var datastartpos = dataurl.match(',').index + 1
@@ -174,13 +281,21 @@ chrome.extension.onConnect.addListener(function (port) {
 
       for (var ss = 0; ss < document.styleSheets.length; ss++) {
         styleSheetURLs.push(document.styleSheets[ss].href)
-        $.ajax({
-          url: document.styleSheets[ss].href,
-          dataType: 'text',
-          async: false
-        }).done(function (cssText) {
-          styleSheetData.push(cssText)
-        })
+        // the execution of this function will "halt" until this function resolves or rejects.
+        // WARCreate now iteratively fetches each css files data
+        try {
+          await fetchCssDataPromise(document.styleSheets[ss].href, styleSheetData)
+        } catch (error) {
+          console.error('there was an error fetching css data content.js', error)
+        }
+
+        // $.ajax({
+        //   url: document.styleSheets[ss].href,
+        //   dataType: 'text',
+        //   async: false
+        // }).done(function (cssText) {
+        //   styleSheetData.push(cssText)
+        // })
       }
       // *********************************
       // Re-fetch JS
@@ -190,13 +305,13 @@ chrome.extension.onConnect.addListener(function (port) {
 
       for (var scriptI = 0; scriptI < document.scripts.length; scriptI++) {
         JSURLs.push(document.scripts[scriptI].src)
-        $.ajax({
-          url: document.scripts[scriptI].src,
-          dataType: 'text',
-          async: false
-        }).done(function (jsText) {
-          JSData.push(jsText)
-        })
+        // the execution of this function will "halt" until this function resolves or rejects.
+        // WARCreate now iteratively fetches each js files data
+        try {
+          await fetchScriptDataPromise(document.scripts[scriptI].src, JSData)
+        } catch (error) {
+          console.error('there was an error fetching js data content.js', error)
+        }
       }
 
       var cssDataSerialized = styleSheetData.join('|||')
@@ -222,7 +337,7 @@ chrome.extension.onConnect.addListener(function (port) {
 
       // This accounts for foo.txt documents on the web, which chrome puts a wrapper around
       var textDocumentStarterString = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">'
-      if (domAsText.substr(0, textDocumentStarterString.length) == textDocumentStarterString) {
+      if (domAsText.substr(0, textDocumentStarterString.length) === textDocumentStarterString) {
         console.log('Adjusting WARC algorithm to account for text rather than HTML document.')
 
         domAsText = $(document).find('pre').html() // replace text w/ html wrapper with just text
@@ -286,7 +401,7 @@ function base64ArrayBuffer (arrayBuffer) {
   }
 
   // Deal with the remaining bytes and padding
-  if (byteRemainder == 1) {
+  if (byteRemainder === 1) {
     chunk = bytes[mainLength]
 
     a = (chunk & 252) >> 2 // 252 = (2^6 - 1) << 2
@@ -295,7 +410,7 @@ function base64ArrayBuffer (arrayBuffer) {
     b = (chunk & 3) << 4 // 3   = 2^2 - 1
 
     base64 += encodings[a] + encodings[b] + '=='
-  } else if (byteRemainder == 2) {
+  } else if (byteRemainder === 2) {
     chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1]
 
     a = (chunk & 64512) >> 10 // 64512 = (2^6 - 1) << 10

@@ -1,8 +1,8 @@
 var key = params['k']
 var content = params['c']
-if (content == 'dummy') { // used if page contains encrypted content and not field
+if (content === 'dummy') { // used if page contains encrypted content and not field
   content = $('body').html()
-  if (content.indexOf('\n') != -1) {
+  if (content.indexOf('\n') !== -1) {
     var ary = content.split('\n')
     content = ary[0]
   }

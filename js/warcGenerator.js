@@ -14,7 +14,7 @@ function str2ab (str) {
   var i = 0
   var strLen = s.length
   for (; i < strLen; i++) {
-    bufView[ i ] = s.charCodeAt(i)
+    bufView[i] = s.charCodeAt(i)
   }
   return buf
 }
@@ -107,7 +107,7 @@ var WARCEntryCreator = {
 
     // DUCTTAPE to fix bug #62
     // - fix the content length to be representative of the un-zipped text content
-    // N0taN3rd: added \r\n instead of \n here to address warc indexing issues with pywb et all see issue #17
+    // added \r\n instead of \n here to address warc indexing issues #17 and #78
     var fixContentLength = `Content-Length: ${lengthInUtf8Bytes(docHtml)}${this.CRLF}`
     newInitURIHeaders = newInitURIHeaders.replace(this.contentLengthRe, fixContentLength)
 
@@ -131,11 +131,11 @@ var helperREs = {
 
 function asynchronouslyFetchImageData (rh, now, warcConcurrentTo, arrayBuffers, responsesToConcatenate, fileName) {
   chrome.storage.local.get(rh, function (result) {
-    var rawImageDataAsBytes = result[ rh ]
+    var rawImageDataAsBytes = result[rh]
 
     if (rawImageDataAsBytes) { // we have the data in chrome.storage.local
       // var imgRawString = ''
-      var byteCount = result[ rh ].length
+      var byteCount = result[rh].length
       // var imagesAsObjectsFromJSON = rawImageDataAsBytes // redundant of above but testing
 
       var hexValueArrayBuffer = new ArrayBuffer(byteCount)
@@ -144,29 +144,29 @@ function asynchronouslyFetchImageData (rh, now, warcConcurrentTo, arrayBuffers, 
       var index = 0
       // var sstr = ''
       for (; index < byteCount; index++) {
-        hexValueInt8Ary.set([ result[ rh ][ index ] ], ixx)
+        hexValueInt8Ary.set([result[rh][index]], ixx)
         ixx++
       }
 
-      var rhsWithCRLF = `${responseHeaders[ rh ]}${WARCEntryCreator.CRLF}`
+      var rhsWithCRLF = `${responseHeaders[rh]}${WARCEntryCreator.CRLF}`
       var hexValueInt8AryPlusRecordSep = hexValueInt8Ary.length + WARCEntryCreator.warcRecordSeparator.length
       var rhsTemp = WARCEntryCreator.makeWarcResponseHeaderWith(rh, now, warcConcurrentTo, rhsWithCRLF, hexValueInt8AryPlusRecordSep)
       var responseHeaderString = `${rhsTemp}${WARCEntryCreator.CRLF}`
 
       arrayBuffers.push(str2ab(responseHeaderString))
-      arrayBuffers.push(str2ab(`${responseHeaders[ rh ]}${WARCEntryCreator.CRLF}`))
+      arrayBuffers.push(str2ab(`${responseHeaders[rh]}${WARCEntryCreator.CRLF}`))
       arrayBuffers.push(hexValueInt8Ary.buffer) // Now, add the image data
       arrayBuffers.push(str2ab(`${WARCEntryCreator.warcRecordSeparator}${WARCEntryCreator.warcRecordSeparator}`))
 
-      delete responsesToConcatenate[ rh ]
+      delete responsesToConcatenate[rh]
     } else {
       // if we don't have the image data in localstorage, remove it anyway
-      console.error('We do not have ' + rh + "'s data in cache.")
-      delete responsesToConcatenate[ rh ]
+      console.error('We do not have ' + rh + '\'s data in cache.')
+      delete responsesToConcatenate[rh]
     }
 
     if (Object.keys(responsesToConcatenate).length === 0) {
-      if (!localStorage[ 'uploadTo' ] || localStorage[ 'uploadTo' ].length === 0) {
+      if (!localStorage['uploadTo'] || localStorage['uploadTo'].length === 0) {
         saveAs(new Blob(arrayBuffers), fileName)
       } else {
         uploadWarc(arrayBuffers)
@@ -180,6 +180,7 @@ function asynchronouslyFetchImageData (rh, now, warcConcurrentTo, arrayBuffers, 
 /* ************** END FEROSS-STANDARD STYLE CONFORMITY HELPERS **************  */
 
 function generateWarc (oRequest, oSender, fCallback) {
+  console.log('warcGenerator GenerateWARC')
   if (oRequest.method !== 'generateWarc') {
     return
   }
@@ -198,14 +199,14 @@ function generateWarc (oRequest, oSender, fCallback) {
 
   var warcHeaderContent = WARCEntryCreator.makeWarcHeaderContent(version, isPartOf, warcInfoDescription)
   var warcHeader = WARCEntryCreator.makeWarcHeader(now, fileName, warcHeaderContent.length)
-  var warcRequest = requestHeaders[ initURI ]
+  var warcRequest = requestHeaders[initURI]
   var warcConcurrentTo = WARCEntryCreator.guidGenerator()
   var warcRequestHeader = WARCEntryCreator.makeWarcRequestHeaderWith(initURI, now, warcConcurrentTo, warcRequest)
 
   var outlinks = oRequest.outlinks.split('|||')
   var outlinkStr = ''
   for (var outlink in outlinks) {
-    var href = outlinks[ outlink ]
+    var href = outlinks[outlink]
     if (href.indexOf('mailto:') > -1) {
       continue
     }
@@ -220,9 +221,9 @@ function generateWarc (oRequest, oSender, fCallback) {
   var warcMetadata = outlinkStr
   var warcMetadataHeader = WARCEntryCreator.makeWarcMetadataHeader(initURI, now, warcMetadata.length)
 
-  responseHeaders[ initURI ] = WARCEntryCreator.touchUpInitURIHeaders(responseHeaders[ initURI ], oRequest.docHtml)
+  responseHeaders[initURI] = WARCEntryCreator.touchUpInitURIHeaders(responseHeaders[initURI], oRequest.docHtml)
 
-  var warcResponse = `${responseHeaders[ initURI ]}${WARCEntryCreator.CRLF}${oRequest.docHtml}${WARCEntryCreator.CRLF}`
+  var warcResponse = `${responseHeaders[initURI]}${WARCEntryCreator.CRLF}${oRequest.docHtml}${WARCEntryCreator.CRLF}`
 
   // alert('Warc response length is '+warcResponse.length +' vs. '+lengthInUtf8Bytes(warcResponse))
   // var htmlLengthCorrection = warcResponse.length - lengthInUtf8Bytes(warcResponse); //html count shouldn't use the method in makeWarcresponseHeader, pass a negative correction value
@@ -241,9 +242,9 @@ function generateWarc (oRequest, oSender, fCallback) {
 
   // old content? not sure. Keep here until we can verify
   var myArray = helperREs.whileMyArrayRe.exec(oRequest.headers)
-  var str = ''
+  var str = '' // eslint-disable-line no-unused-vars
   while (myArray !== null) {
-    str += myArray[ 1 ]
+    str += myArray[1]
     myArray = helperREs.whileMyArrayRe.exec(oRequest.headers)
   }
 
@@ -265,8 +266,8 @@ function generateWarc (oRequest, oSender, fCallback) {
   // var imgData
   var cssURIs
   var cssData
-  // var jsURIs
-  // var jsData
+  var jsURIs
+  var jsData
 
   // if (oRequest.imgURIs) {
   //   imgURIs = oRequest.imgURIs.split('|||')
@@ -280,12 +281,12 @@ function generateWarc (oRequest, oSender, fCallback) {
   if (oRequest.cssData) {
     cssData = oRequest.cssData.split('|||')
   }
-  // if (oRequest.jsURIs) {
-  //   jsURIs = oRequest.jsURIs.split('|||')
-  // }
-  // if (oRequest.jsData) {
-  //   jsData = oRequest.jsData.split('|||')
-  // }
+  if (oRequest.jsURIs) {
+    jsURIs = oRequest.jsURIs.split('|||')
+  }
+  if (oRequest.jsData) {
+    jsData = oRequest.jsData.split('|||')
+  }
 
   // var seedURL = true
   var responsesToConcatenate = []
@@ -294,31 +295,31 @@ function generateWarc (oRequest, oSender, fCallback) {
     if (requestHeader === initURI) {
       continue // the 'seed' will not have a body, we handle this above, skip
     }
-    var rhsTemp = WARCEntryCreator.makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[ requestHeader ])
+    var rhsTemp = WARCEntryCreator.makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader])
     var requestHeaderString = `${rhsTemp}${WARCEntryCreator.CRLF}`
     arrayBuffers.push(str2ab(requestHeaderString))
 
     if (
-      responseHeaders[ requestHeader ] &&
-      helperREs.imgregexp.exec(responseHeaders[ requestHeader ]) !== null &&
-      responseHeaders[ requestHeader ].indexOf('icon') === -1) {
-      responsesToConcatenate[ requestHeader ] = 'pending'
+      responseHeaders[requestHeader] &&
+      helperREs.imgregexp.exec(responseHeaders[requestHeader]) !== null &&
+      responseHeaders[requestHeader].indexOf('icon') === -1) {
+      responsesToConcatenate[requestHeader] = 'pending'
       asynchronouslyFetchImageData(requestHeader, now, warcConcurrentTo, arrayBuffers, responsesToConcatenate, fileName)
     } else if (
-      responseHeaders[ requestHeader ] &&
-      helperREs.cssregexp.exec(responseHeaders[ requestHeader ]) !== null) {
+      responseHeaders[requestHeader] &&
+      helperREs.cssregexp.exec(responseHeaders[requestHeader]) !== null) {
       if (!cssURIs) {
         break
       }
-      responsesToConcatenate[ requestHeader ] = 'pending'
+      responsesToConcatenate[requestHeader] = 'pending'
       console.log(requestHeader + ' is a CSS file')
-      var respHeader = `${responseHeaders[ requestHeader ]}${WARCEntryCreator.warcRecordSeparator}`
-      var respContent = ''
+      var respHeader = `${responseHeaders[requestHeader]}${WARCEntryCreator.warcRecordSeparator}`
+      var respContent
       var cc = 0
       var cssURIsLen = cssURIs.length
       for (; cc < cssURIsLen; cc++) {
-        if (requestHeader === cssURIs[ cc ]) {
-          respContent += `${cssData[ cssURIs.indexOf(requestHeader) ]}${WARCEntryCreator.warcRecordSeparator}`
+        if (requestHeader === cssURIs[cc]) {
+          respContent = `${cssData[cssURIs.indexOf(requestHeader)]}${WARCEntryCreator.warcRecordSeparator}`
           break
         }
       }
@@ -327,7 +328,25 @@ function generateWarc (oRequest, oSender, fCallback) {
       arrayBuffers.push(str2ab(cssResponseHeaderString))
 
       arrayBuffers.push(str2ab(`${respHeader}${respContent}${WARCEntryCreator.warcRecordSeparator}`))
-      delete responsesToConcatenate[ requestHeader ]
+      delete responsesToConcatenate[requestHeader]
+    } else if (responseHeaders[requestHeader] && helperREs.jsregexp.exec(responseHeaders[requestHeader]) !== null) {
+      // for #82
+      var jsRespHeader = `${responseHeaders[requestHeader]}${WARCEntryCreator.warcRecordSeparator}`
+      var jsRespContent
+      var jsIdx = 0
+      var jsURIsLen = jsURIs.length
+      for (; jsIdx < jsURIsLen; jsIdx++) {
+        if (requestHeader === jsURIs[jsIdx]) {
+          jsRespContent = `${jsData[jsURIs.indexOf(requestHeader)]}${WARCEntryCreator.warcRecordSeparator}`
+          break
+        }
+      }
+      var jsRHSTemp = WARCEntryCreator.makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, jsRespHeader + jsRespContent)
+      var jsResponseHeaderString = `${jsRHSTemp}${WARCEntryCreator.CRLF}`
+      arrayBuffers.push(str2ab(jsResponseHeaderString))
+
+      arrayBuffers.push(str2ab(`${jsRespHeader}${jsRespContent}${WARCEntryCreator.warcRecordSeparator}`))
+      delete responsesToConcatenate[requestHeader]
     }
   }
 
@@ -345,13 +364,13 @@ function generateWarc (oRequest, oSender, fCallback) {
  ************************************************************ */
 
 // from https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
-// function utf8_to_b64 (str) {
-//   return window.btoa(unescape(encodeURIComponent(str)))
-// }
-//
-// function b64_to_utf8 (str) {
-//   return decodeURIComponent(escape(window.atob(str)))
-// }
+function utf8_to_b64 (str) {
+  return window.btoa(unescape(encodeURIComponent(str)))
+}
+
+function b64_to_utf8 (str) {
+  return decodeURIComponent(escape(window.atob(str)))
+}
 
 function getVersion (callback) {
   var xmlhttp = new XMLHttpRequest()
@@ -365,7 +384,7 @@ function getVersion (callback) {
 
 function uploadWarc (abArray) {
   var blobFromArrayBuffers = new Blob(abArray)
-  console.log('Uploading WARC to ' + localStorage[ 'uploadTo' ])
+  console.log('Uploading WARC to ' + localStorage['uploadTo'])
 
   var ajaxRequest = new XMLHttpRequest()
 
@@ -378,7 +397,7 @@ function uploadWarc (abArray) {
   progressObj.progress = 0
   chrome.notifications.create('id1', progressObj, function () {})
   chrome.notifications.onButtonClicked.addListener(function (id, buttonIndex) {
-    chrome.tabs.create({ url: warcfileURI })
+    chrome.tabs.create({url: warcfileURI})
   })
 
   function updateNotification (perc) {
@@ -386,7 +405,7 @@ function uploadWarc (abArray) {
     chrome.notifications.update('id1', progressObj, function () {})
   }
 
-  ajaxRequest.open('POST', localStorage[ 'uploadTo' ], true)
+  ajaxRequest.open('POST', localStorage['uploadTo'], true)
 
   ajaxRequest.onreadystatechange = function () {
     updateNotification(25 * ajaxRequest.readyState)
@@ -394,7 +413,7 @@ function uploadWarc (abArray) {
       progressObj.message = ajaxRequest.responseText
       progressObj.iconUrl = '../icons/icon-check-128.png'
       progressObj.title = 'WARC Uploaded'
-      progressObj.buttons = [ { title: 'View WARC file', iconUrl: '../icons/icon-viewing.png' } ]
+      progressObj.buttons = [{title: 'View WARC file', iconUrl: '../icons/icon-viewing.png'}]
       setTimeout(function () { updateNotification(100) }, 500)
       if (ajaxRequest.status === 201 && ajaxRequest.responseText.length > 0) {
         warcfileURI = ajaxRequest.responseText

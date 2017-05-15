@@ -38,6 +38,7 @@
     "ignore": [
       "js/base64.js",
       "js/dnd-lib.js",
+      "js/date.js",
       "js/downloadify/*",
       "js/es6-shim.js",
       "js/filler.min.js",
@@ -62,7 +63,10 @@
       "saveAs",
       "$",
       "jQuery",
-      "xml2json"
+      "xml2json",
+      "moment",
+      "getallBgimages",
+      "getallBgimages"
     ]
   }
 }
