@@ -435,4 +435,4 @@ getVersion(function (ver) { version = ver })
 
  ************************************************************ */
 
-chrome.extension.onRequest.addListener(generateWarc)
+chrome.runtime.onMessage.addListener(generateWarc)

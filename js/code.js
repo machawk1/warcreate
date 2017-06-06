@@ -46,16 +46,24 @@ function sequentialGenerateWarc () {
   generateWarcFromNextURL(urls[uu])
 }
 
+function addProgressBar () {
+  var body = document.getElementsByTagName('body')[0]
+  var progressBar = document.createElement('progress')
+  progressBar.setAttribute('value','0')
+  progressBar.setAttribute('max','0')
+  body.appendChild(progressBar)
+}
+
 /**
  * Calls and aggregates the results of the functions that progressively create a
  * string representative of the contents of the WARC file being generated.
  */
 function doGenerateWarc () {
-  // console.log(("generate_warc start")
+  addProgressBar()
 
   var imageData = []
   var imageURIs = []
-  // console.log(("generate_warc")
+
   chrome.tabs.executeScript(null, {file: 'js/jquery-2.1.1.min.js'}, function () { /* Dependency for hash library and general goodness */
     chrome.tabs.executeScript(null, {file: 'js/jquery.rc4.js'}, function () { /* Hash library */
       chrome.tabs.executeScript(null, {file: 'js/date.js'}, function () { /* Good date formatting library */
@@ -92,60 +100,8 @@ function doGenerateWarc () {
               jsData: msg.jsdata,
               outlinks: msg.outlinks
             }
-            chrome.extension.sendRequest(requestToBeSent,
-              function (response) { // the callback to sendRequest
-
-                /*
-                 //OBSOLETE SAVE CODE BELOW, GOOD FOR FETCHING RESOURCE POST-LOAD
-
-                 console.log("generateWARC callback executed, about to write to file")
-
-                 //var bb = new BlobBuilder
-                 //bb.append(response.d)
-                 //localStorage['data'] = response.d
-
-                 function uploadSuccess(d,t,j){
-                 console.log("* Upload succeeded! Three call variables follow this message.")
-                 console.log(d)
-                 console.log(t)
-                 console.log(j)
-                 }
-
-                 function uploadFail(x,t,e){
-                 console.log("There was an error uploading the file.")
-                 }
-
-                 console.log("Here's the data that's to be written")
-                 console.log(response.x)
-
-                 if(!localStorage['uploadTo'] || localStorage['uploadTo'].length == 0){
-                 //saveAs(bb.getBlob("text/plain;charset=utf-8"), fileName)
-                 console.log("Responding!")
-                 console.log(response.x)
-                 console.log(JSON.parse(response.x).data)
-                 //saveAs(JSON.parse(response.x).data, fileName)
-
-                 } else {
-                 console.log("Uploading!"+localStorage['uploadTo'])
-
-                 $.ajax({
-                 type: "POST",
-                 url: localStorage['uploadTo'],
-                 data: {data: response.d}//localStorage['data']} //testing file upload
-                 }
-                 )
-                 .done(uploadSuccess)
-                 .fail(uploadFail)
-                 }
-
-                 console.log("Done!")
-                 chrome.pageAction.setIcon({path:"../icons/icon-check.png",tabId:tab.id})
-                 responseHeaders = new Array()
-                 requestHeaders = new Array()
-                 imageData = new Array()
-                 var imageURIs = new Array()
-                 msg = null; */
-              })
+            chrome.runtime.sendMessage(requestToBeSent)
+            //chrome.extension.sendRequest(requestToBeSent, function (response) {})
           })
         })
       })
