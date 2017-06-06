@@ -45,11 +45,9 @@ function fetchImagePromise (u, ret, imgObjs) {
       ret[u] = uInt8Array
       delete imgObjs[u]
 
-      // console.log("Ok, now postback image data");
-      // console.error(u);
-      var ohemefgee = {}
-      ohemefgee[u] = stringUInt8Array
-      chrome.storage.local.set(ohemefgee, function () {
+      var imgBinData = {}
+      imgBinData[u] = stringUInt8Array
+      chrome.storage.local.set(imgBinData, function () {
         if (chrome.runtime.lastError) {
           console.error('Error in set data')
           console.error(chrome.runtime.lastError)
@@ -58,8 +56,6 @@ function fetchImagePromise (u, ret, imgObjs) {
           resolve()
         }
       })
-      // console.log(("- Image data in local storage for "+u)
-      // port.postMessage({imageData: JSON.stringify(ret),method: "getImageDataRet",uri: u},function(e){})
     }
 
     xhr.onerror = function (e) {
@@ -74,14 +70,12 @@ function fetchImagePromise (u, ret, imgObjs) {
 /**
  * Exact functionality of the fetchCssData method except returns a promise that calls the resolve
  * on done or error
- * per #90
  */
 function fetchCssDataPromise (href, styleSheetData) {
   return new Promise(function (resolve, reject) {
     $.ajax({
       url: href,
-      dataType: 'text',
-      async: false
+      dataType: 'text'
     }).done(function (cssText) {
       styleSheetData.push(cssText)
       resolve()
@@ -95,14 +89,12 @@ function fetchCssDataPromise (href, styleSheetData) {
 /**
  * Exact functionality of the fetchScriptData method except returns a promise that calls the resolve
  * on done or error
- * per #90
  */
 function fetchScriptDataPromise (src, JSData) {
   return new Promise(function (resolve, reject) {
     $.ajax({
       url: src,
-      dataType: 'text',
-      async: false
+      dataType: 'text'
     }).done(function (jsText) {
       JSData.push(jsText)
       resolve()
@@ -122,7 +114,6 @@ chrome.extension.onConnect.addListener(function (port) {
    but the handling of should take place for good standards and practises
    */
   port.onMessage.addListener(async function (msg) {
-    // console.log(("in content.js with method: "+msg.method)
     if (msg.method === 'getImageData') {
       var imgObjs = {}
       // Get the image URIs from the DOM
@@ -142,10 +133,7 @@ chrome.extension.onConnect.addListener(function (port) {
       for (var uri in imgObjs) {
         console.log('Fetching image at ' + uri)
         if (uri.indexOf('data:') === -1) {
-          // the execution of this function will "halt" until this function resolves or rejects.
-          // WARCreate now iteratively fetches each image this ensures warc generation will not happen
-          // until at least all images have been fetched. The idiom when awaiting a function (must return promise)
-          // when the caller of the function does not handle rejections is to wrap it in try/catch
+          // Proceed only when the fetch resolves or rejects.
           try {
             await fetchImagePromise(uri, ret, imgObjs)
           } catch (error) {
@@ -252,13 +240,6 @@ chrome.extension.onConnect.addListener(function (port) {
         }
       }
 
-      var cssDataSerialized = styleSheetData.join('|||')
-      var cssURIsSerialized = styleSheetURLs.join('|||')
-      var jsDataSerialized = JSData.join('|||')
-      var jsURIsSerialized = JSURLs.join('|||')
-      var outlinksSerialized = outlinks.join('|||')
-
-      // console.log(("content.js: sending relayToImagesPost")
       // all of this nonsense just to get the doctype to prepend!
       var node = document.doctype
       var dtstr
@@ -285,13 +266,10 @@ chrome.extension.onConnect.addListener(function (port) {
       port.postMessage({
         // html: dtstr + document.all[0].outerHTML, //document.all is non-standard
         html: dtstr + domAsText, //   document.documentElement.outerHTML,
-        uris: imageURIsSerialized,
-        data: imageDataSerialized,
-        cssuris: cssURIsSerialized,
-        cssdata: cssDataSerialized,
-        jsuris: jsURIsSerialized,
-        jsdata: jsDataSerialized,
-        outlinks: outlinksSerialized,
+        images: {'uris': imageURIs, 'data': imageBase64Data},
+        css: {'uris': styleSheetURLs, 'data': styleSheetData},
+        js: {'uris': JSURLs, 'data': JSData},
+        outlinks: outlinks,
         method: msg.method
       }) // communicate back to code.js ~130 with image data
     } else {

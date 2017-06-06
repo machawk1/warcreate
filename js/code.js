@@ -69,7 +69,6 @@ function doGenerateWarc () {
     var datum = []
     //chrome.tabs.getSelected(null, function (tab) {
     chrome.tabs.query({'active':true, 'lastFocusedWindow': true}, function (tab) {
-      console.log(tab)
       // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
       var port = chrome.tabs.connect(tab[0].id, {name: 'warcreate'}) // create a persistent connection
       port.postMessage({url: tab[0].url, method: 'getHTML'}) // fetch the html of the page, in content.js
@@ -78,8 +77,6 @@ function doGenerateWarc () {
 
       // Perform the first listener, populate the binary image data
       port.onMessage.addListener(function (msg) { // get image base64 data
-        // console.log(("About to generateWARC(). Next should be callback.")
-
         var fileName = (new Date().toISOString()).replace(/:|-|T|Z|\./g, '') + '.warc'
 
         // If the user has specified a custom filename format, apply it here
@@ -92,14 +89,8 @@ function doGenerateWarc () {
           docHtml: msg.html,
           file: fileName,
           img: {uris: msg.uris, data:msg.data},
-          css: {uris: msg.cssuris, data: msg.cssdata},
-          js: {uris: msg.jsuris, data: msg.jsdata},
-          imgURIs: msg.uris,
-          imgData: msg.data,
-          cssURIs: msg.cssuris,
-          cssData: msg.cssdata,
-          jsURIs: msg.jsuris,
-          jsData: msg.jsdata,
+          css: {uris: msg.css.uris, data: msg.css.data},
+          js: {uris: msg.js.uris, data: msg.js.data},
           outlinks: msg.outlinks
         }
         chrome.runtime.sendMessage(requestToBeSent) // Received in warcGenerator.js

@@ -180,10 +180,11 @@ function asynchronouslyFetchImageData (rh, now, warcConcurrentTo, arrayBuffers, 
 /* ************** END FEROSS-STANDARD STYLE CONFORMITY HELPERS **************  */
 
 function generateWarc (oRequest, oSender, fCallback) {
-  console.log('warcGenerator GenerateWARC')
   if (oRequest.method !== 'generateWarc') {
     return
   }
+  console.log('Executing generateWARC() with...')
+  console.log(console.log(oRequest))
   var now = new Date().toISOString()
   now = now.substr(0, now.indexOf('.')) + 'Z'
 
@@ -202,8 +203,7 @@ function generateWarc (oRequest, oSender, fCallback) {
   var warcRequest = requestHeaders[initURI]
   var warcConcurrentTo = WARCEntryCreator.guidGenerator()
   var warcRequestHeader = WARCEntryCreator.makeWarcRequestHeaderWith(initURI, now, warcConcurrentTo, warcRequest)
-
-  var outlinks = oRequest.outlinks.split('|||')
+  var outlinks = oRequest.outlinks
   var outlinkStr = ''
   for (var outlink in outlinks) {
     var href = outlinks[outlink]
@@ -224,23 +224,7 @@ function generateWarc (oRequest, oSender, fCallback) {
   responseHeaders[initURI] = WARCEntryCreator.touchUpInitURIHeaders(responseHeaders[initURI], oRequest.docHtml)
 
   var warcResponse = `${responseHeaders[initURI]}${WARCEntryCreator.CRLF}${oRequest.docHtml}${WARCEntryCreator.CRLF}`
-
-  // alert('Warc response length is '+warcResponse.length +' vs. '+lengthInUtf8Bytes(warcResponse))
-  // var htmlLengthCorrection = warcResponse.length - lengthInUtf8Bytes(warcResponse); //html count shouldn't use the method in makeWarcresponseHeader, pass a negative correction value
-  // above doesn't work and only messes up content length. No adjustment needed, 0 passed below
-
   var warcResponseHeader = WARCEntryCreator.makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse, 0)
-
-  /* var warc =
-   warcHeader + CRLF +
-   warcHeaderContent + CRLF + CRLF +
-   warcRequestHeader + CRLF +
-   warcMetadataHeader + CRLF +
-   warcMetadata + CRLF + CRLF  +
-   warcResponseHeader + CRLF +
-   warcResponse + CRLF + CRLF; */
-
-  // old content? not sure. Keep here until we can verify
   var myArray = helperREs.whileMyArrayRe.exec(oRequest.headers)
   var str = '' // eslint-disable-line no-unused-vars
   while (myArray !== null) {
@@ -248,9 +232,8 @@ function generateWarc (oRequest, oSender, fCallback) {
     myArray = helperREs.whileMyArrayRe.exec(oRequest.headers)
   }
 
-  // localStorage['paiheaders'] = ''
 
-  var arrayBuffers = [] // we will load all of the data in-order in the arrayBuffers array then combine with the file blob to writeout
+  var arrayBuffers = [] // Load data in order in the arrayBuffers array then combine with the file blob to write out
 
   arrayBuffers.push(str2ab(`${warcHeader}${WARCEntryCreator.CRLF}`))
   arrayBuffers.push(str2ab(`${warcHeaderContent}${WARCEntryCreator.warcRecordSeparator}`))
@@ -260,31 +243,13 @@ function generateWarc (oRequest, oSender, fCallback) {
   arrayBuffers.push(str2ab(`${warcResponseHeader}${WARCEntryCreator.CRLF}`))
   arrayBuffers.push(str2ab(`${warcResponse}${WARCEntryCreator.warcRecordSeparator}`))
 
-  // arrayBuffers.push(str2ab(warc))
-
-  // var imgURIs
-  // var imgData
-  var cssURIs
-  var cssData
-  var jsURIs
-  var jsData
-
+  var cssURIs = oRequest.css.uris
+  var cssData = oRequest.css.data
+  var jsURIs = oRequest.js.uris
+  var jsData = oRequest.js.data
 
   console.log(oRequest)
   //return
-
-  if (oRequest.cssURIs) {
-    cssURIs = oRequest.cssURIs.split('|||')
-  }
-  if (oRequest.cssData) {
-    cssData = oRequest.cssData.split('|||')
-  }
-  if (oRequest.jsURIs) {
-    jsURIs = oRequest.jsURIs.split('|||')
-  }
-  if (oRequest.jsData) {
-    jsData = oRequest.jsData.split('|||')
-  }
 
   // var seedURL = true
   var responsesToConcatenate = []
@@ -328,7 +293,6 @@ function generateWarc (oRequest, oSender, fCallback) {
       arrayBuffers.push(str2ab(`${respHeader}${respContent}${WARCEntryCreator.warcRecordSeparator}`))
       delete responsesToConcatenate[requestHeader]
     } else if (responseHeaders[requestHeader] && helperREs.jsregexp.exec(responseHeaders[requestHeader]) !== null) {
-      // for #82
       var jsRespHeader = `${responseHeaders[requestHeader]}${WARCEntryCreator.warcRecordSeparator}`
       var jsRespContent
       var jsIdx = 0
@@ -351,6 +315,8 @@ function generateWarc (oRequest, oSender, fCallback) {
   if (Object.keys(responsesToConcatenate).length === 0) {
     saveAs(new Blob(arrayBuffers), fileName)
   } else {
+    console.log(document.getElementById('generateWarc'))
+    console.log(document)
     console.log('Still have to process URIs:' + Object.keys(responsesToConcatenate).join(' '))
   }
 }
