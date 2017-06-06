@@ -214,6 +214,12 @@ function generateWarc (oRequest, oSender, fCallback) {
       href = `${initURI}${href}` // resolve fragment and internal links
     }
     href = `${href.substr(0, 8)}${href.substr(8).replace(/\/\//g, '/')}` // replace double slashes outside of scheme
+    // Sanitize ../'s
+    var parts = href.split(' ')
+    parts[0] = (new URL(parts[0])).href
+    href = parts.join(' ')
+    console.log(href)
+
     outlinkStr += `outlink: ${href}${WARCEntryCreator.CRLF}`
   }
 
