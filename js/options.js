@@ -1,13 +1,7 @@
 // Saves options to localStorage.
 function saveOptions () {
-  // var waybackWarcSource = document.getElementById('waybackWarcSource').value
-  // if(document.getElementById('output_save').checked == "checked"){handling = "save";}
-  // else if(document.getElementById('output_display').checked == "checked"){handling = "display";}
-  // localStorage["warcSRC"] = waybackWarcSource
   var handling
   localStorage['handlingMethod'] = handling
-
-  // console.log((localStorage)
 
   if (document.getElementById('addCollectionMetadataCheckbox').checked) {
     localStorage['collectionId'] = $('#collectionId').val()
@@ -19,25 +13,15 @@ function saveOptions () {
 
   // Update status to let user know options were saved.
   var status = $('#status')
-  // alert("status saved!")
   status.html('Options Saved.')
   status.css('display', 'block')
   setTimeout(function () {
     $('#status').fadeOut()
   }, 750)
 }
+
 // Restores select box state to saved value from localStorage.
 function restoreOptions () {
-  /* var warcSRC = localStorage["warcSRC"]
-   var waybackWarcSource = document.getElementById("waybackWarcSource")
-   if (!warcSRC || warcSRC == "") {
-   waybackWarcSource.value = "C:\\xampp\\tomcat\\webapps\\ROOT\\files1\\"; //TODO, remove this obsolete code!
-   return
-   } */
-  // console.log(("Restoring options")
-  // console.log((localStorage)
-
-  var handling
   if (localStorage['handlingMethod'] === 'save') {
     document.getElementById('output_save').checked = 'checked'
     document.getElementById('output_display').removeAttribute('checked')
@@ -203,7 +187,7 @@ function fetchSocialStandardSpecification () {
 function displayLocalStorageData () {
   // console.log(("Local Storage, ho!")
   var XX = ''
-  for (i = 0; i < localStorage.length; i++) {
+  for (var i = 0; i < localStorage.length; i++) {
     XX += localStorage.key(i) + '=[' + localStorage.getItem(localStorage.key(i)) + ']'
     break
   }

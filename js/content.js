@@ -124,55 +124,14 @@ chrome.extension.onConnect.addListener(function (port) {
   port.onMessage.addListener(async function (msg) {
     // console.log(("in content.js with method: "+msg.method)
     if (msg.method === 'getImageData') {
-      // console.log(("Getting image data")
-      // console.log(document.images)
-      // function fetchImage (u) {
-      //   var xhr = new XMLHttpRequest()
-      //   xhr.open('GET', u, true)
-      //   xhr.responseType = 'arraybuffer'
-      //
-      //   xhr.onload = function (e) {
-      //     var uInt8Array = new Uint8Array(this.response)
-      //
-      //     var stringUInt8Array = []
-      //     for (var ii = 0; ii < uInt8Array.length; ii++) {
-      //       stringUInt8Array[ii] = uInt8Array[ii] + 0
-      //     }
-      //
-      //     var myString = uInt8Array
-      //
-      //     ret[u] = myString
-      //     delete imgObjs[u]
-      //
-      //     // console.log("Ok, now postback image data");
-      //     // console.error(u);
-      //     var ohemefgee = {}
-      //     ohemefgee[u] = stringUInt8Array
-      //     chrome.storage.local.set(ohemefgee, function () {
-      //       if (chrome.runtime.lastError) {
-      //         console.error('Error in set data')
-      //         console.error(chrome.runtime.lastError)
-      //       }
-      //     })
-      //     // console.log(("- Image data in local storage for "+u)
-      //     // port.postMessage({imageData: JSON.stringify(ret),method: "getImageDataRet",uri: u},function(e){})
-      //   }
-      //
-      //   xhr.onerror = function (e) {
-      //     console.log('Error')
-      //   }
-      //
-      //   xhr.send()
-      // }
-
       var imgObjs = {}
-      // get the image URIs from the DOM
+      // Get the image URIs from the DOM
       for (var image = 0; image < document.images.length; image++) {
         if (document.images[image].src.indexOf('data:') === -1) {
           imgObjs[document.images[image].src] = 'foo' // dummy data to-be-filled below programmatically
         }
       }
-      // get the image URIs embedded in CSS
+      // Get the image URIs embedded in CSS
       var imagesInCSS = getallBgimages()
       for (var imageInCSS = 0; imageInCSS < imagesInCSS.length; imageInCSS++) {
         imgObjs[imagesInCSS[imageInCSS]] = 'foo' // dummy data to-be-filled below programmatically
@@ -195,16 +154,12 @@ chrome.extension.onConnect.addListener(function (port) {
         }
       }
     } else if (msg.method === 'getHTML') {
-      // console.log(("about to post getHTML message")
       var images = document.images
-
-      // console.log(("LINKS:")
-      // console.log($("a"))
 
       outlinks = []
       var outlinksAddedRegistry = [] // hacky array to prevent duplicate outlinks
 
-      // outlinks as images [embedded resource], there are probably other types
+      // Outlinks as images [embedded resource], there are probably other types
       $(images).each(function () {
         if (!outlinksAddedRegistry[$(this).attr('src')]) {
           outlinksAddedRegistry[$(this).attr('src')] = ''
@@ -212,7 +167,7 @@ chrome.extension.onConnect.addListener(function (port) {
         }
       })
 
-      // outlinks as CSS //TODO, E =EMBED_MISC was made-up. Is this right?
+      // Outlinks as CSS //TODO, E =EMBED_MISC was made-up. Is this right?
       $(document.styleSheets).each(function () {
         if (!outlinksAddedRegistry[$(this).attr('href')]) {
           outlinksAddedRegistry[$(this).attr('href')] = ''
@@ -221,7 +176,7 @@ chrome.extension.onConnect.addListener(function (port) {
         }
       })
 
-      // outlinks as JavaScripts
+      // Outlinks as JavaScripts
       $(document.scripts).each(function () {
         // MAT!!! you were looking for the scripts URL via HREF not SRC!!!!!!!!!!!!!! fixes #81
         if ($(this).attr('src') && // Only include the externally embedded JS, not the inline
@@ -232,7 +187,7 @@ chrome.extension.onConnect.addListener(function (port) {
         }
       })
 
-      // outlinks as external links on page
+      // Outlinks as external links on page
       $('a').each(function () {
         if (!outlinksAddedRegistry[$(this).attr('href')]) {
           outlinksAddedRegistry[$(this).attr('href')] = ''
@@ -244,21 +199,13 @@ chrome.extension.onConnect.addListener(function (port) {
 
       var imageURIs = []
       var imageBase64Data = []
-      // image conversion code
-      // *********************************
       // Convert images to something portal and text-y
-      // *********************************
-      // console.log("Converting image data, "+images.length+" to convert")
-      // imagesI = 0
       for (var i = 0; i < images.length; i++) {
         // NOTE: image data is NOT fetched here, a subsequent Ajax call is made in warcGenerator.js 20130211 ~ line 188
-        // console.log((images[i].src)
         var anImage = images[i]
         if (!(anImage.src)) {
-          // console.log("Image "+i+" had no src. Continuing to encode the others");
           continue
         }
-        // console.log(("About to convert image "+(i+1)+"/"+images.length+": "+images[i].src)
 
         var canvas = document.createElement('canvas')
         canvas.width = anImage.width
@@ -272,34 +219,25 @@ chrome.extension.onConnect.addListener(function (port) {
       var imageDataSerialized = imageBase64Data.join('|||')
       var imageURIsSerialized = imageURIs.join('|||')
       localStorage['imagesInDOM'] = imageURIsSerialized
-      // *********************************
-      // Re-fetch CSS (limitation of webRequest, need to be able to get content on response, functionality unavailable, requires refetch)
-      // *********************************
-      // a better way to get all stylesheets but we cannot get them as text but instead an object with ruleslist
+
+      // Re-fetch CSS (limitation of webRequest, need to be able to get content on response, functionality unavailable,
+      // requires refetch). A better way to get all stylesheets but we cannot get them as text but instead an object
+      // with ruleslist
       var styleSheetURLs = []
       var styleSheetData = []
 
       for (var ss = 0; ss < document.styleSheets.length; ss++) {
         styleSheetURLs.push(document.styleSheets[ss].href)
-        // the execution of this function will "halt" until this function resolves or rejects.
+        // The execution of this function will "halt" until this function resolves or rejects.
         // WARCreate now iteratively fetches each css files data
         try {
           await fetchCssDataPromise(document.styleSheets[ss].href, styleSheetData)
         } catch (error) {
           console.error('there was an error fetching css data content.js', error)
         }
-
-        // $.ajax({
-        //   url: document.styleSheets[ss].href,
-        //   dataType: 'text',
-        //   async: false
-        // }).done(function (cssText) {
-        //   styleSheetData.push(cssText)
-        // })
       }
-      // *********************************
+
       // Re-fetch JS
-      // *********************************
       var JSURLs = []
       var JSData = []
 
@@ -344,8 +282,6 @@ chrome.extension.onConnect.addListener(function (port) {
         dtstr = '' // remove the doctype injection
       }
 
-      // domAsText = domAsText.replace(/[\n\r]+/g,"")
-      // console.log(("length before post: "+domAsText.length)
       port.postMessage({
         // html: dtstr + document.all[0].outerHTML, //document.all is non-standard
         html: dtstr + domAsText, //   document.documentElement.outerHTML,
@@ -359,7 +295,6 @@ chrome.extension.onConnect.addListener(function (port) {
         method: msg.method
       }) // communicate back to code.js ~130 with image data
     } else {
-      // console.log(("Method unsupported in content.js: "+msg.method)
     }
   })
 })

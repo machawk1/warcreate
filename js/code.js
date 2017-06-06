@@ -59,53 +59,53 @@ function addProgressBar () {
  * string representative of the contents of the WARC file being generated.
  */
 function doGenerateWarc () {
-  addProgressBar()
+  //addProgressBar()
 
   var imageData = []
   var imageURIs = []
 
-  chrome.tabs.executeScript(null, {file: 'js/jquery-2.1.1.min.js'}, function () { /* Dependency for hash library and general goodness */
-    chrome.tabs.executeScript(null, {file: 'js/jquery.rc4.js'}, function () { /* Hash library */
-      chrome.tabs.executeScript(null, {file: 'js/date.js'}, function () { /* Good date formatting library */
-        var uris = []
-        var datum = []
-        chrome.tabs.getSelected(null, function (tab) {
-          // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
-          var port = chrome.tabs.connect(tab.id, {name: 'warcreate'}) // create a persistent connection
-          port.postMessage({url: tab.url, method: 'getHTML'}) // fetch the html of the page, in content.js
+  chrome.tabs.executeScript(null, {file: 'js/date.js'}, function () { /* Good date formatting library */
+    var uris = []
+    var datum = []
+    //chrome.tabs.getSelected(null, function (tab) {
+    chrome.tabs.query({'active':true, 'lastFocusedWindow': true}, function (tab) {
+      console.log(tab)
+      // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
+      var port = chrome.tabs.connect(tab[0].id, {name: 'warcreate'}) // create a persistent connection
+      port.postMessage({url: tab[0].url, method: 'getHTML'}) // fetch the html of the page, in content.js
 
-          var imageDataFilledTo = -1
+      var imageDataFilledTo = -1
 
-          // perform the first listener, populate the binary image data
-          // console.log(("adding listener")
-          port.onMessage.addListener(function (msg) { // get image base64 data
-            // console.log(("About to generateWARC(). Next should be callback.")
+      // Perform the first listener, populate the binary image data
+      port.onMessage.addListener(function (msg) { // get image base64 data
+        // console.log(("About to generateWARC(). Next should be callback.")
 
-            var fileName = (new Date().toISOString()).replace(/:|-|T|Z|\./g, '') + '.warc'
+        var fileName = (new Date().toISOString()).replace(/:|-|T|Z|\./g, '') + '.warc'
 
-            // If the user has specified a custom filename format, apply it here
-            if (localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0) {
-              fileName = moment().format(localStorage['filenameScheme']) + '.warc'
-            }
-            var requestToBeSent = {
-              url: tab.url,
-              method: 'generateWarc',
-              docHtml: msg.html,
-              file: fileName,
-              imgURIs: msg.uris,
-              imgData: msg.data,
-              cssURIs: msg.cssuris,
-              cssData: msg.cssdata,
-              jsURIs: msg.jsuris,
-              jsData: msg.jsdata,
-              outlinks: msg.outlinks
-            }
-            chrome.runtime.sendMessage(requestToBeSent)
-            //chrome.extension.sendRequest(requestToBeSent, function (response) {})
-          })
-        })
+        // If the user has specified a custom filename format, apply it here
+        if (localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0) {
+          fileName = moment().format(localStorage['filenameScheme']) + '.warc'
+        }
+        var requestToBeSent = {
+          url: tab[0].url,
+          method: 'generateWarc',
+          docHtml: msg.html,
+          file: fileName,
+          img: {uris: msg.uris, data:msg.data},
+          css: {uris: msg.cssuris, data: msg.cssdata},
+          js: {uris: msg.jsuris, data: msg.jsdata},
+          imgURIs: msg.uris,
+          imgData: msg.data,
+          cssURIs: msg.cssuris,
+          cssData: msg.cssdata,
+          jsURIs: msg.jsuris,
+          jsData: msg.jsdata,
+          outlinks: msg.outlinks
+        }
+        chrome.runtime.sendMessage(requestToBeSent) // Received in warcGenerator.js
       })
     })
+
   })
 }
 

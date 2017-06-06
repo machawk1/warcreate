@@ -269,12 +269,10 @@ function generateWarc (oRequest, oSender, fCallback) {
   var jsURIs
   var jsData
 
-  // if (oRequest.imgURIs) {
-  //   imgURIs = oRequest.imgURIs.split('|||')
-  // }
-  // if (oRequest.imgData) {
-  //   imgData = oRequest.imgData.split('|||')
-  // }
+
+  console.log(oRequest)
+  //return
+
   if (oRequest.cssURIs) {
     cssURIs = oRequest.cssURIs.split('|||')
   }
