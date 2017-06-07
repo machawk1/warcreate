@@ -7,9 +7,6 @@
  *
  */
 
-// var server = "http://localhost:8080"
-var server = 'http://warcreate.com' // eslint-disable-line
-
 // Called when the url of a tab changes.
 function checkForValidUrl (tabId, changeInfo, tab) {
   chrome.pageAction.show(tabId)
@@ -67,7 +64,6 @@ function doGenerateWarc () {
   chrome.tabs.executeScript(null, {file: 'js/date.js'}, function () { /* Good date formatting library */
     var uris = []
     var datum = []
-    //chrome.tabs.getSelected(null, function (tab) {
     chrome.tabs.query({'active':true, 'lastFocusedWindow': true}, function (tab) {
       // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
       var port = chrome.tabs.connect(tab[0].id, {name: 'warcreate'}) // create a persistent connection
@@ -195,27 +191,7 @@ chrome.tabs.getSelected(null, function (tab) {
 
   var port = chrome.tabs.connect(tab.id, {name: 'getImageData'}) // create a persistent connection
   port.postMessage({url: tab.url, method: 'getImageData'})
-  port.onMessage.addListener(function (msg) {
-    /* if(msg.method == "getImageDataRet"){ //OBSOLETE HERE BELOW,
-     var imageURIsForWhichWeHaveData = Object.keys(JSON.parse(msg.imageData))
-     for(var uu=0; uu<imageURIsForWhichWeHaveData.length; uu++){
-     console.log("- Image data in local storage for "+imageURIsForWhichWeHaveData[uu])
-     }
-
-     chrome.storage.local.set({'imageData':msg.imageData},
-     function(){
-     console.log("Checking if there was an error in setting the data")
-     if(chrome.runtime.lastError){
-     alert("Error in set data")
-     }else {
-     console.log("There was no data for setting this image in Chrome.Storage.Local")
-     }
-     }
-
-     );
-     //localStorage["imageData"] = msg.imageData
-     } */
-  })
+  //port.onMessage.addListener(function (msg) {})
 })
 
 /**
@@ -225,11 +201,9 @@ chrome.webRequest.onHeadersReceived.addListener(
   function (resp) {
     responseHeaders[resp.url] = `${resp.statusLine}${CRLF}`
 
-    // console.log(("- Response Headers received for "+resp.url+" in tab "+resp.tabId)
     for (var key in resp.responseHeaders) {
       responseHeaders[resp.url] += `${resp.responseHeaders[key].name}: ${resp.responseHeaders[key].value}${CRLF}`
     }
-    // console.log(responseHeaders[resp.url])
   }
   , {urls: ['http://*/*', 'https://*/*'], tabId: currentTabId}, ['responseHeaders', 'blocking'])
 
