@@ -42,12 +42,15 @@ function restoreOptions () {
 // waybackWarcSource.value = warcSRC
 }
 
+/*
 function clearOptions () {
   localStorage['warcSRC'] = ''
   restoreOptions()
   document.getElementById('waybackWarcSource').value = 'sdf'
 }
+*/
 
+/*
 function checkURI (uri) {
   let req = new XMLHttpRequest()
   try {
@@ -58,6 +61,7 @@ function checkURI (uri) {
     return -1
   }
 }
+*/
 
 let lastSavedStateString = '' // string representation of the last saved state of the form inputs
 function setSaveChangesButtonEnabledBasedOnOptionsChange () {
@@ -180,18 +184,6 @@ function fetchSocialStandardSpecification () {
     .error(function (data) {
       // console.log(("There was an error in fetching the spec.")
     })
-}
-
-// this doesn't work but I wanted to use it for debugging
-// ties up the browser for some reason
-function displayLocalStorageData () {
-  // console.log(("Local Storage, ho!")
-  let XX = ''
-  for (let i = 0; i < localStorage.length; i++) {
-    XX += localStorage.key(i) + '=[' + localStorage.getItem(localStorage.key(i)) + ']'
-    break
-  }
-  // console.log((XX)
 }
 
 function showFilenameExample () { // when the file format scheme changes, update the example

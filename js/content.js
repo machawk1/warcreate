@@ -15,7 +15,7 @@ function fetchImagePromise (u, ret, imgObjs) {
       const uInt8Array = new Uint8Array(this.response)
 
       let stringUInt8Array = []
-      for (var ii = 0; ii < uInt8Array.length; ii++) {
+      for (let ii = 0; ii < uInt8Array.length; ii++) {
         stringUInt8Array[ii] = uInt8Array[ii] + 0
       }
 
@@ -100,7 +100,7 @@ chrome.extension.onConnect.addListener(function (port) {
         }
       }
       // Get the image URIs embedded in CSS
-      let imagesInCSS = getallBgimages()
+      let imagesInCSS = getallBgimages() // From imageFromCSSExtractor.js
       for (let imageInCSS = 0; imageInCSS < imagesInCSS.length; imageInCSS++) {
         imgObjs[imagesInCSS[imageInCSS]] = 'foo' // dummy data to-be-filled below programmatically
       }
@@ -163,7 +163,7 @@ chrome.extension.onConnect.addListener(function (port) {
 
       let imageURIs = []
       let imageBase64Data = []
-      // Convert images to something portal and text-y
+      // Convert images to something portable and text-y
       for (let i = 0; i < images.length; i++) {
         // NOTE: image data is NOT fetched here, a subsequent Ajax call is made in warcGenerator.js 20130211 ~ line 188
         const anImage = images[i]
@@ -171,13 +171,13 @@ chrome.extension.onConnect.addListener(function (port) {
           continue
         }
 
-        let canvas = document.createElement('canvas')
-        canvas.width = anImage.width
-        canvas.height = anImage.height
+        // let canvas = document.createElement('canvas')
+        // canvas.width = anImage.width
+        //canvas.height = anImage.height
 
-        const dataurl = canvas.toDataURL()
-        var datastartpos = dataurl.match(',').index + 1
-        var dd = dataurl.substring(datastartpos)
+        // const dataurl = canvas.toDataURL()
+        // var datastartpos = dataurl.match(',').index + 1
+        // var dd = dataurl.substring(datastartpos)
       }
 
       let imageURIsSerialized = imageURIs.join('|||')
@@ -252,6 +252,7 @@ chrome.extension.onConnect.addListener(function (port) {
   })
 })
 
+/*
 function base64ArrayBuffer (arrayBuffer) {
   let base64 = ''
   const encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
@@ -303,3 +304,4 @@ function base64ArrayBuffer (arrayBuffer) {
 
   return base64
 }
+*/
