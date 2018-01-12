@@ -1,4 +1,4 @@
-let key = params['k']
+//let key = params['k']
 
 // alert($('#cipher'))
 function convertImagesToBase64 () {
@@ -17,12 +17,12 @@ function convertImagesToBase64 () {
     canvas.width = img.width
     canvas.height = img.height
 
-    let context = canvas.getContext('2d')
-    let newImage = new Image()
+    //let context = canvas.getContext('2d')
+    //let newImage = new Image()
     // newImage.src
     // context.drawImage(img,0,0)
     console.log(i + ': ' + images[i].src + '  file type: ' + fileType)
-    const fileType = images[i].src.substr(images[i].src.length - 4).toLowerCase()
+    let fileType = images[i].src.substr(images[i].src.length - 4).toLowerCase()
     if (fileType === '.jpg' || fileType === 'jpeg') {
       fileType = 'image/jpeg'
     } else if (fileType === '.png') {
@@ -56,10 +56,7 @@ function convertImagesToBase64 () {
 // console.log(document.documentElement.innerHTML)
 }
 
-function convertExternalCSSToInlineCSS () {}
-function convertExternalJavascriptToInlineJavascript () {}
-
-const scripts = document.getElementsByTagName('script')
+let scripts = document.getElementsByTagName('script')
 for (let s = 0; s < scripts.length; s++) {
   scripts[s].parentNode.removeChild(scripts[s])
 // console.log(scripts[s].parentNode.innerHTML)

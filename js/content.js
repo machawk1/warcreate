@@ -17,10 +17,6 @@ function fetchImage (u) {
   xhr.send()
 }
 
-function ab2str (buf) {
-  return String.fromCharCode.apply(null, new Uint16Array(buf))
-}
-
 /**
  * Exact functionality of the fetchImage method except returns a promise that calls the resolve
  * function after the image data has been set in local storage.
@@ -272,15 +268,6 @@ chrome.extension.onConnect.addListener(function (port) {
     }
   })
 })
-
-// from https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
-function utf8_to_b64 (str) {
-  return window.btoa(unescape(encodeURIComponent(str)))
-}
-
-function b64_to_utf8 (str) {
-  return decodeURIComponent(escape(window.atob(str)))
-}
 
 function base64ArrayBuffer (arrayBuffer) {
   let base64 = ''

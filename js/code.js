@@ -256,21 +256,7 @@ chrome.webRequest.onBeforeRedirect.addListener(function (resp) {
  UTILITY FUNCTIONS
 
  ************************************************************ */
-/**
- * From https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
- * Converts UTF-8 to base 64 data
- */
-function utf8_to_b64 (str) {
-  return window.btoa(unescape(encodeURIComponent(str)))
-}
 
-/**
- * From https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
- * Converts base 64 data to UTF-8
- */
-function b64_to_utf8 (str) {
-  return decodeURIComponent(escape(window.atob(str)))
-}
 /**
  * UNUSED: A means of capturing any particular values that are only present in
  * this handler.

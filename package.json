@@ -39,6 +39,8 @@
       "js/base64.js",
       "js/dnd-lib.js",
       "js/date.js",
+      "js/dnd.js",
+      "js/dnd-lib.js",
       "js/downloadify/*",
       "js/es6-shim.js",
       "js/filler.min.js",
