@@ -39,6 +39,8 @@
       "js/base64.js",
       "js/dnd-lib.js",
       "js/date.js",
+      "js/dnd.js",
+      "js/dnd-lib.js",
       "js/downloadify/*",
       "js/es6-shim.js",
       "js/filler.min.js",
@@ -47,7 +49,8 @@
       "js/jquery.ocupload-1.1.2.packed.js",
       "js/jquery.rc4.js",
       "js/upclick-min.js",
-      "js/xml2json.js"
+      "js/xml2json.js",
+      "js/punycode.js"
     ],
     "globals": [
       "chrome",
@@ -65,7 +68,6 @@
       "jQuery",
       "xml2json",
       "moment",
-      "getallBgimages",
       "getallBgimages"
     ]
   }

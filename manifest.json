@@ -18,7 +18,7 @@
   "content_scripts": [
 	{
 		"matches": ["http://*/*", "https://*/*"],
-		"js": ["js/jquery-2.1.1.min.js","js/imagesFromCSSExtractor.js","js/content.js"]
+		"js": ["js/jquery-2.1.1.min.js","js/content.js"]
 	}
    ],
   "page_action" :

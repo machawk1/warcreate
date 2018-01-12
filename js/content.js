@@ -1,27 +1,4 @@
-// var server = "http://localhost:8080"
-var server = 'http://warcreate.com'
 var outlinks = []
-
-function fetchImage (u) {
-  var xhr = new XMLHttpRequest()
-  xhr.open('GET', u, true)
-  xhr.responseType = 'arraybuffer'
-
-  xhr.onload = function (e) {
-    var uInt8Array = new Uint8Array(this.response)
-    delete imageUris[u]
-    // console.log(("Fetched "+u+"  "+Object.keys(imageUris).length+" urls left to fetch")
-    if (Object.keys(imageUris).length === 0) {
-      // console.log(("All image data collected");
-    }
-  }
-
-  xhr.send()
-}
-
-function ab2str (buf) {
-  return String.fromCharCode.apply(null, new Uint16Array(buf))
-}
 
 /**
  * Exact functionality of the fetchImage method except returns a promise that calls the resolve
@@ -31,21 +8,21 @@ function ab2str (buf) {
  */
 function fetchImagePromise (u, ret, imgObjs) {
   return new Promise(function (resolve, reject) {
-    var xhr = new XMLHttpRequest()
+    let xhr = new XMLHttpRequest()
     xhr.open('GET', u, true)
     xhr.responseType = 'arraybuffer'
     xhr.onload = function (e) {
-      var uInt8Array = new Uint8Array(this.response)
+      const uInt8Array = new Uint8Array(this.response)
 
-      var stringUInt8Array = []
-      for (var ii = 0; ii < uInt8Array.length; ii++) {
+      let stringUInt8Array = []
+      for (let ii = 0; ii < uInt8Array.length; ii++) {
         stringUInt8Array[ii] = uInt8Array[ii] + 0
       }
 
       ret[u] = uInt8Array
       delete imgObjs[u]
 
-      var imgBinData = {}
+      let imgBinData = {}
       imgBinData[u] = stringUInt8Array
       chrome.storage.local.set(imgBinData, function () {
         if (chrome.runtime.lastError) {
@@ -115,22 +92,22 @@ chrome.extension.onConnect.addListener(function (port) {
    */
   port.onMessage.addListener(async function (msg) {
     if (msg.method === 'getImageData') {
-      var imgObjs = {}
+      let imgObjs = {}
       // Get the image URIs from the DOM
-      for (var image = 0; image < document.images.length; image++) {
+      for (let image = 0; image < document.images.length; image++) {
         if (document.images[image].src.indexOf('data:') === -1) {
           imgObjs[document.images[image].src] = 'foo' // dummy data to-be-filled below programmatically
         }
       }
       // Get the image URIs embedded in CSS
-      var imagesInCSS = getallBgimages()
-      for (var imageInCSS = 0; imageInCSS < imagesInCSS.length; imageInCSS++) {
+      let imagesInCSS = this.getAllBackgroundImages() // From imageFromCSSExtractor.js
+      for (let imageInCSS = 0; imageInCSS < imagesInCSS.length; imageInCSS++) {
         imgObjs[imagesInCSS[imageInCSS]] = 'foo' // dummy data to-be-filled below programmatically
       }
 
-      var ret = {}
+      let ret = {}
 
-      for (var uri in imgObjs) {
+      for (let uri in imgObjs) {
         console.log('Fetching image at ' + uri)
         if (uri.indexOf('data:') === -1) {
           // Proceed only when the fetch resolves or rejects.
@@ -142,10 +119,10 @@ chrome.extension.onConnect.addListener(function (port) {
         }
       }
     } else if (msg.method === 'getHTML') {
-      var images = document.images
+      const images = document.images
 
       outlinks = []
-      var outlinksAddedRegistry = [] // hacky array to prevent duplicate outlinks
+      let outlinksAddedRegistry = [] // hacky array to prevent duplicate outlinks
 
       // Outlinks as images [embedded resource], there are probably other types
       $(images).each(function () {
@@ -166,7 +143,6 @@ chrome.extension.onConnect.addListener(function (port) {
 
       // Outlinks as JavaScripts
       $(document.scripts).each(function () {
-        // MAT!!! you were looking for the scripts URL via HREF not SRC!!!!!!!!!!!!!! fixes #81
         if ($(this).attr('src') && // Only include the externally embedded JS, not the inline
           !outlinksAddedRegistry[$(this).attr('src')]
         ) {
@@ -185,36 +161,35 @@ chrome.extension.onConnect.addListener(function (port) {
 
       outlinksAddedRegistry = null // reclaim space, since we no longer need this check given we're through building outlinks
 
-      var imageURIs = []
-      var imageBase64Data = []
-      // Convert images to something portal and text-y
-      for (var i = 0; i < images.length; i++) {
+      let imageURIs = []
+      let imageBase64Data = []
+      // Convert images to something portable and text-y
+      for (let i = 0; i < images.length; i++) {
         // NOTE: image data is NOT fetched here, a subsequent Ajax call is made in warcGenerator.js 20130211 ~ line 188
-        var anImage = images[i]
+        const anImage = images[i]
         if (!(anImage.src)) {
           continue
         }
 
-        var canvas = document.createElement('canvas')
-        canvas.width = anImage.width
-        canvas.height = anImage.height
+        // let canvas = document.createElement('canvas')
+        // canvas.width = anImage.width
+        // canvas.height = anImage.height
 
-        var dataurl = canvas.toDataURL()
-        var datastartpos = dataurl.match(',').index + 1
-        var dd = dataurl.substring(datastartpos)
+        // const dataurl = canvas.toDataURL()
+        // var datastartpos = dataurl.match(',').index + 1
+        // var dd = dataurl.substring(datastartpos)
       }
 
-      var imageDataSerialized = imageBase64Data.join('|||')
-      var imageURIsSerialized = imageURIs.join('|||')
+      let imageURIsSerialized = imageURIs.join('|||')
       localStorage['imagesInDOM'] = imageURIsSerialized
 
       // Re-fetch CSS (limitation of webRequest, need to be able to get content on response, functionality unavailable,
       // requires refetch). A better way to get all stylesheets but we cannot get them as text but instead an object
       // with ruleslist
-      var styleSheetURLs = []
-      var styleSheetData = []
+      let styleSheetURLs = []
+      let styleSheetData = []
 
-      for (var ss = 0; ss < document.styleSheets.length; ss++) {
+      for (let ss = 0; ss < document.styleSheets.length; ss++) {
         styleSheetURLs.push(document.styleSheets[ss].href)
         // The execution of this function will "halt" until this function resolves or rejects.
         // WARCreate now iteratively fetches each css files data
@@ -226,10 +201,10 @@ chrome.extension.onConnect.addListener(function (port) {
       }
 
       // Re-fetch JS
-      var JSURLs = []
-      var JSData = []
+      let JSURLs = []
+      let JSData = []
 
-      for (var scriptI = 0; scriptI < document.scripts.length; scriptI++) {
+      for (let scriptI = 0; scriptI < document.scripts.length; scriptI++) {
         JSURLs.push(document.scripts[scriptI].src)
         // the execution of this function will "halt" until this function resolves or rejects.
         // WARCreate now iteratively fetches each js files data
@@ -241,8 +216,8 @@ chrome.extension.onConnect.addListener(function (port) {
       }
 
       // all of this nonsense just to get the doctype to prepend!
-      var node = document.doctype
-      var dtstr
+      let node = document.doctype
+      let dtstr
       if (!node) { dtstr = '' } else {
         dtstr = '<!DOCTYPE ' +
           '' + node.name +
@@ -252,10 +227,10 @@ chrome.extension.onConnect.addListener(function (port) {
           '>'
       }
 
-      var domAsText = document.documentElement.outerHTML
+      let domAsText = document.documentElement.outerHTML
 
       // This accounts for foo.txt documents on the web, which chrome puts a wrapper around
-      var textDocumentStarterString = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">'
+      const textDocumentStarterString = '<html><head></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">'
       if (domAsText.substr(0, textDocumentStarterString.length) === textDocumentStarterString) {
         console.log('Adjusting WARC algorithm to account for text rather than HTML document.')
 
@@ -277,29 +252,48 @@ chrome.extension.onConnect.addListener(function (port) {
   })
 })
 
-// from https://developer.mozilla.org/en-US/docs/Web/API/window.btoa
-function utf8_to_b64 (str) {
-  return window.btoa(unescape(encodeURIComponent(str)))
+this.getAllBackgroundImages = function () {
+  let url
+  let B = []
+  let A = document.getElementsByTagName('*')
+  A = B.slice.call(A, 0, A.length)
+  while (A.length) {
+    url = document.deepCss(A.shift(), 'background-image')
+    if (url) url = /url\(['"]?([^")]+)/.exec(url) || []
+    url = url[1]
+    if (url && B.indexOf(url) === -1) B[B.length] = url
+  }
+  return B
 }
 
-function b64_to_utf8 (str) {
-  return decodeURIComponent(escape(window.atob(str)))
+document.deepCss = function (who, css) {
+  if (!who || !who.style) return ''
+  const sty = css.replace(/-([a-z])/g, function (a, b) {
+    return b.toUpperCase()
+  })
+  if (who.currentStyle) {
+    return who.style[sty] || who.currentStyle[sty] || ''
+  }
+  const dv = document.defaultView || window
+  return who.style[sty] ||
+        dv.getComputedStyle(who, '').getPropertyValue(css) || ''
 }
 
+/*
 function base64ArrayBuffer (arrayBuffer) {
-  var base64 = ''
-  var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+  let base64 = ''
+  const encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 
-  var bytes = new Uint8Array(arrayBuffer)
-  var byteLength = bytes.byteLength
-  var byteRemainder = byteLength % 3
-  var mainLength = byteLength - byteRemainder
+  const bytes = new Uint8Array(arrayBuffer)
+  let byteLength = bytes.byteLength
+  const byteRemainder = byteLength % 3
+  const mainLength = byteLength - byteRemainder
 
-  var a, b, c, d
-  var chunk
+  let a, b, c, d
+  let chunk
 
   // Main loop deals with bytes in chunks of 3
-  for (var i = 0; i < mainLength; i = i + 3) {
+  for (let i = 0; i < mainLength; i = i + 3) {
     // Combine the three bytes into a single integer
     chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]
 
@@ -337,3 +331,4 @@ function base64ArrayBuffer (arrayBuffer) {
 
   return base64
 }
+*/
