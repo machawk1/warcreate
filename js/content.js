@@ -201,7 +201,6 @@ chrome.extension.onConnect.addListener(function (port) {
         var dd = dataurl.substring(datastartpos)
       }
 
-      let imageDataSerialized = imageBase64Data.join('|||')
       let imageURIsSerialized = imageURIs.join('|||')
       localStorage['imagesInDOM'] = imageURIsSerialized
 

@@ -58,18 +58,11 @@ function sequentialGenerateWarc () {
 function doGenerateWarc () {
   // addProgressBar()
 
-  let imageData = []
-  let imageURIs = []
-
   chrome.tabs.executeScript(null, {file: 'js/date.js'}, function () { /* Good date formatting library */
-    let uris = []
-    let datum = []
     chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tab) {
       // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
       let port = chrome.tabs.connect(tab[0].id, {name: 'warcreate'}) // create a persistent connection
       port.postMessage({url: tab[0].url, method: 'getHTML'}) // fetch the html of the page, in content.js
-
-      let imageDataFilledTo = -1
 
       // Perform the first listener, populate the binary image data
       port.onMessage.addListener(function (msg) { // get image base64 data
@@ -200,7 +193,7 @@ chrome.webRequest.onHeadersReceived.addListener(
   function (resp) {
     responseHeaders[resp.url] = `${resp.statusLine}${CRLF}`
 
-    for (var key in resp.responseHeaders) {
+    for (let key in resp.responseHeaders) {
       responseHeaders[resp.url] += `${resp.responseHeaders[key].name}: ${resp.responseHeaders[key].value}${CRLF}`
     }
   }

@@ -47,7 +47,8 @@
       "js/jquery.ocupload-1.1.2.packed.js",
       "js/jquery.rc4.js",
       "js/upclick-min.js",
-      "js/xml2json.js"
+      "js/xml2json.js",
+      "js/punycode.js"
     ],
     "globals": [
       "chrome",
