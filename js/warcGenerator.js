@@ -238,7 +238,6 @@ function generateWarc (oRequest, oSender, fCallback) {
     myArray = helperREs.whileMyArrayRe.exec(oRequest.headers)
   }
 
-
   var arrayBuffers = [] // Load data in order in the arrayBuffers array then combine with the file blob to write out
 
   arrayBuffers.push(str2ab(`${warcHeader}${WARCEntryCreator.CRLF}`))

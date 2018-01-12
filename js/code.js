@@ -46,8 +46,8 @@ function sequentialGenerateWarc () {
 function addProgressBar () {
   var body = document.getElementsByTagName('body')[0]
   var progressBar = document.createElement('progress')
-  progressBar.setAttribute('value','0')
-  progressBar.setAttribute('max','0')
+  progressBar.setAttribute('value', '0')
+  progressBar.setAttribute('max', '0')
   body.appendChild(progressBar)
 }
 
@@ -56,7 +56,7 @@ function addProgressBar () {
  * string representative of the contents of the WARC file being generated.
  */
 function doGenerateWarc () {
-  //addProgressBar()
+  // addProgressBar()
 
   var imageData = []
   var imageURIs = []
@@ -64,7 +64,7 @@ function doGenerateWarc () {
   chrome.tabs.executeScript(null, {file: 'js/date.js'}, function () { /* Good date formatting library */
     var uris = []
     var datum = []
-    chrome.tabs.query({'active':true, 'lastFocusedWindow': true}, function (tab) {
+    chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tab) {
       // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
       var port = chrome.tabs.connect(tab[0].id, {name: 'warcreate'}) // create a persistent connection
       port.postMessage({url: tab[0].url, method: 'getHTML'}) // fetch the html of the page, in content.js
@@ -84,7 +84,7 @@ function doGenerateWarc () {
           method: 'generateWarc',
           docHtml: msg.html,
           file: fileName,
-          img: {uris: msg.uris, data:msg.data},
+          img: {uris: msg.uris, data: msg.data},
           css: {uris: msg.css.uris, data: msg.css.data},
           js: {uris: msg.js.uris, data: msg.js.data},
           outlinks: msg.outlinks
@@ -92,7 +92,6 @@ function doGenerateWarc () {
         chrome.runtime.sendMessage(requestToBeSent) // Received in warcGenerator.js
       })
     })
-
   })
 }
 
@@ -191,7 +190,7 @@ chrome.tabs.getSelected(null, function (tab) {
 
   var port = chrome.tabs.connect(tab.id, {name: 'getImageData'}) // create a persistent connection
   port.postMessage({url: tab.url, method: 'getImageData'})
-  //port.onMessage.addListener(function (msg) {})
+  // port.onMessage.addListener(function (msg) {})
 })
 
 /**

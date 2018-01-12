@@ -38,7 +38,7 @@ function convertImagesToBase64 () {
 
     try {
       var base64 = canvas.toDataURL(fileType)
-      //	alert(base64)
+      // alert(base64)
 
       img.src = base64
 
@@ -68,6 +68,6 @@ for (var s = 0; s < scripts.length; s++) {
 convertImagesToBase64()
 
 // var content = document.documentElement.innerHTML
-// var encryptedContent = $.rc4EncryptStr(	content,	key)
-// $('body').append("<br />Encrypted Content: "+encryptedContent)
-// $('body').append("<br />Encrypted Content: "+content)
+// var encryptedContent = $.rc4EncryptStr(content, key)
+// $('body').append('<br />Encrypted Content: ' + encryptedContent)
+// $('body').append('<br />Encrypted Content: ' + content)
