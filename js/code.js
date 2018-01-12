@@ -18,11 +18,11 @@ function checkForValidUrl (tabId, changeInfo, tab) {
  *
  */
 function sequentialGenerateWarc () {
-  var urls = []
+  let urls = []
   $(localStorage['spec']).find('url').each(function (index) {
     urls.push($(this).text())
   })
-  var uu = 0
+  let uu = 0
 
   function generateWarcFromNextURL (nextUrl) {
     chrome.tabs.create({url: nextUrl, active: true},
@@ -43,13 +43,13 @@ function sequentialGenerateWarc () {
   generateWarcFromNextURL(urls[uu])
 }
 
-function addProgressBar () {
-  var body = document.getElementsByTagName('body')[0]
-  var progressBar = document.createElement('progress')
+/* function addProgressBar () {
+  let body = document.getElementsByTagName('body')[0]
+  let progressBar = document.createElement('progress')
   progressBar.setAttribute('value', '0')
   progressBar.setAttribute('max', '0')
   body.appendChild(progressBar)
-}
+} */
 
 /**
  * Calls and aggregates the results of the functions that progressively create a
@@ -58,28 +58,28 @@ function addProgressBar () {
 function doGenerateWarc () {
   // addProgressBar()
 
-  var imageData = []
-  var imageURIs = []
+  let imageData = []
+  let imageURIs = []
 
   chrome.tabs.executeScript(null, {file: 'js/date.js'}, function () { /* Good date formatting library */
-    var uris = []
-    var datum = []
+    let uris = []
+    let datum = []
     chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tab) {
       // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
-      var port = chrome.tabs.connect(tab[0].id, {name: 'warcreate'}) // create a persistent connection
+      let port = chrome.tabs.connect(tab[0].id, {name: 'warcreate'}) // create a persistent connection
       port.postMessage({url: tab[0].url, method: 'getHTML'}) // fetch the html of the page, in content.js
 
-      var imageDataFilledTo = -1
+      let imageDataFilledTo = -1
 
       // Perform the first listener, populate the binary image data
       port.onMessage.addListener(function (msg) { // get image base64 data
-        var fileName = (new Date().toISOString()).replace(/:|-|T|Z|\./g, '') + '.warc'
+        let fileName = (new Date().toISOString()).replace(/:|-|T|Z|\./g, '') + '.warc'
 
         // If the user has specified a custom filename format, apply it here
         if (localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0) {
           fileName = moment().format(localStorage['filenameScheme']) + '.warc'
         }
-        var requestToBeSent = {
+        let requestToBeSent = {
           url: tab[0].url,
           method: 'generateWarc',
           docHtml: msg.html,
@@ -101,28 +101,28 @@ function doGenerateWarc () {
 window.onload = function () {
   var background = chrome.extension.getBackgroundPage()
 
-  var buttonContainer = document.getElementById('buttonContainer')
+  let buttonContainer = document.getElementById('buttonContainer')
 
-  var sButton = document.getElementById('submit')
-  var acButton = document.getElementById('alertContent')
+  // var sButton = document.getElementById('submit')
+  // var acButton = document.getElementById('alertContent')
   // var encryptButton = document.getElementById('encrypt')
-  var encodeButton = document.getElementById('encodeImages')
+  // var encodeButton = document.getElementById('encodeImages')
 
   // if a website is recognized from the spec, show the "Cohesive archive"
-  var caButtonDOM = document.createElement('input')
+  let caButtonDOM = document.createElement('input')
   caButtonDOM.type = 'button'
   caButtonDOM.id = 'generateCohesiveWARC'
   caButtonDOM.disabled = 'disabled'
-  var t
+  // var t
 
   caButtonDOM.value = 'Generate WARC for site'
 
   // create buttons for popup
-  var gwButtonDOM = document.createElement('input')
+  let gwButtonDOM = document.createElement('input')
   gwButtonDOM.type = 'button'
   gwButtonDOM.id = 'generateWarc'
   gwButtonDOM.value = 'Generate WARC'
-  var clsButtonDOM = document.createElement('input')
+  let clsButtonDOM = document.createElement('input')
   clsButtonDOM.type = 'button'
   clsButtonDOM.id = 'clearLocalStorage'
   clsButtonDOM.value = 'Clear LocalStorage'
@@ -130,10 +130,10 @@ window.onload = function () {
   // For debugging, display content already captured
   // var dcButtonDOM = document.createElement('input'); dcButtonDOM.type = "button"; dcButtonDOM.id = "displayCaptured"; gwButtonDOM.value = "Show pending content"
 
-  var errorText = document.createElement('a')
+  let errorText = document.createElement('a')
   errorText.id = 'errorText'
   errorText.target = '_blank'
-  var status = document.createElement('input')
+  let status = document.createElement('input')
   status.id = 'status'
   status.type = 'text'
   status.value = ''
@@ -149,15 +149,15 @@ window.onload = function () {
   $(buttonContainer).prepend(errorText)
   $('#status').css('display', 'none') // initially hide the status block
 
-  var gwButton = document.getElementById('generateWarc')
+  let gwButton = document.getElementById('generateWarc')
   gwButton.onclick = doGenerateWarc
 
-  var clsButton = document.getElementById('clearLocalStorage')
+  let clsButton = document.getElementById('clearLocalStorage')
 
   // future implementation for NEH HD-51670-13
   // https://securegrants.neh.gov/publicquery/main.aspx?f=1&gn=HD-51670-13
-  var ulButton = document.getElementById('uploader')
-  var caButton = document.getElementById('generateCohesiveWARC')
+  let ulButton = document.getElementById('uploader')
+  let caButton = document.getElementById('generateCohesiveWARC')
   $(ulButton).css('display', 'none')
   $(caButton).css('display', 'none')
 
@@ -167,18 +167,18 @@ window.onload = function () {
 // Listen for any changes to the URL of any tab.
 chrome.tabs.onUpdated.addListener(checkForValidUrl)
 
-var headers = ''
+let headers = ''
 
 /**
  * address #79 by keeping track per URL what headers we have already concatenated
  */
-var requestHeadersTracking = []
+let requestHeadersTracking = []
 
-var responseHeaders = []
-var requestHeaders = []
-var CRLF = '\r\n'
+let responseHeaders = []
+let requestHeaders = []
+let CRLF = '\r\n'
 
-var currentTabId = -1
+let currentTabId = -1
 
 chrome.tabs.getSelected(null, function (tab) {
   chrome.storage.local.set({'lastTabId': tab.id})
@@ -188,7 +188,7 @@ chrome.tabs.getSelected(null, function (tab) {
     // $("body").append(tab.url)
   })
 
-  var port = chrome.tabs.connect(tab.id, {name: 'getImageData'}) // create a persistent connection
+  let port = chrome.tabs.connect(tab.id, {name: 'getImageData'}) // create a persistent connection
   port.postMessage({url: tab.url, method: 'getImageData'})
   // port.onMessage.addListener(function (msg) {})
 })
@@ -214,7 +214,7 @@ chrome.webRequest.onHeadersReceived.addListener(
  * see https://developer.chrome.com/extensions/webRequest
  */
 chrome.webRequest.onBeforeSendHeaders.addListener(function (req) {
-  var path = req.url.substring(req.url.match(/[a-zA-Z0-9]\//).index + 1)
+  let path = req.url.substring(req.url.match(/[a-zA-Z0-9]\//).index + 1)
 
   // per #79 keep track of already concatenated headers for warc string
   if (requestHeadersTracking[req.url] === null || requestHeadersTracking[req.url] === undefined) {
@@ -225,7 +225,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(function (req) {
   requestHeaders[req.url] = `${req.method} ${path} HTTP/1.1${CRLF}`
   // requestHeaders[req.url] += req.method + ' ' + path + ' ' + FABRICATED_httpVersion + CRLF
   // console.log(("- Request headers received for "+req.url)
-  for (var key in req.requestHeaders) {
+  for (let key in req.requestHeaders) {
     requestHeaders[req.url] += `${req.requestHeaders[key].name}: ${req.requestHeaders[key].value}${CRLF}`
     requestHeadersTracking[req.url].add(req.requestHeaders[key].name)
   }
@@ -236,7 +236,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(function (req) {
  * fix for issue #79, see explanation in onBeforeSendHeaders and documentation for requestHeadersTracking
  */
 chrome.webRequest.onSendHeaders.addListener(function (req) {
-  for (var key in req.requestHeaders) {
+  for (let key in req.requestHeaders) {
     if (!requestHeadersTracking[req.url].has(req.requestHeaders[key].name)) {
       requestHeaders[req.url] += `${req.requestHeaders[key].name}: ${req.requestHeaders[key].value}${CRLF}`
       requestHeadersTracking[req.url].add(req.requestHeaders[key].name)
@@ -252,7 +252,7 @@ chrome.webRequest.onBeforeRedirect.addListener(function (resp) {
   responseHeaders[resp.url] += `${resp.statusLine}${CRLF}`
 
   // console.log(("--------------Redirect Response Headers for "+resp.url+" --------------")
-  for (var key in resp.responseHeaders) {
+  for (let key in resp.responseHeaders) {
     responseHeaders[resp.url] += `${resp.responseHeaders[key].name}: ${resp.responseHeaders[key].value}${CRLF}`
   }
 // console.log((responseHeaders[resp.url])
@@ -285,69 +285,3 @@ function b64_to_utf8 (str) {
 chrome.webRequest.onResponseStarted.addListener(
   function (details) {}, {urls: ['http://*/*', 'https://*/*']}, ['responseHeaders'])
 
-/* BEGIN UNUSED CODE */
-// function alertContent () {
-//   chrome.tabs.executeScript(null, {file: 'js/jquery-2.1.1.min.js'}, function () {
-//     chrome.tabs.executeScript(null, {file: 'js/jquery.rc4.js'}, function () {
-//       chrome.tabs.executeScript(null, {file: 'js/alertContent.js'}, function () {})
-//     })
-//   })
-// }
-
-// /**
-//  * Converts images on the webpage into a binary string
-//  */
-// function encodeImages () {
-//   var images = document.getElementsByTagName('img')
-//   var img = new Image()
-//   img.src = request.url
-//   var canvas = document.createElement('canvas')
-//   canvas.width = img.width
-//   canvas.height = img.height
-//   var context = canvas.getContext('2d')
-//
-//   // console.log((i+": "+images[i].src+"  file type: "+fileType)
-//   var fileType = images[i].src.substr(images[i].src.length - 4).toLowerCase()
-//   if (fileType === '.jpg' || fileType === 'jpeg') {
-//     fileType = 'image/jpeg'
-//   } else if (fileType === '.png') {
-//     fileType = 'image/png'
-//   } else if (fileType === '.gif') {
-//     fileType = 'image/gif'
-//   } else {
-//     var uTransformed = images[i].src.substring(0, images[i].src.indexOf('.jpg')) + '.jpg'
-//     alert('error at image ' + i + ' ' + uTransformed)
-//     return
-//   }
-//   // console.log((i+": "+images[i].src+"  file type: "+fileType)
-//
-//   try {
-//     var base64 = canvas.toDataURL(fileType)
-//     img.src = base64
-//     // console.log(("Replaced image "+request.url+" with its base64 encoded form per canvas")
-//   } catch (e) {
-//     alert('Encoding of inline binary content failed!')
-//     console.log(e)
-//     return
-//   }
-//   $(images[i]).replaceWith(img)
-// }
-
-// /**
-//  * UNUSED: Desired functionality is to provide facilities to encrypt data in resulting WARC
-//  */
-// function encrypt () {
-//   var key = document.getElementById('key').value
-//   if (key === '') {
-//     alert('First enter a key for encryption.')
-//     return
-//   }
-//   chrome.tabs.executeScript(null, {file: 'js/jquery-2.1.1.min.js'}, function () {
-//     chrome.tabs.executeScript(null, {file: 'js/jquery.rc4.js'}, function () {
-//       chrome.tabs.executeScript(null, {code: 'var params = {k:\'' + key + '\'};'}, function () {
-//         chrome.tabs.executeScript(null, {file: 'js/encryptPage.js'}, function () {})
-//       })
-//     })
-//   })
-// }
-/* END UNUSED CODE */

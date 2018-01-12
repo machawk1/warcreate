@@ -1,18 +1,18 @@
 // Saves options to localStorage.
 function saveOptions () {
-  var handling
-  localStorage['handlingMethod'] = handling
+  const handling
+  window.localStorage['handlingMethod'] = handling
 
   if (document.getElementById('addCollectionMetadataCheckbox').checked) {
-    localStorage['collectionId'] = $('#collectionId').val()
-    localStorage['collectionName'] = $('#collectionName').val()
+    window.localStorage['collectionId'] = $('#collectionId').val()
+    window.localStorage['collectionName'] = $('#collectionName').val()
   } else {
-    localStorage.removeItem('collectionId')
-    localStorage.removeItem('collectionName')
+    window.localStorage.removeItem('collectionId')
+    window.localStorage.removeItem('collectionName')
   }
 
   // Update status to let user know options were saved.
-  var status = $('#status')
+  let status = $('#status')
   status.html('Options Saved.')
   status.css('display', 'block')
   setTimeout(function () {
@@ -49,7 +49,7 @@ function clearOptions () {
 }
 
 function checkURI (uri) {
-  var req = new XMLHttpRequest()
+  let req = new XMLHttpRequest()
   try {
     req.open('GET', uri, false)
     req.send(null)
@@ -59,10 +59,10 @@ function checkURI (uri) {
   }
 }
 
-var lastSavedStateString = '' // string representation of the last saved state of the form inputs
+let lastSavedStateString = '' // string representation of the last saved state of the form inputs
 function setSaveChangesButtonEnabledBasedOnOptionsChange () {
   if (lastSavedStateString !== '') {
-    var currentSavedState = $('#filenameScheme').val() +
+    const currentSavedState = $('#filenameScheme').val() +
       $('#uploadTo').val() +
       $('#collectionId').val() +
       $('#collectionName').val() +
@@ -119,8 +119,8 @@ function setupButtonFunctionalityAndVisibility () {
     setSaveChangesButtonEnabledBasedOnOptionsChange()
   })
   $('#save').on('click', function () {
-    var uploadToURI
-    var filenameScheme
+    let uploadToURI
+    let filenameScheme
     if ($('#postGeneration_upload').prop('checked')) {
       uploadToURI = $('#uploadTo').val()
       filenameScheme = ''
@@ -129,11 +129,11 @@ function setupButtonFunctionalityAndVisibility () {
       filenameScheme = $('#filenameScheme').val()
     }
 
-    localStorage['uploadTo'] = uploadToURI
-    localStorage['filenameScheme'] = filenameScheme
+    window.localStorage['uploadTo'] = uploadToURI
+    window.localStorage['filenameScheme'] = filenameScheme
 
-    localStorage['collectionId'] = $('#collectionId').val()
-    localStorage['collectionName'] = $('#collectionName').val()
+    window.localStorage['collectionId'] = $('#collectionId').val()
+    window.localStorage['collectionName'] = $('#collectionName').val()
 
     // TODO: give feedback that options have been saved
     saveOptions()
@@ -146,13 +146,13 @@ function fetchSocialStandardSpecification () {
   })
     .done(function (data) {
       // console.log(("Done fetching base spec!");
-      var specs = []
-      for (var homepage = 0; homepage < $(data).children().children().children('homepage').length; homepage++) {
+      let specs = []
+      for (let homepage = 0; homepage < $(data).children().children().children('homepage').length; homepage++) {
         // convert the XML spec to JS objects. This is ridiculously verbose. There has to be a cleaner way.
-        var str = $(data).children().children()[homepage]
-        var chiln = $(str).children()
-        var obj = {}
-        for (var ii = 0; ii < chiln.length; ii++) {
+        const str = $(data).children().children()[homepage]
+        const chiln = $(str).children()
+        let obj = {}
+        for (let ii = 0; ii < chiln.length; ii++) {
           obj[chiln[ii].tagName] = chiln[ii].textContent
         }
         specs.push(obj)
@@ -161,14 +161,14 @@ function fetchSocialStandardSpecification () {
       }
       // attempt to fetch and parse a site-specific hierarchy specification so the section of the website can be extracted and used as the basis of a crawl
       $('#supportedSequentialArchivingSites').change(function () {
-        var specURI = $('#supportedSequentialArchivingSites option:selected').attr('title')
+        const specURI = $('#supportedSequentialArchivingSites option:selected').attr('title')
         // console.log((specURI)
         $.ajax({
           url: specURI
         })
           .done(function (data2) {
-            var specAsObj = jQuery.parseJSON(xml2json(data2, ''))
-            var siteSections = specAsObj.socialMediaWebsite.sections.socialMediaWebsiteSection
+            const specAsObj = jQuery.parseJSON(xml2json(data2, ''))
+            const siteSections = specAsObj.socialMediaWebsite.sections.socialMediaWebsiteSection
             $('#sections').empty() // Kill the children (of the section list)
             for (var sectionI = 0; sectionI < siteSections.length; sectionI++) {
               // console.log((siteSections[sectionI].name + " " +siteSections[sectionI].url)
@@ -186,8 +186,8 @@ function fetchSocialStandardSpecification () {
 // ties up the browser for some reason
 function displayLocalStorageData () {
   // console.log(("Local Storage, ho!")
-  var XX = ''
-  for (var i = 0; i < localStorage.length; i++) {
+  let XX = ''
+  for (let i = 0; i < localStorage.length; i++) {
     XX += localStorage.key(i) + '=[' + localStorage.getItem(localStorage.key(i)) + ']'
     break
   }
@@ -199,11 +199,11 @@ function showFilenameExample () { // when the file format scheme changes, update
 }
 
 function populatePendingContentTable () {
-  var targetTable = $('#pendingContentTable')
+  let targetTable = $('#pendingContentTable')
   $('#pendingContentTable .data').remove()
-  for (var key = 0; key < Object.keys(responseHeaders).length; key++) {
-    var k = Object.keys(responseHeaders)[key]
-    var str = `<tr class="data"><td>${k}</td><td class='#req'>${requestHeaders[k].length}</td><td class='#res'>${responseHeaders[k].length}</td></tr>`
+  for (let key = 0; key < Object.keys(responseHeaders).length; key++) {
+    let k = Object.keys(responseHeaders)[key]
+    let str = `<tr class="data"><td>${k}</td><td class='#req'>${requestHeaders[k].length}</td><td class='#res'>${responseHeaders[k].length}</td></tr>`
     targetTable.append(str)
     str = ''
   }

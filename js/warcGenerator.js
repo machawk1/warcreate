@@ -8,11 +8,11 @@
 // }
 
 function str2ab (str) {
-  var s = encodeUtf8(str)
-  var buf = new ArrayBuffer(s.length) // 2 bytes for each char
-  var bufView = new Uint8Array(buf)
-  var i = 0
-  var strLen = s.length
+  const s = encodeUtf8(str)
+  const buf = new ArrayBuffer(s.length) // 2 bytes for each char
+  let bufView = new Uint8Array(buf)
+  let i = 0
+  const strLen = s.length
   for (; i < strLen; i++) {
     bufView[i] = s.charCodeAt(i)
   }
@@ -29,7 +29,7 @@ function encodeUtf8 (s) {
 
 function lengthInUtf8Bytes (str) {
   // Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
-  var m = encodeURIComponent(str).match(/%[89ABab]/g)
+  const m = encodeURIComponent(str).match(/%[89ABab]/g)
   return str.length + (m ? m.length : 0)
 }
 
@@ -37,14 +37,14 @@ function lengthInUtf8Bytes (str) {
 
 /* ************** BEGIN WARC CONTENT CREATOR UTILITY OBJECT **************  */
 
-var WARCEntryCreator = {
+let WARCEntryCreator = {
   CRLF: '\r\n',
   warcRecordSeparator: '\r\n\r\n',
   contentLengthRe: /Content-Length:.*\r\n/gi,
   contentEncodingGZRe: /Content-Encoding.*gzip\r\n/gi,
   makeWarcHeaderContent (version, isPartOf, warcInfoDescription) {
     // ES6 template preserve the spaces and implicit newline characters added when putting content on the line below
-    var whc = `software: WARCreate/${version} http://warcreate.com${this.CRLF}format: WARC File Format 1.0${this.CRLF}`
+    let whc = `software: WARCreate/${version} http://warcreate.com${this.CRLF}format: WARC File Format 1.0${this.CRLF}`
     whc += `conformsTo: http://bibnum.bnf.fr/WARC/WARC_ISO_28500_version1_latestdraft.pdf${this.CRLF}`
     whc += `isPartOf:  ${isPartOf}${this.CRLF}description:  ${warcInfoDescription}${this.CRLF}`
     whc += `robots: ignore${this.CRLF}http-header-user-agent:  ${navigator.userAgent}${this.CRLF}`
@@ -52,35 +52,35 @@ var WARCEntryCreator = {
     return whc
   },
   makeWarcHeader (now, fileName, contentLen) {
-    var wh = `WARC/1.0${this.CRLF}WARC-Type: warcinfo${this.CRLF}WARC-Date: ${now}${this.CRLF}`
+    let wh = `WARC/1.0${this.CRLF}WARC-Type: warcinfo${this.CRLF}WARC-Date: ${now}${this.CRLF}`
     wh += `WARC-Filename: ${fileName}${this.CRLF}WARC-Record-ID: ${this.guidGenerator()}${this.CRLF}`
     wh += `Content-Type: application/warc-fields${this.CRLF}Content-Length: ${contentLen}${this.CRLF}`
     return wh
   },
   makeWarcMetadataHeader (initURI, now, warcMetadataLen) {
-    var wmh = `WARC/1.0${this.CRLF}WARC-Type: metadata${this.CRLF}WARC-Target-URI: ${initURI}${this.CRLF}WARC-Date: ${now}${this.CRLF}`
+    let wmh = `WARC/1.0${this.CRLF}WARC-Type: metadata${this.CRLF}WARC-Target-URI: ${initURI}${this.CRLF}WARC-Date: ${now}${this.CRLF}`
     wmh += `WARC-Concurrent-To: <urn:uuid:dddc4ba2-c1e1-459b-8d0d-a98a20b87e96>${this.CRLF}WARC-Record-ID: <urn:uuid:6fef2a49-a9ba-4b40-9f4a-5ca5db1fd5c6>${this.CRLF}`
     wmh += `Content-Type: application/warc-fields${this.CRLF}Content-Length: ${warcMetadataLen}${this.CRLF}`
     return wmh
   },
   makeWarcRequestHeaderWith (targetURI, now, warcConcurrentTo, warcRequest) {
-    var wrh = `WARC/1.0${this.CRLF}WARC-Type: request${this.CRLF}WARC-Target-URI: ${targetURI}${this.CRLF}`
+    let wrh = `WARC/1.0${this.CRLF}WARC-Type: request${this.CRLF}WARC-Target-URI: ${targetURI}${this.CRLF}`
     wrh += `WARC-Date: ${now}${this.CRLF}WARC-Concurrent-To: ${warcConcurrentTo}${this.CRLF}`
     wrh += `WARC-Record-ID: ${this.guidGenerator()}${this.CRLF}Content-Type: application/http; msgtype=request${this.CRLF}`
     wrh += `Content-Length: ${warcRequest.length + 2}${this.CRLF}${this.CRLF}${warcRequest}${this.CRLF}${this.CRLF}`
     return wrh
   },
   makeWarcResponseHeaderWith (targetURI, now, warcConcurrentTo, resp, additionalContentLength) {
-    var httpHeader = resp.substring(0, resp.indexOf('\r\n\r\n'))
+    let httpHeader = resp.substring(0, resp.indexOf('\r\n\r\n'))
     if (httpHeader === '') {
       httpHeader = resp
     }
     // var countCorrect = httpHeader.match(/\r\n/g).length // Number of lines in xx below
-    var contentLength = lengthInUtf8Bytes(resp)
+    let contentLength = lengthInUtf8Bytes(resp)
     if (additionalContentLength) {
       contentLength += additionalContentLength
     }
-    var wrh = `WARC/1.0${this.CRLF}WARC-Type: response${this.CRLF}WARC-Target-URI: ${targetURI}${this.CRLF}`
+    let wrh = `WARC/1.0${this.CRLF}WARC-Type: response${this.CRLF}WARC-Target-URI: ${targetURI}${this.CRLF}`
     wrh += `WARC-Date: ${now}${this.CRLF}WARC-Record-ID: ${this.guidGenerator()}${this.CRLF}`
     wrh += `Content-Type: application/http; msgtype=response${this.CRLF}Content-Length: ${contentLength}${this.CRLF}`
     return wrh
@@ -98,7 +98,7 @@ var WARCEntryCreator = {
   touchUpInitURIHeaders (initURIHeaders, docHtml) {
     // targetURI
     // DUCTTAPE
-    var newInitURIHeaders = initURIHeaders
+    let newInitURIHeaders = initURIHeaders
     if (newInitURIHeaders.indexOf('twitter.com') > -1) {
       newInitURIHeaders = newInitURIHeaders.replace('text/javascript', 'text/html')
     }
@@ -108,7 +108,7 @@ var WARCEntryCreator = {
     // DUCTTAPE to fix bug #62
     // - fix the content length to be representative of the un-zipped text content
     // added \r\n instead of \n here to address warc indexing issues #17 and #78
-    var fixContentLength = `Content-Length: ${lengthInUtf8Bytes(docHtml)}${this.CRLF}`
+    const fixContentLength = `Content-Length: ${lengthInUtf8Bytes(docHtml)}${this.CRLF}`
     newInitURIHeaders = newInitURIHeaders.replace(this.contentLengthRe, fixContentLength)
 
     // - remove reference to GZip HTML (or text) body, as we're querying the DOM, not getting the raw feed
@@ -119,9 +119,9 @@ var WARCEntryCreator = {
 
 /* ************** END WARC CONTENT CREATOR UTILITY OBJECT **************  */
 
-/* ************** BEGING FEROSS-STANDARD STYLE CONFORMITY HELPERS **************  */
+/* ************** BEGIN FEROSS-STANDARD STYLE CONFORMITY HELPERS **************  */
 
-var helperREs = {
+let helperREs = {
   jsregexp: new RegExp('content-type:[ ]*(text|application)/(javascript|js)', 'i'),
   imgregexp: new RegExp('content-type:[ ]*image/', 'i'),
   cssregexp: new RegExp('content-type:[ ]*text/(css|stylesheet)', 'i'),
@@ -131,27 +131,27 @@ var helperREs = {
 
 function asynchronouslyFetchImageData (rh, now, warcConcurrentTo, arrayBuffers, responsesToConcatenate, fileName) {
   chrome.storage.local.get(rh, function (result) {
-    var rawImageDataAsBytes = result[rh]
+    const rawImageDataAsBytes = result[rh]
 
     if (rawImageDataAsBytes) { // we have the data in chrome.storage.local
       // var imgRawString = ''
-      var byteCount = result[rh].length
+      const byteCount = result[rh].length
       // var imagesAsObjectsFromJSON = rawImageDataAsBytes // redundant of above but testing
 
-      var hexValueArrayBuffer = new ArrayBuffer(byteCount)
-      var hexValueInt8Ary = new Int8Array(hexValueArrayBuffer)
-      var ixx = 0
-      var index = 0
+      const hexValueArrayBuffer = new ArrayBuffer(byteCount)
+      let hexValueInt8Ary = new Int8Array(hexValueArrayBuffer)
+      let ixx = 0
+      let index = 0
       // var sstr = ''
       for (; index < byteCount; index++) {
         hexValueInt8Ary.set([result[rh][index]], ixx)
         ixx++
       }
 
-      var rhsWithCRLF = `${responseHeaders[rh]}${WARCEntryCreator.CRLF}`
-      var hexValueInt8AryPlusRecordSep = hexValueInt8Ary.length + WARCEntryCreator.warcRecordSeparator.length
-      var rhsTemp = WARCEntryCreator.makeWarcResponseHeaderWith(rh, now, warcConcurrentTo, rhsWithCRLF, hexValueInt8AryPlusRecordSep)
-      var responseHeaderString = `${rhsTemp}${WARCEntryCreator.CRLF}`
+      const rhsWithCRLF = `${responseHeaders[rh]}${WARCEntryCreator.CRLF}`
+      const hexValueInt8AryPlusRecordSep = hexValueInt8Ary.length + WARCEntryCreator.warcRecordSeparator.length
+      const rhsTemp = WARCEntryCreator.makeWarcResponseHeaderWith(rh, now, warcConcurrentTo, rhsWithCRLF, hexValueInt8AryPlusRecordSep)
+      const responseHeaderString = `${rhsTemp}${WARCEntryCreator.CRLF}`
 
       arrayBuffers.push(str2ab(responseHeaderString))
       arrayBuffers.push(str2ab(`${responseHeaders[rh]}${WARCEntryCreator.CRLF}`))
@@ -185,28 +185,28 @@ function generateWarc (oRequest, oSender, fCallback) {
   }
   console.log('Executing generateWARC() with...')
   console.log(console.log(oRequest))
-  var now = new Date().toISOString()
+  let now = new Date().toISOString()
   now = now.substr(0, now.indexOf('.')) + 'Z'
 
-  var fileName = oRequest.file
-  var initURI = oRequest.url
+  const fileName = oRequest.file
+  const initURI = oRequest.url
 
-  var warcInfoDescription = 'Crawl initiated from the WARCreate Google Chrome extension'
-  var isPartOf = 'basic'
+  let warcInfoDescription = 'Crawl initiated from the WARCreate Google Chrome extension'
+  let isPartOf = 'basic'
   if (localStorage.getItem('collectionId') || localStorage.getItem('collectionName')) {
     warcInfoDescription = `collectionId=${localStorage.getItem('collectionId')}, collectionName="${localStorage.getItem('collectionName')}"`
     isPartOf = localStorage.getItem('collectionId')
   }
 
-  var warcHeaderContent = WARCEntryCreator.makeWarcHeaderContent(version, isPartOf, warcInfoDescription)
-  var warcHeader = WARCEntryCreator.makeWarcHeader(now, fileName, warcHeaderContent.length)
-  var warcRequest = requestHeaders[initURI]
-  var warcConcurrentTo = WARCEntryCreator.guidGenerator()
-  var warcRequestHeader = WARCEntryCreator.makeWarcRequestHeaderWith(initURI, now, warcConcurrentTo, warcRequest)
-  var outlinks = oRequest.outlinks
-  var outlinkStr = ''
-  for (var outlink in outlinks) {
-    var href = outlinks[outlink]
+  const warcHeaderContent = WARCEntryCreator.makeWarcHeaderContent(version, isPartOf, warcInfoDescription)
+  const warcHeader = WARCEntryCreator.makeWarcHeader(now, fileName, warcHeaderContent.length)
+  const warcRequest = requestHeaders[initURI]
+  const warcConcurrentTo = WARCEntryCreator.guidGenerator()
+  const warcRequestHeader = WARCEntryCreator.makeWarcRequestHeaderWith(initURI, now, warcConcurrentTo, warcRequest)
+  const outlinks = oRequest.outlinks
+  let outlinkStr = ''
+  for (let outlink in outlinks) {
+    let href = outlinks[outlink]
     if (href.indexOf('mailto:') > -1) {
       continue
     }
@@ -215,8 +215,8 @@ function generateWarc (oRequest, oSender, fCallback) {
     }
     href = `${href.substr(0, 8)}${href.substr(8).replace(/\/\//g, '/')}` // replace double slashes outside of scheme
     // Sanitize ../'s
-    var parts = href.split(' ')
-    parts[0] = (new URL(parts[0])).href
+    let parts = href.split(' ')
+    parts[0] = (new window.URL(parts[0])).href
     href = parts.join(' ')
     console.log(href)
 
@@ -224,21 +224,19 @@ function generateWarc (oRequest, oSender, fCallback) {
   }
 
   // includes initial URI var warcMetadata = "outlink: "+ initURI + CRLF + outlinkStr
-  var warcMetadata = outlinkStr
-  var warcMetadataHeader = WARCEntryCreator.makeWarcMetadataHeader(initURI, now, warcMetadata.length)
+  let warcMetadata = outlinkStr
+  let warcMetadataHeader = WARCEntryCreator.makeWarcMetadataHeader(initURI, now, warcMetadata.length)
 
   responseHeaders[initURI] = WARCEntryCreator.touchUpInitURIHeaders(responseHeaders[initURI], oRequest.docHtml)
 
-  var warcResponse = `${responseHeaders[initURI]}${WARCEntryCreator.CRLF}${oRequest.docHtml}${WARCEntryCreator.CRLF}`
-  var warcResponseHeader = WARCEntryCreator.makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse, 0)
-  var myArray = helperREs.whileMyArrayRe.exec(oRequest.headers)
-  var str = '' // eslint-disable-line no-unused-vars
+  const warcResponse = `${responseHeaders[initURI]}${WARCEntryCreator.CRLF}${oRequest.docHtml}${WARCEntryCreator.CRLF}`
+  const warcResponseHeader = WARCEntryCreator.makeWarcResponseHeaderWith(initURI, now, warcConcurrentTo, warcResponse, 0)
+  let myArray = helperREs.whileMyArrayRe.exec(oRequest.headers)
   while (myArray !== null) {
-    str += myArray[1]
     myArray = helperREs.whileMyArrayRe.exec(oRequest.headers)
   }
 
-  var arrayBuffers = [] // Load data in order in the arrayBuffers array then combine with the file blob to write out
+  let arrayBuffers = [] // Load data in order in the arrayBuffers array then combine with the file blob to write out
 
   arrayBuffers.push(str2ab(`${warcHeader}${WARCEntryCreator.CRLF}`))
   arrayBuffers.push(str2ab(`${warcHeaderContent}${WARCEntryCreator.warcRecordSeparator}`))
@@ -248,23 +246,22 @@ function generateWarc (oRequest, oSender, fCallback) {
   arrayBuffers.push(str2ab(`${warcResponseHeader}${WARCEntryCreator.CRLF}`))
   arrayBuffers.push(str2ab(`${warcResponse}${WARCEntryCreator.warcRecordSeparator}`))
 
-  var cssURIs = oRequest.css.uris
-  var cssData = oRequest.css.data
-  var jsURIs = oRequest.js.uris
-  var jsData = oRequest.js.data
+  const cssURIs = oRequest.css.uris
+  const cssData = oRequest.css.data
+  const jsURIs = oRequest.js.uris
+  const jsData = oRequest.js.data
 
   console.log(oRequest)
-  //return
 
   // var seedURL = true
-  var responsesToConcatenate = []
+  let responsesToConcatenate = []
 
-  for (var requestHeader in requestHeaders) {
+  for (let requestHeader in requestHeaders) {
     if (requestHeader === initURI) {
       continue // the 'seed' will not have a body, we handle this above, skip
     }
-    var rhsTemp = WARCEntryCreator.makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader])
-    var requestHeaderString = `${rhsTemp}${WARCEntryCreator.CRLF}`
+    const rhsTemp = WARCEntryCreator.makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader])
+    const requestHeaderString = `${rhsTemp}${WARCEntryCreator.CRLF}`
     arrayBuffers.push(str2ab(requestHeaderString))
 
     if (
@@ -281,35 +278,35 @@ function generateWarc (oRequest, oSender, fCallback) {
       }
       responsesToConcatenate[requestHeader] = 'pending'
       console.log(requestHeader + ' is a CSS file')
-      var respHeader = `${responseHeaders[requestHeader]}${WARCEntryCreator.warcRecordSeparator}`
-      var respContent
-      var cc = 0
-      var cssURIsLen = cssURIs.length
+      const respHeader = `${responseHeaders[requestHeader]}${WARCEntryCreator.warcRecordSeparator}`
+      let respContent
+      let cc = 0
+      const cssURIsLen = cssURIs.length
       for (; cc < cssURIsLen; cc++) {
         if (requestHeader === cssURIs[cc]) {
           respContent = `${cssData[cssURIs.indexOf(requestHeader)]}${WARCEntryCreator.warcRecordSeparator}`
           break
         }
       }
-      var cssRHSTemp = WARCEntryCreator.makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, respHeader + respContent)
-      var cssResponseHeaderString = `${cssRHSTemp}${WARCEntryCreator.CRLF}`
+      const cssRHSTemp = WARCEntryCreator.makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, respHeader + respContent)
+      const cssResponseHeaderString = `${cssRHSTemp}${WARCEntryCreator.CRLF}`
       arrayBuffers.push(str2ab(cssResponseHeaderString))
 
       arrayBuffers.push(str2ab(`${respHeader}${respContent}${WARCEntryCreator.warcRecordSeparator}`))
       delete responsesToConcatenate[requestHeader]
     } else if (responseHeaders[requestHeader] && helperREs.jsregexp.exec(responseHeaders[requestHeader]) !== null) {
-      var jsRespHeader = `${responseHeaders[requestHeader]}${WARCEntryCreator.warcRecordSeparator}`
-      var jsRespContent
-      var jsIdx = 0
-      var jsURIsLen = jsURIs.length
+      const jsRespHeader = `${responseHeaders[requestHeader]}${WARCEntryCreator.warcRecordSeparator}`
+      let jsRespContent
+      let jsIdx = 0
+      const jsURIsLen = jsURIs.length
       for (; jsIdx < jsURIsLen; jsIdx++) {
         if (requestHeader === jsURIs[jsIdx]) {
           jsRespContent = `${jsData[jsURIs.indexOf(requestHeader)]}${WARCEntryCreator.warcRecordSeparator}`
           break
         }
       }
-      var jsRHSTemp = WARCEntryCreator.makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, jsRespHeader + jsRespContent)
-      var jsResponseHeaderString = `${jsRHSTemp}${WARCEntryCreator.CRLF}`
+      const jsRHSTemp = WARCEntryCreator.makeWarcResponseHeaderWith(requestHeader, now, warcConcurrentTo, jsRespHeader + jsRespContent)
+      const jsResponseHeaderString = `${jsRHSTemp}${WARCEntryCreator.CRLF}`
       arrayBuffers.push(str2ab(jsResponseHeaderString))
 
       arrayBuffers.push(str2ab(`${jsRespHeader}${jsRespContent}${WARCEntryCreator.warcRecordSeparator}`))
@@ -342,7 +339,7 @@ function b64_to_utf8 (str) {
 }
 
 function getVersion (callback) {
-  var xmlhttp = new XMLHttpRequest()
+  let xmlhttp = new XMLHttpRequest()
   xmlhttp.open('GET', '../manifest.json')
   xmlhttp.onload = function (e) {
     var manifest = JSON.parse(xmlhttp.responseText)
@@ -352,12 +349,12 @@ function getVersion (callback) {
 }
 
 function uploadWarc (abArray) {
-  var blobFromArrayBuffers = new Blob(abArray)
+  const blobFromArrayBuffers = new Blob(abArray)
   console.log('Uploading WARC to ' + localStorage['uploadTo'])
 
-  var ajaxRequest = new XMLHttpRequest()
+  let ajaxRequest = new XMLHttpRequest()
 
-  var progressObj = {
+  let progressObj = {
     type: 'progress',
     title: 'WARC Uploading',
     message: ajaxRequest.responseText,
@@ -393,8 +390,10 @@ function uploadWarc (abArray) {
   }
   ajaxRequest.send(blobFromArrayBuffers)
 }
-var warcfileURI = '' // The Chrome notifications API isn't mature enough to surface data, even via buttons
 
+// Legit scoped vars (i.e., do not let/const) due to inter-function/file usage
+// TODO: Either manually hoist or express this more methodically
+var warcfileURI = '' // The Chrome notifications API isn't mature enough to surface data, even via buttons
 var version
 getVersion(function (ver) { version = ver })
 
