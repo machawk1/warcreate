@@ -92,7 +92,7 @@ function doGenerateWarc () {
  * Sets up the popup activated when the extensions's icon is clicked.
  */
 window.onload = function () {
-  var background = chrome.extension.getBackgroundPage()
+  // var background = chrome.extension.getBackgroundPage()
 
   let buttonContainer = document.getElementById('buttonContainer')
 
@@ -160,7 +160,7 @@ window.onload = function () {
 // Listen for any changes to the URL of any tab.
 chrome.tabs.onUpdated.addListener(checkForValidUrl)
 
-let headers = ''
+// let headers = ''
 
 /**
  * address #79 by keeping track per URL what headers we have already concatenated
@@ -263,4 +263,3 @@ chrome.webRequest.onBeforeRedirect.addListener(function (resp) {
  */
 chrome.webRequest.onResponseStarted.addListener(
   function (details) {}, {urls: ['http://*/*', 'https://*/*']}, ['responseHeaders'])
-

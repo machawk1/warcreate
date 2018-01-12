@@ -1,7 +1,7 @@
 // Saves options to localStorage.
 function saveOptions () {
-  const handling
-  window.localStorage['handlingMethod'] = handling
+  // const handling
+  // window.localStorage['handlingMethod'] = handling
 
   if (document.getElementById('addCollectionMetadataCheckbox').checked) {
     window.localStorage['collectionId'] = $('#collectionId').val()

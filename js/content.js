@@ -1,22 +1,5 @@
 var outlinks = []
 
-function fetchImage (u) {
-  let xhr = new XMLHttpRequest()
-  xhr.open('GET', u, true)
-  xhr.responseType = 'arraybuffer'
-
-  xhr.onload = function (e) {
-    const uInt8Array = new Uint8Array(this.response)
-    delete imageUris[u]
-    // console.log(("Fetched "+u+"  "+Object.keys(imageUris).length+" urls left to fetch")
-    if (Object.keys(imageUris).length === 0) {
-      // console.log(("All image data collected");
-    }
-  }
-
-  xhr.send()
-}
-
 /**
  * Exact functionality of the fetchImage method except returns a promise that calls the resolve
  * function after the image data has been set in local storage.
