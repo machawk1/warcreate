@@ -35,4 +35,4 @@ WARCreate is a project of the <a href="http://ws-dl.cs.odu.edu">Web Science and 
 For support e-mail warcreate@matkelly.com or tweet to us at <a href="https://twitter.com/machawk1">@machawk1</a> and/or <a href="https://twitter.com/WebSciDL">@WebSciDL</a>.
 
 ## License ##
-GPLv3
+MIT
