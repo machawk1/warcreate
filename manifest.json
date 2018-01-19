@@ -39,7 +39,9 @@
 	 "*://*/*",
      "notifications"
   ],
-  "options_page": "html/options.html",
+  "options_ui": {
+    "page": "html/options.html"
+  },
   "short_name" : "WARCreate",
   
   "content_security_policy": "script-src 'self'; object-src 'self'",
