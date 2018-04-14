@@ -171,6 +171,8 @@ chrome.extension.onConnect.addListener(function (port) {
           continue
         }
 
+        console.log('need to fetch ' + images[i].src)
+
         // let canvas = document.createElement('canvas')
         // canvas.width = anImage.width
         // canvas.height = anImage.height

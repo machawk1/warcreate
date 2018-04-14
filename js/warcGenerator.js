@@ -162,12 +162,13 @@ function asynchronouslyFetchImageData (rh, now, warcConcurrentTo, arrayBuffers, 
     } else {
       // if we don't have the image data in localstorage, remove it anyway
       console.error('We do not have ' + rh + '\'s data in cache.')
-      delete responsesToConcatenate[rh]
+      // delete responsesToConcatenate[rh]
     }
 
     if (Object.keys(responsesToConcatenate).length === 0) {
       if (!localStorage['uploadTo'] || localStorage['uploadTo'].length === 0) {
-        saveAs(new Blob(arrayBuffers), fileName)
+        // saveAs(new Blob(arrayBuffers), fileName)
+        writeTheWARCToDisk(arrayBuffers, fileName)
       } else {
         uploadWarc(arrayBuffers)
       }
@@ -184,7 +185,7 @@ function generateWarc (oRequest, oSender, fCallback) {
     return
   }
   console.log('Executing generateWARC() with...')
-  console.log(console.log(oRequest))
+  console.log(oRequest)
   let now = new Date().toISOString()
   now = now.substr(0, now.indexOf('.')) + 'Z'
 
@@ -218,7 +219,7 @@ function generateWarc (oRequest, oSender, fCallback) {
     let parts = href.split(' ')
     parts[0] = (new window.URL(parts[0])).href
     href = parts.join(' ')
-    console.log(href)
+    // console.log(href)
 
     outlinkStr += `outlink: ${href}${WARCEntryCreator.CRLF}`
   }
@@ -314,13 +315,34 @@ function generateWarc (oRequest, oSender, fCallback) {
     }
   }
 
+  console.log('writing warc now')
+  console.log(arrayBuffers)
+
+  writeTheWARCToDisk(arrayBuffers, fileName)
+
+  /*
   if (Object.keys(responsesToConcatenate).length === 0) {
     saveAs(new Blob(arrayBuffers), fileName)
   } else {
     console.log(document.getElementById('generateWarc'))
     console.log(document)
-    console.log('Still have to process URIs:' + Object.keys(responsesToConcatenate).join(' '))
+    const urisTODO = Object.keys(responsesToConcatenate)
+    console.log('Still have to process ' + urisTODO.length + ' URIs:\n* ' + urisTODO.join('\n* '))
   }
+  */
+}
+
+function writeTheWARCToDisk (contents, fileName) {
+  // saveAs(new Blob(arrayBuffers), fileName)
+  const fileStream = streamSaver.createWriteStream('test.txt')
+  // console.log(fileStream)
+  const writer = fileStream.getWriter()
+  const encoder = new TextEncoder
+  let data = 'a'.repeat(1024)
+  let uint8array = encoder.encode(data + '\n\n')
+  console.log('DONEZO')
+  writer.write(uint8array)
+  writer.close()
 }
 
 /* ************************************************************

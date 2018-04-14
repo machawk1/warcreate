@@ -9,7 +9,12 @@
 
 // Called when the url of a tab changes.
 function checkForValidUrl (tabId, changeInfo, tab) {
-  chrome.pageAction.show(tabId)
+  if (chrome.runtime.lastError) {
+    console.log(chrome.runtime.lastError.message)
+  } else {
+    console.log('tab exists')
+    //chrome.pageAction.show(tabId)
+  }
 }
 
 /**
@@ -59,10 +64,12 @@ function doGenerateWarc () {
   // addProgressBar()
 
   chrome.tabs.executeScript(null, {file: 'js/date.js'}, function () { /* Good date formatting library */
-    chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tab) {
+    chrome.tabs.query({active: true, lastFocusedWindow: true}, function (tabs) {
+      const tab = tabs[0]
+      console.log(tab)
       // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
-      let port = chrome.tabs.connect(tab[0].id, {name: 'warcreate'}) // create a persistent connection
-      port.postMessage({url: tab[0].url, method: 'getHTML'}) // fetch the html of the page, in content.js
+      let port = chrome.tabs.connect(tab.id, {name: 'warcreate'}) // create a persistent connection
+      port.postMessage({url: tab.url, method: 'getHTML'}) // fetch the html of the page, in content.js
 
       // Perform the first listener, populate the binary image data
       port.onMessage.addListener(function (msg) { // get image base64 data
@@ -73,7 +80,7 @@ function doGenerateWarc () {
           fileName = moment().format(localStorage['filenameScheme']) + '.warc'
         }
         let requestToBeSent = {
-          url: tab[0].url,
+          url: tab.url,
           method: 'generateWarc',
           docHtml: msg.html,
           file: fileName,
@@ -109,6 +116,7 @@ window.onload = function () {
   // var t
 
   caButtonDOM.value = 'Generate WARC for site'
+  caButtonDOM.style.display = 'none'
 
   // create buttons for popup
   let gwButtonDOM = document.createElement('input')
@@ -119,6 +127,7 @@ window.onload = function () {
   clsButtonDOM.type = 'button'
   clsButtonDOM.id = 'clearLocalStorage'
   clsButtonDOM.value = 'Clear LocalStorage'
+  clsButtonDOM.style.display = 'none'
 
   // For debugging, display content already captured
   // var dcButtonDOM = document.createElement('input'); dcButtonDOM.type = "button"; dcButtonDOM.id = "displayCaptured"; gwButtonDOM.value = "Show pending content"
@@ -139,8 +148,9 @@ window.onload = function () {
 
   buttonContainer.appendChild(clsButtonDOM)
   buttonContainer.appendChild(status)
-  $(buttonContainer).prepend(errorText)
-  $('#status').css('display', 'none') // initially hide the status block
+  buttonContainer.prepend(errorText) // Recently changed from jquery
+  // Initially hide the status block
+  document.querySelector('#status').style.display = 'none'
 
   let gwButton = document.getElementById('generateWarc')
   gwButton.onclick = doGenerateWarc
@@ -149,12 +159,12 @@ window.onload = function () {
 
   // future implementation for NEH HD-51670-13
   // https://securegrants.neh.gov/publicquery/main.aspx?f=1&gn=HD-51670-13
-  let ulButton = document.getElementById('uploader')
+  // let ulButton = document.getElementById('uploader')
   let caButton = document.getElementById('generateCohesiveWARC')
-  $(ulButton).css('display', 'none')
-  $(caButton).css('display', 'none')
+  // ulButton.style.display = 'none'
+  caButton.style.display = 'none'
+  clsButton.style.display = 'none' // Clear local storage, used in debugging
 
-  $(clsButton).css('display', 'none') // clear local storage, used in debugging
   caButton.onclick = sequentialGenerateWarc
 }
 // Listen for any changes to the URL of any tab.
@@ -173,7 +183,8 @@ let CRLF = '\r\n'
 
 let currentTabId = -1
 
-chrome.tabs.getSelected(null, function (tab) {
+chrome.tabs.query({active: true}, function (tabs) {
+  let tab = tabs[0]
   chrome.storage.local.set({'lastTabId': tab.id})
 
   chrome.storage.local.get('lastTabId', function (result) {
@@ -181,6 +192,7 @@ chrome.tabs.getSelected(null, function (tab) {
     // $("body").append(tab.url)
   })
 
+  console.log(tab)
   let port = chrome.tabs.connect(tab.id, {name: 'getImageData'}) // create a persistent connection
   port.postMessage({url: tab.url, method: 'getImageData'})
   // port.onMessage.addListener(function (msg) {})

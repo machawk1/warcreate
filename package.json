@@ -44,8 +44,7 @@
       "js/downloadify/*",
       "js/es6-shim.js",
       "js/filler.min.js",
-      "js/FileSaver/*",
-      "js/FileSaver.js",
+      "js/StreamSaver.js",
       "js/jquery.ocupload-1.1.2.packed.js",
       "js/jquery.rc4.js",
       "js/upclick-min.js",
@@ -70,5 +69,8 @@
       "moment",
       "getallBgimages"
     ]
+  },
+  "dependencies": {
+    "streamsaver": "^1.0.1"
   }
 }

@@ -38,13 +38,9 @@ function convertImagesToBase64 () {
     console.log(i + ': ' + images[i].src + '  file type: ' + fileType)
 
     try {
-      const base64 = canvas.toDataURL(fileType)
-      // alert(base64)
+      img.src = canvas.toDataURL(fileType) // base64
 
-      img.src = base64
-
-      // alert(base64)
-      // img.src = base64;//"https://www.google.com/intl/en_com/images/srpr/logo3w.png"
+      // img.src = base64; //"https://www.google.com/intl/en_com/images/srpr/logo3w.png"
 
       // chrome.extension.sendRequest({url: img.src})
       // chrome.extension.getBackgroundPage().adjustImage(img.src)
