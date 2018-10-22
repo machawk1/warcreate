@@ -139,7 +139,7 @@ function asynchronouslyFetchImageData (rh, now, warcConcurrentTo, arrayBuffers, 
       let hexValueInt8Ary = new Int8Array(hexValueArrayBuffer)
       let ixx = 0
       let index = 0
-      // var sstr = ''
+
       for (; index < byteCount; index++) {
         hexValueInt8Ary.set([result[rh][index]], ixx)
         ixx++
@@ -169,7 +169,10 @@ function asynchronouslyFetchImageData (rh, now, warcConcurrentTo, arrayBuffers, 
         uploadWarc(arrayBuffers)
       }
     } else {
-      console.log(('Still have to process URIs:'+Object.keys(responsesToConcatenate).join(' ')))
+      const urisToGo = Object.keys(responsesToConcatenate)
+
+      console.log(`Still have to fetch ${urisToGo.length} URIs: `)
+      console.log(Object.keys(responsesToConcatenate))
     }
   })
 }
