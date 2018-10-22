@@ -179,7 +179,7 @@ function generateWarc (oRequest, oSender, fCallback) {
     return
   }
   console.log('Executing generateWARC() with...')
-  console.log(console.log(oRequest))
+  console.log(oRequest)
   let now = new Date().toISOString()
   now = now.substr(0, now.indexOf('.')) + 'Z'
 
@@ -245,9 +245,6 @@ function generateWarc (oRequest, oSender, fCallback) {
   const jsURIs = oRequest.js.uris
   const jsData = oRequest.js.data
 
-  console.log(oRequest)
-
-  // var seedURL = true
   let responsesToConcatenate = []
 
   for (let requestHeader in requestHeaders) {
@@ -258,15 +255,18 @@ function generateWarc (oRequest, oSender, fCallback) {
     const requestHeaderString = `${rhsTemp}${WARCEntryCreator.CRLF}`
     arrayBuffers.push(str2ab(requestHeaderString))
 
-    if (
-      responseHeaders[requestHeader] &&
+    const todoFetchImage = responseHeaders[requestHeader] &&
       helperREs.imgregexp.exec(responseHeaders[requestHeader]) !== null &&
-      responseHeaders[requestHeader].indexOf('icon') === -1) {
+      responseHeaders[requestHeader].indexOf('icon') === -1
+    const todoFetchCSS = responseHeaders[requestHeader] &&
+      helperREs.cssregexp.exec(responseHeaders[requestHeader]) !== null
+    const todoFetchJS = responseHeaders[requestHeader] &&
+      helperREs.jsregexp.exec(responseHeaders[requestHeader]) !== null
+
+    if (todoFetchImage) {
       responsesToConcatenate[requestHeader] = 'pending'
       asynchronouslyFetchImageData(requestHeader, now, warcConcurrentTo, arrayBuffers, responsesToConcatenate, fileName)
-    } else if (
-      responseHeaders[requestHeader] &&
-      helperREs.cssregexp.exec(responseHeaders[requestHeader]) !== null) {
+    } else if (todoFetchCSS) {
       if (!cssURIs) {
         break
       }
@@ -288,7 +288,7 @@ function generateWarc (oRequest, oSender, fCallback) {
 
       arrayBuffers.push(str2ab(`${respHeader}${respContent}${WARCEntryCreator.warcRecordSeparator}`))
       delete responsesToConcatenate[requestHeader]
-    } else if (responseHeaders[requestHeader] && helperREs.jsregexp.exec(responseHeaders[requestHeader]) !== null) {
+    } else if (todoFetchJS) {
       const jsRespHeader = `${responseHeaders[requestHeader]}${WARCEntryCreator.warcRecordSeparator}`
       let jsRespContent
       let jsIdx = 0
@@ -311,9 +311,9 @@ function generateWarc (oRequest, oSender, fCallback) {
   if (Object.keys(responsesToConcatenate).length === 0) {
     saveAs(new Blob(arrayBuffers), fileName)
   } else {
-    console.log(document.getElementById('generateWarc'))
-    console.log(document)
-    console.log('Still have to process URIs:' + Object.keys(responsesToConcatenate).join(' '))
+    const urisToGo = Object.keys(responsesToConcatenate)
+    console.log(`Still have to process ${urisToGo.length} URIs: `)
+    console.log(urisToGo)
   }
 }
 
