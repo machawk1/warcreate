@@ -75,7 +75,6 @@ let WARCEntryCreator = {
     if (httpHeader === '') {
       httpHeader = resp
     }
-    // var countCorrect = httpHeader.match(/\r\n/g).length // Number of lines in xx below
     let contentLength = lengthInUtf8Bytes(resp)
     if (additionalContentLength) {
       contentLength += additionalContentLength
@@ -134,9 +133,7 @@ function asynchronouslyFetchImageData (rh, now, warcConcurrentTo, arrayBuffers, 
     const rawImageDataAsBytes = result[rh]
 
     if (rawImageDataAsBytes) { // we have the data in chrome.storage.local
-      // var imgRawString = ''
       const byteCount = result[rh].length
-      // var imagesAsObjectsFromJSON = rawImageDataAsBytes // redundant of above but testing
 
       const hexValueArrayBuffer = new ArrayBuffer(byteCount)
       let hexValueInt8Ary = new Int8Array(hexValueArrayBuffer)
@@ -172,12 +169,10 @@ function asynchronouslyFetchImageData (rh, now, warcConcurrentTo, arrayBuffers, 
         uploadWarc(arrayBuffers)
       }
     } else {
-      // console.log(('Still have to process URIs:'+Object.keys(responsesToConcatenate).join(' '))
+      console.log(('Still have to process URIs:'+Object.keys(responsesToConcatenate).join(' ')))
     }
   })
 }
-
-/* ************** END FEROSS-STANDARD STYLE CONFORMITY HELPERS **************  */
 
 function generateWarc (oRequest, oSender, fCallback) {
   if (oRequest.method !== 'generateWarc') {
@@ -218,7 +213,6 @@ function generateWarc (oRequest, oSender, fCallback) {
     let parts = href.split(' ')
     parts[0] = (new window.URL(parts[0])).href
     href = parts.join(' ')
-    console.log(href)
 
     outlinkStr += `outlink: ${href}${WARCEntryCreator.CRLF}`
   }

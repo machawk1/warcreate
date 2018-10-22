@@ -92,75 +92,32 @@ function doGenerateWarc () {
  * Sets up the popup activated when the extensions's icon is clicked.
  */
 window.onload = function () {
-  // var background = chrome.extension.getBackgroundPage()
-
-  let buttonContainer = document.getElementById('buttonContainer')
-
-  // var sButton = document.getElementById('submit')
-  // var acButton = document.getElementById('alertContent')
-  // var encryptButton = document.getElementById('encrypt')
-  // var encodeButton = document.getElementById('encodeImages')
-
-  // if a website is recognized from the spec, show the "Cohesive archive"
-  let caButtonDOM = document.createElement('input')
-  caButtonDOM.type = 'button'
-  caButtonDOM.id = 'generateCohesiveWARC'
-  caButtonDOM.disabled = 'disabled'
-  // var t
-
-  caButtonDOM.value = 'Generate WARC for site'
-
-  // create buttons for popup
+  // Create button(s) for popup
   let gwButtonDOM = document.createElement('input')
   gwButtonDOM.type = 'button'
   gwButtonDOM.id = 'generateWarc'
   gwButtonDOM.value = 'Generate WARC'
-  let clsButtonDOM = document.createElement('input')
-  clsButtonDOM.type = 'button'
-  clsButtonDOM.id = 'clearLocalStorage'
-  clsButtonDOM.value = 'Clear LocalStorage'
-
-  // For debugging, display content already captured
-  // var dcButtonDOM = document.createElement('input'); dcButtonDOM.type = "button"; dcButtonDOM.id = "displayCaptured"; gwButtonDOM.value = "Show pending content"
+  gwButtonDOM.onclick = doGenerateWarc
 
   let errorText = document.createElement('a')
   errorText.id = 'errorText'
   errorText.target = '_blank'
+
   let status = document.createElement('input')
   status.id = 'status'
   status.type = 'text'
   status.value = ''
+  status.style.display = 'none'
 
-  if (!buttonContainer) { return }
-
-  // add buttons to DOM
+  // Add UI elements to popup DOM
+  let buttonContainer = document.getElementById('buttonContainer')
   buttonContainer.appendChild(gwButtonDOM)
-  buttonContainer.appendChild(caButtonDOM)
-
-  buttonContainer.appendChild(clsButtonDOM)
   buttonContainer.appendChild(status)
-  $(buttonContainer).prepend(errorText)
-  $('#status').css('display', 'none') // initially hide the status block
-
-  let gwButton = document.getElementById('generateWarc')
-  gwButton.onclick = doGenerateWarc
-
-  let clsButton = document.getElementById('clearLocalStorage')
-
-  // future implementation for NEH HD-51670-13
-  // https://securegrants.neh.gov/publicquery/main.aspx?f=1&gn=HD-51670-13
-  let ulButton = document.getElementById('uploader')
-  let caButton = document.getElementById('generateCohesiveWARC')
-  $(ulButton).css('display', 'none')
-  $(caButton).css('display', 'none')
-
-  $(clsButton).css('display', 'none') // clear local storage, used in debugging
-  caButton.onclick = sequentialGenerateWarc
+  buttonContainer.appendChild(errorText)
 }
+
 // Listen for any changes to the URL of any tab.
 chrome.tabs.onUpdated.addListener(checkForValidUrl)
-
-// let headers = ''
 
 /**
  * address #79 by keeping track per URL what headers we have already concatenated
@@ -176,14 +133,8 @@ let currentTabId = -1
 chrome.tabs.getSelected(null, function (tab) {
   chrome.storage.local.set({'lastTabId': tab.id})
 
-  chrome.storage.local.get('lastTabId', function (result) {
-    // $("body").append("Tab IDY: "+result.lastTabId)
-    // $("body").append(tab.url)
-  })
-
   let port = chrome.tabs.connect(tab.id, {name: 'getImageData'}) // create a persistent connection
   port.postMessage({url: tab.url, method: 'getImageData'})
-  // port.onMessage.addListener(function (msg) {})
 })
 
 /**
@@ -216,8 +167,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(function (req) {
     requestHeadersTracking[req.url].clear()
   }
   requestHeaders[req.url] = `${req.method} ${path} HTTP/1.1${CRLF}`
-  // requestHeaders[req.url] += req.method + ' ' + path + ' ' + FABRICATED_httpVersion + CRLF
-  // console.log(("- Request headers received for "+req.url)
+
   for (let key in req.requestHeaders) {
     requestHeaders[req.url] += `${req.requestHeaders[key].name}: ${req.requestHeaders[key].value}${CRLF}`
     requestHeadersTracking[req.url].add(req.requestHeaders[key].name)
@@ -244,11 +194,9 @@ chrome.webRequest.onSendHeaders.addListener(function (req) {
 chrome.webRequest.onBeforeRedirect.addListener(function (resp) {
   responseHeaders[resp.url] += `${resp.statusLine}${CRLF}`
 
-  // console.log(("--------------Redirect Response Headers for "+resp.url+" --------------")
   for (let key in resp.responseHeaders) {
     responseHeaders[resp.url] += `${resp.responseHeaders[key].name}: ${resp.responseHeaders[key].value}${CRLF}`
   }
-// console.log((responseHeaders[resp.url])
 }, {urls: ['http://*/*', 'https://*/*'], tabId: currentTabId}, ['responseHeaders'])
 
 /* ************************************************************
