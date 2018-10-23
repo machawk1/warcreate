@@ -8,18 +8,25 @@ var outlinks = []
  */
 function fetchImagePromise (u, ret, imgObjs) {
   return new Promise(function (resolve, reject) {
+    console.group(u)
     let xhr = new XMLHttpRequest()
+    console.log('Fetching entity')
     xhr.open('GET', u, true)
     xhr.responseType = 'arraybuffer'
     xhr.onload = function (e) {
       const uInt8Array = new Uint8Array(this.response)
 
       let stringUInt8Array = []
+
+      console.log('Normalizing')
       for (let ii = 0; ii < uInt8Array.length; ii++) {
         stringUInt8Array[ii] = uInt8Array[ii] + 0
       }
+      console.log('Image data normalized')
 
       ret[u] = uInt8Array
+      console.log('Associating in JS')
+
       delete imgObjs[u]
 
       let imgBinData = {}
@@ -28,8 +35,12 @@ function fetchImagePromise (u, ret, imgObjs) {
         if (chrome.runtime.lastError) {
           console.error('Error in set data')
           console.error(chrome.runtime.lastError)
+          console.log('REJECTING image fetch promise')
+          console.groupEnd()
           reject(chrome.runtime.lastError)
         } else {
+          console.log('Resolving image fetch promise')
+          console.groupEnd()
           resolve()
         }
       })
@@ -106,9 +117,9 @@ chrome.extension.onConnect.addListener(function (port) {
       }
 
       let ret = {}
-
+      console.group('Asynchronous image fetch')
+      console.warn('ALL IMAGES ARE NOT REPRESENTED HERE! CSS ONES ARE MISSING')
       for (let uri in imgObjs) {
-        console.log('Fetching image at ' + uri)
         if (uri.indexOf('data:') === -1) {
           // Proceed only when the fetch resolves or rejects.
           try {
@@ -118,6 +129,7 @@ chrome.extension.onConnect.addListener(function (port) {
           }
         }
       }
+      console.groupEnd()
     } else if (msg.method === 'getHTML') {
       const images = document.images
 
@@ -224,9 +236,9 @@ chrome.extension.onConnect.addListener(function (port) {
       port.postMessage({
         // html: dtstr + document.all[0].outerHTML, //document.all is non-standard
         html: dtstr + domAsText, //   document.documentElement.outerHTML,
-        images: {'uris': imageURIs, 'data': imageBase64Data},
-        css: {'uris': styleSheetURLs, 'data': styleSheetData},
-        js: {'uris': JSURLs, 'data': JSData},
+        images: { 'uris': imageURIs, 'data': imageBase64Data },
+        css: { 'uris': styleSheetURLs, 'data': styleSheetData },
+        js: { 'uris': JSURLs, 'data': JSData },
         outlinks: outlinks,
         method: msg.method
       }) // communicate back to code.js ~130 with image data

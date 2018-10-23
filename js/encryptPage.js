@@ -7,7 +7,7 @@ function convertImagesToBase64 () {
     let img = new Image()
     img.src = images[i].src
 
-    chrome.extension.sendRequest({url: img.src}, function (response) {
+    chrome.extension.sendRequest({ url: img.src }, function (response) {
       console.log(response.farewell)
     })
 

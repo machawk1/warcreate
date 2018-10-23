@@ -17,6 +17,8 @@ function checkForValidUrl (tabId, changeInfo, tab) {
  * and all pages referenced in the hierarchy are captured
  *
  */
+
+/*
 function sequentialGenerateWarc () {
   let urls = []
   $(localStorage['spec']).find('url').each(function (index) {
@@ -42,6 +44,7 @@ function sequentialGenerateWarc () {
 
   generateWarcFromNextURL(urls[uu])
 }
+*/
 
 /* function addProgressBar () {
   let body = document.getElementsByTagName('body')[0]
@@ -58,11 +61,11 @@ function sequentialGenerateWarc () {
 function doGenerateWarc () {
   // addProgressBar()
 
-  chrome.tabs.executeScript(null, {file: 'js/date.js'}, function () { /* Good date formatting library */
-    chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tab) {
+  chrome.tabs.executeScript(null, { file: 'js/date.js' }, function () { /* Good date formatting library */
+    chrome.tabs.query({ 'active': true, 'lastFocusedWindow': true }, function (tab) {
       // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
-      let port = chrome.tabs.connect(tab[0].id, {name: 'warcreate'}) // create a persistent connection
-      port.postMessage({url: tab[0].url, method: 'getHTML'}) // fetch the html of the page, in content.js
+      let port = chrome.tabs.connect(tab[0].id, { name: 'warcreate' }) // create a persistent connection
+      port.postMessage({ url: tab[0].url, method: 'getHTML' }) // fetch the html of the page, in content.js
 
       // Perform the first listener, populate the binary image data
       port.onMessage.addListener(function (msg) { // get image base64 data
@@ -77,9 +80,9 @@ function doGenerateWarc () {
           method: 'generateWarc',
           docHtml: msg.html,
           file: fileName,
-          img: {uris: msg.uris, data: msg.data},
-          css: {uris: msg.css.uris, data: msg.css.data},
-          js: {uris: msg.js.uris, data: msg.js.data},
+          img: { uris: msg.uris, data: msg.data },
+          css: { uris: msg.css.uris, data: msg.css.data },
+          js: { uris: msg.js.uris, data: msg.js.data },
           outlinks: msg.outlinks
         }
         chrome.runtime.sendMessage(requestToBeSent) // Received in warcGenerator.js
@@ -131,10 +134,10 @@ let CRLF = '\r\n'
 let currentTabId = -1
 
 chrome.tabs.getSelected(null, function (tab) {
-  chrome.storage.local.set({'lastTabId': tab.id})
+  chrome.storage.local.set({ 'lastTabId': tab.id })
 
-  let port = chrome.tabs.connect(tab.id, {name: 'getImageData'}) // create a persistent connection
-  port.postMessage({url: tab.url, method: 'getImageData'})
+  let port = chrome.tabs.connect(tab.id, { name: 'getImageData' }) // create a persistent connection
+  port.postMessage({ url: tab.url, method: 'getImageData' })
 })
 
 /**
@@ -148,7 +151,7 @@ chrome.webRequest.onHeadersReceived.addListener(
       responseHeaders[resp.url] += `${resp.responseHeaders[key].name}: ${resp.responseHeaders[key].value}${CRLF}`
     }
   }
-  , {urls: ['http://*/*', 'https://*/*'], tabId: currentTabId}, ['responseHeaders', 'blocking'])
+  , { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['responseHeaders', 'blocking'])
 
 /**
  * Stores HTTP request headers into an object array with URI as key.
@@ -172,7 +175,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(function (req) {
     requestHeaders[req.url] += `${req.requestHeaders[key].name}: ${req.requestHeaders[key].value}${CRLF}`
     requestHeadersTracking[req.url].add(req.requestHeaders[key].name)
   }
-}, {urls: ['http://*/*', 'https://*/*'], tabId: currentTabId}, ['requestHeaders', 'blocking'])
+}, { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['requestHeaders', 'blocking'])
 
 /**
  * Stores HTTP request headers into an object array with URI as key.
@@ -185,7 +188,7 @@ chrome.webRequest.onSendHeaders.addListener(function (req) {
       requestHeadersTracking[req.url].add(req.requestHeaders[key].name)
     }
   }
-}, {urls: ['http://*/*', 'https://*/*'], tabId: currentTabId}, ['requestHeaders'])
+}, { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['requestHeaders'])
 
 /**
  * Captures information about redirects that otherwise would be transparent to
@@ -197,7 +200,7 @@ chrome.webRequest.onBeforeRedirect.addListener(function (resp) {
   for (let key in resp.responseHeaders) {
     responseHeaders[resp.url] += `${resp.responseHeaders[key].name}: ${resp.responseHeaders[key].value}${CRLF}`
   }
-}, {urls: ['http://*/*', 'https://*/*'], tabId: currentTabId}, ['responseHeaders'])
+}, { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['responseHeaders'])
 
 /* ************************************************************
 
@@ -210,4 +213,4 @@ chrome.webRequest.onBeforeRedirect.addListener(function (resp) {
  * this handler.
  */
 chrome.webRequest.onResponseStarted.addListener(
-  function (details) {}, {urls: ['http://*/*', 'https://*/*']}, ['responseHeaders'])
+  function (details) {}, { urls: ['http://*/*', 'https://*/*'] }, ['responseHeaders'])

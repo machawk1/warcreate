@@ -351,7 +351,7 @@ function uploadWarc (abArray) {
   progressObj.progress = 0
   chrome.notifications.create('id1', progressObj, function () {})
   chrome.notifications.onButtonClicked.addListener(function (id, buttonIndex) {
-    chrome.tabs.create({url: warcfileURI})
+    chrome.tabs.create({ url: warcfileURI })
   })
 
   function updateNotification (perc) {
@@ -367,7 +367,7 @@ function uploadWarc (abArray) {
       progressObj.message = ajaxRequest.responseText
       progressObj.iconUrl = '../icons/icon-check-128.png'
       progressObj.title = 'WARC Uploaded'
-      progressObj.buttons = [{title: 'View WARC file', iconUrl: '../icons/icon-viewing.png'}]
+      progressObj.buttons = [{ title: 'View WARC file', iconUrl: '../icons/icon-viewing.png' }]
       setTimeout(function () { updateNotification(100) }, 500)
       if (ajaxRequest.status === 201 && ajaxRequest.responseText.length > 0) {
         warcfileURI = ajaxRequest.responseText
