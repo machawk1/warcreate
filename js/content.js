@@ -56,35 +56,15 @@ function fetchImagePromise (u, ret, imgObjs) {
 }
 
 /**
- * Exact functionality of the fetchCssData method except returns a promise that calls the resolve
- * on done or error
+ * Returns a promise that fetches text (non-binary) data
  */
-function fetchCssDataPromise (href, styleSheetData) {
-  return new Promise(function (resolve, reject) {
-    $.ajax({
-      url: href,
-      dataType: 'text'
-    }).done(function (cssText) {
-      styleSheetData.push(cssText)
-      resolve()
-    }).error(function (jqXHR, textStatus, errorThrown) {
-      console.error('there was an error fetching css data content.js', textStatus, errorThrown)
-      resolve()
-    })
-  })
-}
-
-/**
- * Exact functionality of the fetchScriptData method except returns a promise that calls the resolve
- * on done or error
- */
-function fetchScriptDataPromise (src, JSData) {
+function fetchTextPromise (src, text) {
   return new Promise(function (resolve, reject) {
     $.ajax({
       url: src,
       dataType: 'text'
-    }).done(function (jsText) {
-      JSData.push(jsText)
+    }).done(function (retrievedText) {
+      text.push(retrievedText)
       resolve()
     }).error(function (jqXHR, textStatus, errorThrown) {
       console.error('there was an error fetching script data content.js', textStatus, errorThrown)
@@ -189,7 +169,7 @@ chrome.extension.onConnect.addListener(function (port) {
         // The execution of this function will "halt" until this function resolves or rejects.
         // WARCreate now iteratively fetches each css files data
         try {
-          await fetchCssDataPromise(document.styleSheets[ss].href, styleSheetData)
+          await fetchTextPromise(document.styleSheets[ss].href, styleSheetData)
         } catch (error) {
           console.error('there was an error fetching css data content.js', error)
         }
@@ -204,7 +184,7 @@ chrome.extension.onConnect.addListener(function (port) {
         // the execution of this function will "halt" until this function resolves or rejects.
         // WARCreate now iteratively fetches each js files data
         try {
-          await fetchScriptDataPromise(document.scripts[scriptI].src, JSData)
+          await fetchTextPromise(document.scripts[scriptI].src, JSData)
         } catch (error) {
           console.error('there was an error fetching js data content.js', error)
         }
