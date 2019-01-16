@@ -14,7 +14,7 @@
     "browser",
     "extension"
   ],
-  "license": "GPL-3.0",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git://github.com/machawk1/warcreate.git"
