@@ -189,7 +189,7 @@ function generateWarc (oRequest, oSender, fCallback) {
   const fileName = oRequest.file
   const initURI = oRequest.url
 
-  let warcInfoDescription = 'Crawl initiated from the WARCreate Google Chrome extension'
+  let warcInfoDescription = 'Captured by the WARCreate Google Chrome extension'
   let isPartOf = 'basic'
   if (localStorage.getItem('collectionId') || localStorage.getItem('collectionName')) {
     warcInfoDescription = `collectionId=${localStorage.getItem('collectionId')}, collectionName="${localStorage.getItem('collectionName')}"`
