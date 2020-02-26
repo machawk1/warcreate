@@ -2,9 +2,9 @@
   "name": "WARCreate",
   "description": "Create WARC files from any webpage",
   "author": {
-    "email": "mkelly@cs.odu.edu",
+    "email": "warcreate@matkelly.com",
     "name": "Mat Kelly",
-    "url": "http://www.cs.odu.edu/~mkelly/"
+    "url": "https://matkelly.com"
   },
   "keywords": [
     "archive",
