@@ -26,8 +26,25 @@ The original idea and prototype was [published](http://dl.acm.org/citation.cfm?i
 
 The latest stable binary can be [downloaded from the Chrome Web Store](https://chrome.google.com/webstore/detail/warcreate/kenncghfghgolcbmckhiljgaabnpcaaa?hl=en&gl=US).
 
-## Sample Usage ##
-(TODO)
+### Citing Project
+
+A publication related to this project appeared in the proceedings of JCDL 2012 ([Read the PDF](https://matkelly.com/papers/2012_jcdl_warcreate.pdf)). Please cite it as below:
+
+> Mat Kelly and Michele C. Weigle. __WARCreate - Create Wayback-Consumable WARC Files from Any Webpage__. In _Proceedings of the ACM/IEEE Joint Conference on Digital Libraries (JCDL)_, pages 437–438, Washington, DC, June 2012.
+
+```latex
+@INPROCEEDINGS{ipwb-tpdl2016,
+  AUTHOR    = {Mat Kelly and
+               Michele C. Weigle},
+  TITLE     = {{WARCreate} - Create Wayback-Consumable WARC Files from Any Webpage},
+  BOOKTITLE = {Proceedings of the ACM/IEEE Joint Conference on Digital Libraries (JCDL)},
+  PAGES     = {437--438},
+  MONTH     = {June},
+  YEAR      = {2012},
+  ADDRESS   = {Washington, DC},
+  DOI       = {10.1145/2232817.2232930}
+}
+```
 
 ## Contact ##
 WARCreate is a project of the <a href="http://ws-dl.cs.odu.edu">Web Science and Digital Libraries (WS-DL) research group at Old Dominion University (ODU)</a>, created by Mat Kelly.
