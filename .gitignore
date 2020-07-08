@@ -8,3 +8,4 @@ node_modules/*
 !.codeclimate.yml
 !.jshintrc
 !.travis.yml
+!.github
