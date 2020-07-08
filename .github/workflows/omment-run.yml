@@ -1,0 +1,26 @@
+name: "Comment Run"
+
+on:
+  issue_comment:
+    types:
+      - created
+      - edited
+
+jobs:
+  comment-run:
+    if: contains(github.event.comment.body, '@github-actions run')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code (Deep)
+      uses: actions/checkout@master
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@master
+    - name: Install warcio
+      run: pip install warcio
+    - name: Execute Code in Comment
+      uses: ibnesayeed/actions-comment-run@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        allowed-associations: '["OWNER", "MEMBER", "COLLABORATOR", "CONTRIBUTOR"]'
