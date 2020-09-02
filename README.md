@@ -32,7 +32,7 @@ A publication related to this project appeared in the proceedings of JCDL 2012 (
 
 > Mat Kelly and Michele C. Weigle. __WARCreate - Create Wayback-Consumable WARC Files from Any Webpage__. In _Proceedings of the ACM/IEEE Joint Conference on Digital Libraries (JCDL)_, pages 437–438, Washington, DC, June 2012.
 
-```latex
+```bib
 @INPROCEEDINGS{ipwb-tpdl2016,
   AUTHOR    = {Mat Kelly and
                Michele C. Weigle},
