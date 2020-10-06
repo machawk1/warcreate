@@ -155,8 +155,7 @@ chrome.extension.onConnect.addListener(function (port) {
 
       let imageURIs = []
       let imageBase64Data = []
-      let imageURIsSerialized = imageURIs.join('|||')
-      localStorage['imagesInDOM'] = imageURIsSerialized
+      localStorage['imagesInDOM'] = imageURIs.join('|||')
 
       // Re-fetch CSS (limitation of webRequest, need to be able to get content on response, functionality unavailable,
       // requires refetch). A better way to get all stylesheets but we cannot get them as text but instead an object
