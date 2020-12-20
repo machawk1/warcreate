@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "WARCreate",
   "version": "0.2019.1.19",
   "version_name": "0.2019.1.19 build 612",
@@ -11,7 +11,7 @@
     "128" : "icons/icon-128.png"
   },
   "background": {
-	"page":"html/background.html"
+	"service_worker": "code.js"
    },
   "homepage_url": "http://warcreate.com",
   
@@ -21,7 +21,7 @@
 		"js": ["js/jquery-2.1.1.min.js","js/content.js"]
 	}
    ],
-  "page_action" :
+  "action" :
   {
     "default_icon" : "icons/icon-19.png",
     "default_title" : "WARCreate",
@@ -29,21 +29,25 @@
   },
   "permissions" : [
 	 "webRequest",
-	 "webRequestBlocking",
+	 // "webRequestBlocking",
      "tabs", 
      "activeTab",
      "storage",
      "unlimitedStorage",
-	 "http://*/*",
-	 "http://*/",
-	 "*://*/*",
      "notifications"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "http://*/",
+    "*://*/*"
   ],
   "options_ui": {
     "page": "html/options.html"
   },
   "short_name" : "WARCreate",
   
-  "content_security_policy": "script-src 'self'; object-src 'self'",
-  "minimum_chrome_version": "23.0"
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "minimum_chrome_version": "87"
 }
