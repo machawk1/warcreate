@@ -9,7 +9,7 @@
 
 // Called when the url of a tab changes.
 function checkForValidUrl (tabId, changeInfo, tab) {
-  chrome.pageAction.show(tabId)
+  chrome.action.show(tabId)
 }
 
 /**
@@ -63,7 +63,6 @@ function doGenerateWarc () {
 
   chrome.tabs.executeScript(null, { file: 'js/date.js' }, function () { /* Good date formatting library */
     chrome.tabs.query({ 'active': true, 'lastFocusedWindow': true }, function (tab) {
-      // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
       let port = chrome.tabs.connect(tab[0].id, { name: 'warcreate' }) // create a persistent connection
       port.postMessage({ url: tab[0].url, method: 'getHTML' }) // fetch the html of the page, in content.js
 
