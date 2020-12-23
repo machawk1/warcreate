@@ -90,34 +90,6 @@ function doGenerateWarc () {
   })
 }
 
-/**
- * Sets up the popup activated when the extensions's icon is clicked.
- */
-window.onload = function () {
-  // Create button(s) for popup
-  let gwButtonDOM = document.createElement('input')
-  gwButtonDOM.type = 'button'
-  gwButtonDOM.id = 'generateWarc'
-  gwButtonDOM.value = 'Generate WARC'
-  gwButtonDOM.onclick = doGenerateWarc
-
-  let errorText = document.createElement('a')
-  errorText.id = 'errorText'
-  errorText.target = '_blank'
-
-  let status = document.createElement('input')
-  status.id = 'status'
-  status.type = 'text'
-  status.value = ''
-  status.style.display = 'none'
-
-  // Add UI elements to popup DOM
-  let buttonContainer = document.getElementById('buttonContainer')
-  buttonContainer.appendChild(gwButtonDOM)
-  buttonContainer.appendChild(status)
-  buttonContainer.appendChild(errorText)
-}
-
 // Listen for any changes to the URL of any tab.
 chrome.tabs.onUpdated.addListener(checkForValidUrl)
 

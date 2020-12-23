@@ -29,7 +29,6 @@
   },
   "permissions" : [
 	 "webRequest",
-	 // "webRequestBlocking",
      "tabs", 
      "activeTab",
      "storage",

@@ -14,7 +14,11 @@ button:hover {cursor:pointer;}
 <script src="../serviceWorker.js"></script>
 </head>
 <body>
-<div id="buttonContainer"></div>
+<div id="buttonContainer">
+    <input type="button" id="generateWarc" value="Generate WARC" onclick="doGenerateWarc()" />
+    <input type="text" id="status" value="" style="display: none;" />
+    <a id="errorText" target="_blank" />&nbsp;</a>
+</div>
 <p id="urlHeaderCount" style="display: none;"></p>
 </body>
 </html>
