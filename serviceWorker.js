@@ -104,12 +104,12 @@ let CRLF = '\r\n'
 
 let currentTabId = -1
 
-chrome.tabs.getSelected(null, function (tab) {
+chrome.tabs.query({ currentWindow: true, active: true }, (null, function (tab) {
   chrome.storage.local.set({ 'lastTabId': tab.id })
 
   let port = chrome.tabs.connect(tab.id, { name: 'getImageData' }) // create a persistent connection
   port.postMessage({ url: tab.url, method: 'getImageData' })
-})
+}))
 
 /**
  * Stores HTTP response headers into an object array with URI as key.
@@ -122,7 +122,7 @@ chrome.webRequest.onHeadersReceived.addListener(
       responseHeaders[resp.url] += `${resp.responseHeaders[key].name}: ${resp.responseHeaders[key].value}${CRLF}`
     }
   }
-  , { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['responseHeaders', 'blocking'])
+  , { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['responseHeaders'])
 
 /**
  * Stores HTTP request headers into an object array with URI as key.
@@ -146,7 +146,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(function (req) {
     requestHeaders[req.url] += `${req.requestHeaders[key].name}: ${req.requestHeaders[key].value}${CRLF}`
     requestHeadersTracking[req.url].add(req.requestHeaders[key].name)
   }
-}, { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['requestHeaders', 'blocking'])
+}, { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['requestHeaders'])
 
 /**
  * Stores HTTP request headers into an object array with URI as key.
