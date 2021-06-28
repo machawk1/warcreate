@@ -214,7 +214,12 @@ function generateWarc (oRequest, oSender, fCallback) {
     href = `${href.substr(0, 8)}${href.substr(8).replace(/\/\//g, '/')}` // replace double slashes outside of scheme
     // Sanitize ../'s
     let parts = href.split(' ')
-    parts[0] = (new window.URL(parts[0])).href
+    try {
+      parts[0] = (new window.URL(parts[0])).href
+    } catch(TypeError) {
+      // Path-only URI encountered, mitigate, see #128
+      parts[0] = `${window.location.origin}/${parts[0]}`
+    }
     href = parts.join(' ')
 
     outlinkStr += `outlink: ${href}${WARCEntryCreator.CRLF}`
