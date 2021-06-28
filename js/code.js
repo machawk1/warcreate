@@ -151,7 +151,7 @@ chrome.webRequest.onHeadersReceived.addListener(
       responseHeaders[resp.url] += `${resp.responseHeaders[key].name}: ${resp.responseHeaders[key].value}${CRLF}`
     }
   }
-  , { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['responseHeaders', 'blocking'])
+  , { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['responseHeaders'])
 
 /**
  * Stores HTTP request headers into an object array with URI as key.
@@ -175,7 +175,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(function (req) {
     requestHeaders[req.url] += `${req.requestHeaders[key].name}: ${req.requestHeaders[key].value}${CRLF}`
     requestHeadersTracking[req.url].add(req.requestHeaders[key].name)
   }
-}, { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['requestHeaders', 'blocking'])
+}, { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['requestHeaders'])
 
 /**
  * Stores HTTP request headers into an object array with URI as key.
