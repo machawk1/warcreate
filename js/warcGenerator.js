@@ -216,7 +216,7 @@ function generateWarc (oRequest, oSender, fCallback) {
     let parts = href.split(' ')
     try {
       parts[0] = (new window.URL(parts[0])).href
-    } catch(TypeError) {
+    } catch (TypeError) {
       // Path-only URI encountered, mitigate, see #128
       parts[0] = `${window.location.origin}/${parts[0]}`
     }
@@ -335,7 +335,7 @@ function getVersion (callback) {
   let xmlhttp = new XMLHttpRequest()
   xmlhttp.open('GET', '../manifest.json')
   xmlhttp.onload = function (e) {
-    var manifest = JSON.parse(xmlhttp.responseText)
+    const manifest = JSON.parse(xmlhttp.responseText)
     callback(manifest.version)
   }
   xmlhttp.send(null)
