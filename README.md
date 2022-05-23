@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://travis-ci.org/machawk1/warcreate"><img src="https://travis-ci.org/machawk1/warcreate.svg" alt="TravisCI build status" /></a>
   <a href="http://standardjs.com/"><img src="https://img.shields.io/badge/code%20style-standard-brightgreen.svg" /></a>
-  <br /><a href="https://chrome.google.com/webstore/detail/warcreate/kenncghfghgolcbmckhiljgaabnpcaaa?hl=en&gl=US"><img src="https://developer.chrome.com/webstore/images/ChromeWebStore_BadgeWBorder_v2_206x58.png"></a>
+  <br /><a href="https://chrome.google.com/webstore/detail/warcreate/kenncghfghgolcbmckhiljgaabnpcaaa?hl=en&gl=US" ><img src="/docs/chromestore.png" width="200" /></a>
 </p>
 
 WARCreate is a Google Chrome extension with an aim to be able to "Create [WARC](http://www.iso.org/iso/catalogue_detail.htm?csnumber=44717) files from any webpage".
