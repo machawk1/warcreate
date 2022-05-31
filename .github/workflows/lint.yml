@@ -12,4 +12,4 @@ jobs:
         with:
           node-version: 12.x
       - run: npm install standard
-      - run: npm run lint
+      - run: npm test
