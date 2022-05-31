@@ -1,4 +1,4 @@
-var outlinks = []
+let outlinks = []
 
 /**
  * Exact functionality of the fetchImage method except returns a promise that calls the resolve
@@ -9,14 +9,14 @@ var outlinks = []
 function fetchImagePromise (u, ret, imgObjs) {
   return new Promise(function (resolve, reject) {
     console.group(u)
-    let xhr = new XMLHttpRequest()
+    const xhr = new XMLHttpRequest()
     console.log('Fetching entity')
     xhr.open('GET', u, true)
     xhr.responseType = 'arraybuffer'
     xhr.onload = function (e) {
       const uInt8Array = new Uint8Array(this.response)
 
-      let stringUInt8Array = []
+      const stringUInt8Array = []
 
       console.log('Normalizing')
       for (let ii = 0; ii < uInt8Array.length; ii++) {
@@ -29,7 +29,7 @@ function fetchImagePromise (u, ret, imgObjs) {
 
       delete imgObjs[u]
 
-      let imgBinData = {}
+      const imgBinData = {}
       imgBinData[u] = stringUInt8Array
       chrome.storage.local.set(imgBinData, function () {
         if (chrome.runtime.lastError) {
@@ -83,7 +83,7 @@ chrome.extension.onConnect.addListener(function (port) {
    */
   port.onMessage.addListener(async function (msg) {
     if (msg.method === 'getImageData') {
-      let imgObjs = {}
+      const imgObjs = {}
       // Get the image URIs from the DOM
       for (let image = 0; image < document.images.length; image++) {
         if (document.images[image].src.indexOf('data:') === -1) {
@@ -91,15 +91,15 @@ chrome.extension.onConnect.addListener(function (port) {
         }
       }
       // Get the image URIs embedded in CSS
-      let imagesInCSS = this.getAllBackgroundImages() // From imageFromCSSExtractor.js
+      const imagesInCSS = this.getAllBackgroundImages() // From imageFromCSSExtractor.js
       for (let imageInCSS = 0; imageInCSS < imagesInCSS.length; imageInCSS++) {
         imgObjs[imagesInCSS[imageInCSS]] = 'foo' // dummy data to-be-filled below programmatically
       }
 
-      let ret = {}
+      const ret = {}
       console.group('Asynchronous image fetch')
       console.warn('ALL IMAGES ARE NOT REPRESENTED HERE! CSS ONES ARE MISSING')
-      for (let uri in imgObjs) {
+      for (const uri in imgObjs) {
         if (uri.indexOf('data:') === -1) {
           // Proceed only when the fetch resolves or rejects.
           try {
@@ -153,15 +153,15 @@ chrome.extension.onConnect.addListener(function (port) {
 
       outlinksAddedRegistry = null // reclaim space, since we no longer need this check given we're through building outlinks
 
-      let imageURIs = []
-      let imageBase64Data = []
-      localStorage['imagesInDOM'] = imageURIs.join('|||')
+      const imageURIs = []
+      const imageBase64Data = []
+      localStorage.imagesInDOM = imageURIs.join('|||')
 
       // Re-fetch CSS (limitation of webRequest, need to be able to get content on response, functionality unavailable,
       // requires refetch). A better way to get all stylesheets but we cannot get them as text but instead an object
       // with ruleslist
-      let styleSheetURLs = []
-      let styleSheetData = []
+      const styleSheetURLs = []
+      const styleSheetData = []
 
       for (let ss = 0; ss < document.styleSheets.length; ss++) {
         styleSheetURLs.push(document.styleSheets[ss].href)
@@ -175,8 +175,8 @@ chrome.extension.onConnect.addListener(function (port) {
       }
 
       // Re-fetch JS
-      let JSURLs = []
-      let JSData = []
+      const JSURLs = []
+      const JSData = []
 
       for (let scriptI = 0; scriptI < document.scripts.length; scriptI++) {
         JSURLs.push(document.scripts[scriptI].src)
@@ -190,7 +190,7 @@ chrome.extension.onConnect.addListener(function (port) {
       }
 
       // all of this nonsense just to get the doctype to prepend!
-      let node = document.doctype
+      const node = document.doctype
       let dtstr
       if (!node) { dtstr = '' } else {
         dtstr = '<!DOCTYPE ' +
@@ -215,9 +215,9 @@ chrome.extension.onConnect.addListener(function (port) {
       port.postMessage({
         // html: dtstr + document.all[0].outerHTML, //document.all is non-standard
         html: dtstr + domAsText, //   document.documentElement.outerHTML,
-        images: { 'uris': imageURIs, 'data': imageBase64Data },
-        css: { 'uris': styleSheetURLs, 'data': styleSheetData },
-        js: { 'uris': JSURLs, 'data': JSData },
+        images: { uris: imageURIs, data: imageBase64Data },
+        css: { uris: styleSheetURLs, data: styleSheetData },
+        js: { uris: JSURLs, data: JSData },
         outlinks: outlinks,
         method: msg.method
       }) // communicate back to code.js ~130 with image data
@@ -228,7 +228,7 @@ chrome.extension.onConnect.addListener(function (port) {
 
 this.getAllBackgroundImages = function () {
   let url
-  let B = []
+  const B = []
   let A = document.getElementsByTagName('*')
   A = B.slice.call(A, 0, A.length)
   while (A.length) {

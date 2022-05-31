@@ -4,15 +4,15 @@ function saveOptions () {
   // window.localStorage['handlingMethod'] = handling
 
   if (document.getElementById('addCollectionMetadataCheckbox').checked) {
-    window.localStorage['collectionId'] = $('#collectionId').val()
-    window.localStorage['collectionName'] = $('#collectionName').val()
+    window.localStorage.collectionId = $('#collectionId').val()
+    window.localStorage.collectionName = $('#collectionName').val()
   } else {
     window.localStorage.removeItem('collectionId')
     window.localStorage.removeItem('collectionName')
   }
 
   // Update status to let user know options were saved.
-  let status = $('#status')
+  const status = $('#status')
   status.html('Options Saved.')
   status.css('display', 'block')
   setTimeout(function () {
@@ -22,10 +22,10 @@ function saveOptions () {
 
 // Restores select box state to saved value from localStorage.
 function restoreOptions () {
-  if (localStorage['handlingMethod'] === 'save') {
+  if (localStorage.handlingMethod === 'save') {
     document.getElementById('output_save').checked = 'checked'
     document.getElementById('output_display').removeAttribute('checked')
-  } else if (localStorage['handlingMethod'] === 'display') {
+  } else if (localStorage.handlingMethod === 'display') {
     document.getElementById('output_save').removeAttribute('checked')
     document.getElementById('output_display').checked = 'checked'
   }
@@ -34,8 +34,8 @@ function restoreOptions () {
 
   if (localStorage.getItem('collectionId') || localStorage.getItem('collectionName')) {
     // console.log(("Restoring collection options!")
-    $('#collectionId').val(localStorage['collectionId'])
-    $('#collectionName').val(localStorage['collectionName'])
+    $('#collectionId').val(localStorage.collectionId)
+    $('#collectionName').val(localStorage.collectionName)
     $('#addCollectionMetadataCheckbox').attr('checked', 'checked')
   }
 
@@ -133,11 +133,11 @@ function setupButtonFunctionalityAndVisibility () {
       filenameScheme = $('#filenameScheme').val()
     }
 
-    window.localStorage['uploadTo'] = uploadToURI
-    window.localStorage['filenameScheme'] = filenameScheme
+    window.localStorage.uploadTo = uploadToURI
+    window.localStorage.filenameScheme = filenameScheme
 
-    window.localStorage['collectionId'] = $('#collectionId').val()
-    window.localStorage['collectionName'] = $('#collectionName').val()
+    window.localStorage.collectionId = $('#collectionId').val()
+    window.localStorage.collectionName = $('#collectionName').val()
 
     // TODO: give feedback that options have been saved
     saveOptions()
@@ -150,12 +150,12 @@ function fetchSocialStandardSpecification () {
   })
     .done(function (data) {
       // console.log(("Done fetching base spec!");
-      let specs = []
+      const specs = []
       for (let homepage = 0; homepage < $(data).children().children().children('homepage').length; homepage++) {
         // convert the XML spec to JS objects. This is ridiculously verbose. There has to be a cleaner way.
         const str = $(data).children().children()[homepage]
         const chiln = $(str).children()
-        let obj = {}
+        const obj = {}
         for (let ii = 0; ii < chiln.length; ii++) {
           obj[chiln[ii].tagName] = chiln[ii].textContent
         }
@@ -174,7 +174,7 @@ function fetchSocialStandardSpecification () {
             const specAsObj = jQuery.parseJSON(xml2json(data2, ''))
             const siteSections = specAsObj.socialMediaWebsite.sections.socialMediaWebsiteSection
             $('#sections').empty() // Kill the children (of the section list)
-            for (var sectionI = 0; sectionI < siteSections.length; sectionI++) {
+            for (let sectionI = 0; sectionI < siteSections.length; sectionI++) {
               // console.log((siteSections[sectionI].name + " " +siteSections[sectionI].url)
               $('#sections').append(`<li><span class="name">${siteSections[sectionI].name}</span><span class="url">${siteSections[sectionI].url}</span>`)
             }
@@ -191,10 +191,10 @@ function showFilenameExample () { // when the file format scheme changes, update
 }
 
 function populatePendingContentTable () {
-  let targetTable = $('#pendingContentTable')
+  const targetTable = $('#pendingContentTable')
   $('#pendingContentTable .data').remove()
   for (let key = 0; key < Object.keys(responseHeaders).length; key++) {
-    let k = Object.keys(responseHeaders)[key]
+    const k = Object.keys(responseHeaders)[key]
     let str = `<tr class="data"><td>${k}</td><td class='#req'>${requestHeaders[k].length}</td><td class='#res'>${responseHeaders[k].length}</td></tr>`
     targetTable.append(str)
     str = ''
@@ -210,17 +210,17 @@ window.onload = function () {
   setupButtonFunctionalityAndVisibility()
   $('#filenameScheme').on('keyup', showFilenameExample) // bind example display to text field change
 
-  if (localStorage['uploadTo'] && localStorage['uploadTo'].length > 0) {
+  if (localStorage.uploadTo && localStorage.uploadTo.length > 0) {
     $('#uploadTo').removeAttr('disabled')
     $('#postGeneration_upload').prop('checked', 'checked')
     $('#postGeneration_save').removeAttr('checked')
-    $('#uploadTo').val(localStorage['uploadTo'])
+    $('#uploadTo').val(localStorage.uploadTo)
 
     // hide/disable the "save to downloads" options if the user's current setting is "upload to"
     $('#filenameScheme').attr('disabled', 'disabled')
     $('#exampleFileName').hide()
-  } else if (localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0) {
-    $('#filenameScheme').val(localStorage['filenameScheme'])
+  } else if (localStorage.filenameScheme && localStorage.filenameScheme.length > 0) {
+    $('#filenameScheme').val(localStorage.filenameScheme)
   }
 
   $('#collectionId').on('input', function (event) { // require the collection id to only contain numbers

@@ -62,9 +62,9 @@ function doGenerateWarc () {
   // addProgressBar()
 
   chrome.tabs.executeScript(null, { file: 'js/date.js' }, function () { /* Good date formatting library */
-    chrome.tabs.query({ 'active': true, 'lastFocusedWindow': true }, function (tab) {
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (tab) {
       // chrome.pageAction.setIcon({path:"../icons/icon-running.png",tabId:tab.id})
-      let port = chrome.tabs.connect(tab[0].id, { name: 'warcreate' }) // create a persistent connection
+      const port = chrome.tabs.connect(tab[0].id, { name: 'warcreate' }) // create a persistent connection
       port.postMessage({ url: tab[0].url, method: 'getHTML' }) // fetch the html of the page, in content.js
 
       // Perform the first listener, populate the binary image data
@@ -72,10 +72,10 @@ function doGenerateWarc () {
         let fileName = (new Date().toISOString()).replace(/:|-|T|Z|\./g, '') + '.warc'
 
         // If the user has specified a custom filename format, apply it here
-        if (localStorage['filenameScheme'] && localStorage['filenameScheme'].length > 0) {
-          fileName = moment().format(localStorage['filenameScheme']) + '.warc'
+        if (localStorage.filenameScheme && localStorage.filenameScheme.length > 0) {
+          fileName = moment().format(localStorage.filenameScheme) + '.warc'
         }
-        let requestToBeSent = {
+        const requestToBeSent = {
           url: tab[0].url,
           method: 'generateWarc',
           docHtml: msg.html,
@@ -94,30 +94,33 @@ function doGenerateWarc () {
 /**
  * Sets up the popup activated when the extensions's icon is clicked.
  */
-window.onload = function () {
+document.addEventListener("DOMContentLoaded", () => {
+  if (chrome.extension.getBackgroundPage() === window) {
+    return // Do not attach DOM elements from background script
+  }
   // Create button(s) for popup
-  let gwButtonDOM = document.createElement('input')
+  const gwButtonDOM = document.createElement('input')
   gwButtonDOM.type = 'button'
   gwButtonDOM.id = 'generateWarc'
   gwButtonDOM.value = 'Generate WARC'
   gwButtonDOM.onclick = doGenerateWarc
 
-  let errorText = document.createElement('a')
+  const errorText = document.createElement('a')
   errorText.id = 'errorText'
   errorText.target = '_blank'
 
-  let status = document.createElement('input')
+  const status = document.createElement('input')
   status.id = 'status'
   status.type = 'text'
   status.value = ''
   status.style.display = 'none'
 
   // Add UI elements to popup DOM
-  let buttonContainer = document.getElementById('buttonContainer')
+  const buttonContainer = document.getElementById('buttonContainer')
   buttonContainer.appendChild(gwButtonDOM)
   buttonContainer.appendChild(status)
   buttonContainer.appendChild(errorText)
-}
+})
 
 // Listen for any changes to the URL of any tab.
 chrome.tabs.onUpdated.addListener(checkForValidUrl)
@@ -125,18 +128,18 @@ chrome.tabs.onUpdated.addListener(checkForValidUrl)
 /**
  * address #79 by keeping track per URL what headers we have already concatenated
  */
-let requestHeadersTracking = []
+const requestHeadersTracking = []
 
-let responseHeaders = []
-let requestHeaders = []
-let CRLF = '\r\n'
+const responseHeaders = []
+const requestHeaders = []
+const CRLF = '\r\n'
 
-let currentTabId = -1
+const currentTabId = -1
 
 chrome.tabs.getSelected(null, function (tab) {
-  chrome.storage.local.set({ 'lastTabId': tab.id })
+  chrome.storage.local.set({ lastTabId: tab.id })
 
-  let port = chrome.tabs.connect(tab.id, { name: 'getImageData' }) // create a persistent connection
+  const port = chrome.tabs.connect(tab.id, { name: 'getImageData' }) // create a persistent connection
   port.postMessage({ url: tab.url, method: 'getImageData' })
 })
 
@@ -147,7 +150,7 @@ chrome.webRequest.onHeadersReceived.addListener(
   function (resp) {
     responseHeaders[resp.url] = `${resp.statusLine}${CRLF}`
 
-    for (let key in resp.responseHeaders) {
+    for (const key in resp.responseHeaders) {
       responseHeaders[resp.url] += `${resp.responseHeaders[key].name}: ${resp.responseHeaders[key].value}${CRLF}`
     }
   }
@@ -161,7 +164,7 @@ chrome.webRequest.onHeadersReceived.addListener(
  * see https://developer.chrome.com/extensions/webRequest
  */
 chrome.webRequest.onBeforeSendHeaders.addListener(function (req) {
-  let path = req.url.substring(req.url.match(/[a-zA-Z0-9]\//).index + 1)
+  const path = req.url.substring(req.url.match(/[a-zA-Z0-9]\//).index + 1)
 
   // per #79 keep track of already concatenated headers for warc string
   if (requestHeadersTracking[req.url] === null || requestHeadersTracking[req.url] === undefined) {
@@ -171,7 +174,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(function (req) {
   }
   requestHeaders[req.url] = `${req.method} ${path} HTTP/1.1${CRLF}`
 
-  for (let key in req.requestHeaders) {
+  for (const key in req.requestHeaders) {
     requestHeaders[req.url] += `${req.requestHeaders[key].name}: ${req.requestHeaders[key].value}${CRLF}`
     requestHeadersTracking[req.url].add(req.requestHeaders[key].name)
   }
@@ -182,7 +185,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(function (req) {
  * fix for issue #79, see explanation in onBeforeSendHeaders and documentation for requestHeadersTracking
  */
 chrome.webRequest.onSendHeaders.addListener(function (req) {
-  for (let key in req.requestHeaders) {
+  for (const key in req.requestHeaders) {
     if (!requestHeadersTracking[req.url].has(req.requestHeaders[key].name)) {
       requestHeaders[req.url] += `${req.requestHeaders[key].name}: ${req.requestHeaders[key].value}${CRLF}`
       requestHeadersTracking[req.url].add(req.requestHeaders[key].name)
@@ -197,7 +200,7 @@ chrome.webRequest.onSendHeaders.addListener(function (req) {
 chrome.webRequest.onBeforeRedirect.addListener(function (resp) {
   responseHeaders[resp.url] += `${resp.statusLine}${CRLF}`
 
-  for (let key in resp.responseHeaders) {
+  for (const key in resp.responseHeaders) {
     responseHeaders[resp.url] += `${resp.responseHeaders[key].name}: ${resp.responseHeaders[key].value}${CRLF}`
   }
 }, { urls: ['http://*/*', 'https://*/*'], tabId: currentTabId }, ['responseHeaders'])

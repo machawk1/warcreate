@@ -10,7 +10,7 @@
 function str2ab (str) {
   const s = encodeUtf8(str)
   const buf = new ArrayBuffer(s.length) // 2 bytes for each char
-  let bufView = new Uint8Array(buf)
+  const bufView = new Uint8Array(buf)
   let i = 0
   const strLen = s.length
   for (; i < strLen; i++) {
@@ -37,7 +37,7 @@ function lengthInUtf8Bytes (str) {
 
 /* ************** BEGIN WARC CONTENT CREATOR UTILITY OBJECT **************  */
 
-let WARCEntryCreator = {
+const WARCEntryCreator = {
   CRLF: '\r\n',
   warcRecordSeparator: '\r\n\r\n',
   contentLengthRe: /Content-Length:.*\r\n/gi,
@@ -120,7 +120,7 @@ let WARCEntryCreator = {
 
 /* ************** BEGIN FEROSS-STANDARD STYLE CONFORMITY HELPERS **************  */
 
-let helperREs = {
+const helperREs = {
   jsregexp: new RegExp('content-type:[ ]*(text|application)/(javascript|js)', 'i'),
   imgregexp: new RegExp('content-type:[ ]*image/', 'i'),
   cssregexp: new RegExp('content-type:[ ]*text/(css|stylesheet)', 'i'),
@@ -136,7 +136,7 @@ function asynchronouslyFetchImageData (rh, now, warcConcurrentTo, arrayBuffers, 
       const byteCount = result[rh].length
 
       const hexValueArrayBuffer = new ArrayBuffer(byteCount)
-      let hexValueInt8Ary = new Int8Array(hexValueArrayBuffer)
+      const hexValueInt8Ary = new Int8Array(hexValueArrayBuffer)
       let ixx = 0
       let index = 0
 
@@ -163,7 +163,7 @@ function asynchronouslyFetchImageData (rh, now, warcConcurrentTo, arrayBuffers, 
     }
 
     if (Object.keys(responsesToConcatenate).length === 0) {
-      if (!localStorage['uploadTo'] || localStorage['uploadTo'].length === 0) {
+      if (!localStorage.uploadTo || localStorage.uploadTo.length === 0) {
         saveAs(new Blob(arrayBuffers), fileName)
       } else {
         uploadWarc(arrayBuffers)
@@ -203,7 +203,7 @@ function generateWarc (oRequest, oSender, fCallback) {
   const warcRequestHeader = WARCEntryCreator.makeWarcRequestHeaderWith(initURI, now, warcConcurrentTo, warcRequest)
   const outlinks = oRequest.outlinks
   let outlinkStr = ''
-  for (let outlink in outlinks) {
+  for (const outlink in outlinks) {
     let href = outlinks[outlink]
     if (href.indexOf('mailto:') > -1) {
       continue
@@ -213,7 +213,7 @@ function generateWarc (oRequest, oSender, fCallback) {
     }
     href = `${href.substr(0, 8)}${href.substr(8).replace(/\/\//g, '/')}` // replace double slashes outside of scheme
     // Sanitize ../'s
-    let parts = href.split(' ')
+    const parts = href.split(' ')
     try {
       parts[0] = (new window.URL(parts[0])).href
     } catch (TypeError) {
@@ -226,8 +226,8 @@ function generateWarc (oRequest, oSender, fCallback) {
   }
 
   // includes initial URI var warcMetadata = "outlink: "+ initURI + CRLF + outlinkStr
-  let warcMetadata = outlinkStr
-  let warcMetadataHeader = WARCEntryCreator.makeWarcMetadataHeader(initURI, now, warcMetadata.length)
+  const warcMetadata = outlinkStr
+  const warcMetadataHeader = WARCEntryCreator.makeWarcMetadataHeader(initURI, now, warcMetadata.length)
 
   responseHeaders[initURI] = WARCEntryCreator.touchUpInitURIHeaders(responseHeaders[initURI], oRequest.docHtml)
 
@@ -238,7 +238,7 @@ function generateWarc (oRequest, oSender, fCallback) {
     myArray = helperREs.whileMyArrayRe.exec(oRequest.headers)
   }
 
-  let arrayBuffers = [] // Load data in order in the arrayBuffers array then combine with the file blob to write out
+  const arrayBuffers = [] // Load data in order in the arrayBuffers array then combine with the file blob to write out
 
   arrayBuffers.push(str2ab(`${warcHeader}${WARCEntryCreator.CRLF}`))
   arrayBuffers.push(str2ab(`${warcHeaderContent}${WARCEntryCreator.warcRecordSeparator}`))
@@ -253,9 +253,9 @@ function generateWarc (oRequest, oSender, fCallback) {
   const jsURIs = oRequest.js.uris
   const jsData = oRequest.js.data
 
-  let responsesToConcatenate = []
+  const responsesToConcatenate = []
 
-  for (let requestHeader in requestHeaders) {
+  for (const requestHeader in requestHeaders) {
     if (requestHeader === initURI) {
       continue // the 'seed' will not have a body, we handle this above, skip
     }
@@ -332,7 +332,7 @@ function generateWarc (oRequest, oSender, fCallback) {
  ************************************************************ */
 
 function getVersion (callback) {
-  let xmlhttp = new XMLHttpRequest()
+  const xmlhttp = new XMLHttpRequest()
   xmlhttp.open('GET', '../manifest.json')
   xmlhttp.onload = function (e) {
     const manifest = JSON.parse(xmlhttp.responseText)
@@ -343,11 +343,11 @@ function getVersion (callback) {
 
 function uploadWarc (abArray) {
   const blobFromArrayBuffers = new Blob(abArray)
-  console.log('Uploading WARC to ' + localStorage['uploadTo'])
+  console.log('Uploading WARC to ' + localStorage.uploadTo)
 
-  let ajaxRequest = new XMLHttpRequest()
+  const ajaxRequest = new XMLHttpRequest()
 
-  let progressObj = {
+  const progressObj = {
     type: 'progress',
     title: 'WARC Uploading',
     message: ajaxRequest.responseText,
@@ -364,7 +364,7 @@ function uploadWarc (abArray) {
     chrome.notifications.update('id1', progressObj, function () {})
   }
 
-  ajaxRequest.open('POST', localStorage['uploadTo'], true)
+  ajaxRequest.open('POST', localStorage.uploadTo, true)
 
   ajaxRequest.onreadystatechange = function () {
     updateNotification(25 * ajaxRequest.readyState)
@@ -387,7 +387,7 @@ function uploadWarc (abArray) {
 // Legit scoped vars (i.e., do not let/const) due to inter-function/file usage
 // TODO: Either manually hoist or express this more methodically
 var warcfileURI = '' // The Chrome notifications API isn't mature enough to surface data, even via buttons
-var version
+let version
 getVersion(function (ver) { version = ver })
 
 /* ************************************************************
