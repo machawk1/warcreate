@@ -4,7 +4,7 @@
 function convertImagesToBase64 () {
   const images = document.getElementsByTagName('img')
   for (let i = 0; i < images.length; i++) {
-    let img = new Image()
+    const img = new Image()
     img.src = images[i].src
 
     chrome.extension.sendRequest({ url: img.src }, function (response) {
@@ -13,7 +13,7 @@ function convertImagesToBase64 () {
 
     // return
     // Create canvas tag to represent img
-    let canvas = document.createElement('canvas')
+    const canvas = document.createElement('canvas')
     canvas.width = img.width
     canvas.height = img.height
 
@@ -57,7 +57,7 @@ function convertImagesToBase64 () {
 // console.log(document.documentElement.innerHTML)
 }
 
-let scripts = document.getElementsByTagName('script')
+const scripts = document.getElementsByTagName('script')
 for (let s = 0; s < scripts.length; s++) {
   scripts[s].parentNode.removeChild(scripts[s])
 // console.log(scripts[s].parentNode.innerHTML)
