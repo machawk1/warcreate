@@ -24,15 +24,15 @@
     "lint": "standard --verbose | snazzy",
     "linting-errors-fix": "standard --fix"
   },
-  "devDependencies": {
-    "snazzy": "^7.0.0",
-    "standard": "^10.0.2"
-  },
   "eslintConfig": {
     "env": {
       "browser": true,
       "node": true
     }
+  },
+  "devDependencies": {
+    "snazzy": "^7.0.0",
+    "standard": "^16.0"
   },
   "standard": {
     "ignore": [
