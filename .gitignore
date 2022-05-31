@@ -7,5 +7,4 @@ node_modules/*
 !.gitignore
 !.codeclimate.yml
 !.jshintrc
-!.travis.yml
 !.github

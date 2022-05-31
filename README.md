@@ -3,7 +3,6 @@
  <p align="center" style="font-weight: normal;"><em>"Create <a href="http://www.iso.org/iso/catalogue_detail.htm?csnumber=44717">WARC</a> files from any webpage"</em></p>
 
 <p align="center">
-  <a href="https://travis-ci.org/machawk1/warcreate"><img src="https://travis-ci.org/machawk1/warcreate.svg" alt="TravisCI build status" /></a>
   <a href="http://standardjs.com/"><img src="https://img.shields.io/badge/code%20style-standard-brightgreen.svg" /></a>
   <br /><a href="https://chrome.google.com/webstore/detail/warcreate/kenncghfghgolcbmckhiljgaabnpcaaa?hl=en&gl=US" ><img src="/docs/chromestore.png" width="200" /></a>
 </p>
