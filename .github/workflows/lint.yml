@@ -1,0 +1,17 @@
+name: Lint
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  lint:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    name: JavaScript
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint JavaScript
+        run: |
+          npm install standard
+          node_modules/.bin/standard
