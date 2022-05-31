@@ -4,7 +4,6 @@ on:
   - pull_request
 jobs:
   lint:
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
     name: Lint JavaScript
     steps:
@@ -12,6 +11,5 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 12.x
-      - run: |
-          npm install standard
-          npm run lint
+      - run: npm install standard
+      - run: npm run lint
