@@ -94,7 +94,7 @@ function doGenerateWarc () {
 /**
  * Sets up the popup activated when the extensions's icon is clicked.
  */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
   if (chrome.extension.getBackgroundPage() === window) {
     return // Do not attach DOM elements from background script
   }

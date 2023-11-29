@@ -221,7 +221,6 @@ chrome.extension.onConnect.addListener(function (port) {
         outlinks: outlinks,
         method: msg.method
       }) // communicate back to code.js ~130 with image data
-    } else {
     }
   })
 })
