@@ -20,9 +20,13 @@
     "url": "git://github.com/machawk1/warcreate.git"
   },
   "scripts": {
-    "test": "standard",
+    "test": "standard && node test/mv3.test.js",
     "lint": "standard --verbose | snazzy",
     "linting-errors-fix": "standard --fix"
+  },
+  "devDependencies": {
+    "snazzy": "^7.0.0",
+    "standard": "^10.0.2"
   },
   "eslintConfig": {
     "env": {
@@ -30,15 +34,10 @@
       "node": true
     }
   },
-  "devDependencies": {
-    "snazzy": "^7.0.0",
-    "standard": "^16.0"
-  },
   "standard": {
     "ignore": [
       "js/base64.js",
       "js/date.js",
-      "js/FileSaver.js",
       "js/jquery.rc4.js",
       "js/xml2json.js",
       "js/punycode.js"
@@ -54,12 +53,12 @@
       "params",
       "requestHeaders",
       "responseHeaders",
-      "saveAs",
       "$",
       "jQuery",
       "xml2json",
       "moment",
-      "getallBgimages"
+      "getallBgimages",
+      "self"
     ]
   }
 }
