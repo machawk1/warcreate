@@ -4,19 +4,68 @@
   <meta charset="utf-8">
   <title>WARCreate</title>
   <style>
-    body { font-family: system-ui, sans-serif; margin: 12px; min-width: 190px; }
-    button { width: 100%; }
-    button:hover { cursor: pointer; }
-    #status { font-size: 0.8em; margin: 8px 0 0; }
-    #errorText { color: red; display: none; font-size: 0.75em; margin-top: 8px; }
+    :root { --border: #d8dbe3; --hint: #eef2ff; --muted: #5e6472; color-scheme: light dark; }
+    body { font-family: system-ui, sans-serif; margin: 0; min-width: 320px; }
+    main { padding: 16px; }
+    h1 { font-size: 1rem; margin: 0 0 12px; }
+    button { background: #3157d5; border: 0; border-radius: 6px; color: white; font-weight: 600; padding: 9px 12px; width: 100%; }
+    button:hover { background: #2748b6; cursor: pointer; }
+    button:disabled { cursor: wait; opacity: 0.65; }
+    #progressPanel { border-top: 1px solid var(--border); margin-top: 14px; padding-top: 14px; }
+    #progressPanel[hidden] { display: none; }
+    .statusRow { align-items: center; display: flex; gap: 10px; }
+    .statusIcon { align-items: center; border: 2px solid #9da8c7; border-radius: 50%; box-sizing: border-box; display: inline-flex; flex: 0 0 22px; height: 22px; justify-content: center; width: 22px; }
+    .statusIcon.running { animation: spin 0.9s linear infinite; border-right-color: #3157d5; }
+    .statusIcon.success { background: #18864b; border-color: #18864b; color: white; }
+    .statusIcon.error { background: #bd2c2c; border-color: #bd2c2c; color: white; }
+    #statusTitle { font-size: 0.88rem; font-weight: 650; margin: 0; }
+    #statusDetail { color: var(--muted); font-size: 0.75rem; margin: 2px 0 0; }
+    progress { accent-color: #3157d5; height: 8px; margin-top: 12px; width: 100%; }
+    .progressMeta { display: flex; font-size: 0.7rem; justify-content: space-between; margin-top: 3px; }
+    #elapsedTime { font-variant-numeric: tabular-nums; }
+    .steps { display: grid; gap: 7px; list-style: none; margin: 12px 0 0; padding: 0; }
+    .step { align-items: center; color: var(--muted); display: flex; font-size: 0.75rem; gap: 8px; }
+    .stepMarker { align-items: center; border: 1px solid currentColor; border-radius: 50%; display: inline-flex; font-size: 0.65rem; height: 18px; justify-content: center; width: 18px; }
+    .step.active { color: #3157d5; font-weight: 650; }
+    .step.done { color: #18864b; }
+    .step.error { color: #bd2c2c; }
+    #slowHint { background: var(--hint); border-radius: 5px; font-size: 0.72rem; margin: 12px 0 0; padding: 7px; }
+    #slowHint[hidden] { display: none; }
+    #errorText { color: #bd2c2c; display: none; font-size: 0.75rem; margin: 8px 0 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-color-scheme: dark) { :root { --border: #4a4f5e; --hint: #232c4d; --muted: #b7bdca; } }
+    @media (prefers-reduced-motion: reduce) { .statusIcon.running { animation: none; } }
   </style>
   <script src="../js/moment-with-langs.min.js"></script>
   <script src="../js/warcGenerator.js"></script>
   <script src="../js/popup.js" defer></script>
 </head>
 <body>
-  <button type="button" id="generateWarc">Generate WARC</button>
-  <p id="status" aria-live="polite"></p>
-  <p id="errorText" role="alert"></p>
+  <main>
+    <h1>Create a WARC</h1>
+    <button type="button" id="generateWarc">Generate WARC</button>
+    <section id="progressPanel" aria-live="polite" hidden>
+      <div class="statusRow">
+        <span id="statusIcon" class="statusIcon" aria-hidden="true"></span>
+        <div>
+          <p id="statusTitle">Preparing capture…</p>
+          <p id="statusDetail">Starting</p>
+        </div>
+      </div>
+      <progress id="progressBar" max="100" value="0" aria-label="WARC creation progress"></progress>
+      <div class="progressMeta">
+        <span id="progressCount">0%</span>
+        <span id="elapsedTime">0s</span>
+      </div>
+      <ol class="steps" aria-label="WARC creation steps">
+        <li class="step" data-step="collect"><span class="stepMarker">1</span><span>Read page</span></li>
+        <li class="step" data-step="fetch"><span class="stepMarker">2</span><span>Fetch resources</span></li>
+        <li class="step" data-step="build"><span class="stepMarker">3</span><span>Assemble WARC</span></li>
+        <li class="step" data-step="save"><span class="stepMarker">4</span><span>Start download</span></li>
+      </ol>
+      <p id="slowHint" hidden>Large pages can take a while. Keep this popup open until the download starts.</p>
+      <p id="errorText" role="alert"></p>
+    </section>
+  </main>
 </body>
 </html>

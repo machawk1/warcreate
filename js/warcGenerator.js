@@ -181,6 +181,16 @@ function downloadWarc (blob, fileName) {
   })
 }
 
+function reportWarcProgress (request, event) {
+  if (typeof request.onProgress === 'function') request.onProgress(event)
+}
+
+function yieldToPopup () {
+  return new Promise(function (resolve) {
+    window.setTimeout(resolve, 0)
+  })
+}
+
 async function generateWarc (oRequest) {
   if (oRequest.method !== 'generateWarc') {
     return
@@ -251,12 +261,21 @@ async function generateWarc (oRequest) {
   const jsURIs = oRequest.js.uris || []
   const jsData = oRequest.js.data || []
   const images = oRequest.images || {}
+  const seedWithoutFragment = initURI.split('#')[0]
+  const networkRequests = Object.keys(requestHeaders).filter(function (url) {
+    return url !== initURI && url !== seedWithoutFragment
+  })
   let resourceCount = 0
+  let processedRequestCount = 0
 
-  for (const requestHeader in requestHeaders) {
-    if (requestHeader === initURI || requestHeader === initURI.split('#')[0]) {
-      continue // the 'seed' will not have a body, we handle this above, skip
-    }
+  reportWarcProgress(oRequest, {
+    stage: 'building',
+    completed: 0,
+    total: networkRequests.length
+  })
+  await yieldToPopup()
+
+  for (const requestHeader of networkRequests) {
     const rhsTemp = WARCEntryCreator.makeWarcRequestHeaderWith(requestHeader, now, warcConcurrentTo, requestHeaders[requestHeader])
     const requestHeaderString = `${rhsTemp}${WARCEntryCreator.CRLF}`
     arrayBuffers.push(str2ab(requestHeaderString))
@@ -291,9 +310,24 @@ async function generateWarc (oRequest) {
         resourceCount++
       }
     }
+
+    processedRequestCount++
+    reportWarcProgress(oRequest, {
+      stage: 'building',
+      completed: processedRequestCount,
+      total: networkRequests.length
+    })
+    if (processedRequestCount % 20 === 0) await yieldToPopup()
   }
 
-  if (!localStorage['uploadTo'] || localStorage['uploadTo'].length === 0) {
+  const uploadTo = localStorage['uploadTo']
+  reportWarcProgress(oRequest, {
+    stage: 'saving',
+    destination: uploadTo && uploadTo.length > 0 ? 'upload' : 'download',
+    resourceCount: resourceCount
+  })
+
+  if (!uploadTo || uploadTo.length === 0) {
     await downloadWarc(new Blob(arrayBuffers), fileName)
   } else {
     uploadWarc(arrayBuffers)

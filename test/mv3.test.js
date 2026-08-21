@@ -21,6 +21,7 @@ function eventRegistry (listeners, name) {
 async function testManifest () {
   const manifest = JSON.parse(source('manifest.json'))
   const popup = source(manifest.action.default_popup)
+  const popupScript = source('js/popup.js')
   const worker = source(manifest.background.service_worker)
 
   assert.strictEqual(manifest.manifest_version, 3)
@@ -35,6 +36,10 @@ async function testManifest () {
   assert.deepStrictEqual(manifest.host_permissions.sort(), ['http://*/*', 'https://*/*'])
   assert.ok(!/<script(?![^>]*\bsrc=)[^>]*>/i.test(popup), 'popup must not contain inline scripts')
   assert.ok(!/\son\w+=/i.test(popup), 'popup must not contain inline event handlers')
+  assert.ok(popup.includes('id="progressBar"'), 'popup must show progress')
+  assert.ok(popup.includes('id="elapsedTime"'), 'popup must show elapsed time')
+  assert.strictEqual((popup.match(/data-step=/g) || []).length, 4, 'popup must show four process steps')
+  assert.ok(popupScript.includes('onProgress'), 'popup must handle live progress updates')
   assert.ok(!/\b(localStorage|XMLHttpRequest|document|window)\b/.test(worker), 'service worker must not use DOM-only APIs')
   assert.ok(!/chrome\.(extension|pageAction)\b|tabs\.executeScript|getSelected/.test(worker))
 }
@@ -135,6 +140,7 @@ async function testServiceWorkerCapture () {
 async function testWarcGeneration () {
   let downloadedBlob
   let downloadOptions
+  const progressEvents = []
   function ExtensionURL (input, base) {
     return new NodeURL(input, base)
   }
@@ -203,7 +209,8 @@ async function testWarcGeneration () {
     images: {},
     css: { uris: [], data: [] },
     js: { uris: [], data: [] },
-    outlinks: []
+    outlinks: [],
+    onProgress: function (event) { progressEvents.push(event) }
   })
 
   assert.strictEqual(downloadOptions.filename, 'capture.warc')
@@ -212,6 +219,8 @@ async function testWarcGeneration () {
   const warc = await downloadedBlob.text()
   assert.ok(warc.includes('WARC/1.0'))
   assert.ok(warc.includes('<html><body>Captured</body></html>'))
+  assert.ok(progressEvents.some(function (event) { return event.stage === 'building' }))
+  assert.ok(progressEvents.some(function (event) { return event.stage === 'saving' }))
 }
 
 async function main () {
