@@ -1,42 +1,190 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <title>WARCreate - Create WARC files from any webpage!</title>
-  <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/kenncghfghgolcbmckhiljgaabnpcaaa">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="WARCreate is an open-source Chrome extension for creating standards-based WARC files from the webpages you visit.">
+  <meta name="theme-color" content="#10233f">
+  <meta property="og:title" content="WARCreate — Create WARC files from any webpage">
+  <meta property="og:description" content="Capture the page you see and keep it in a preservation standard.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://warcreate.com/">
+  <meta property="og:image" content="https://warcreate.com/icon.png">
+  <link rel="canonical" href="https://warcreate.com/">
+  <link rel="icon" href="icon.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+  <title>WARCreate — Create WARC files from any webpage</title>
 </head>
 <body>
-<a href="https://chrome.google.com/webstore/detail/kenncghfghgolcbmckhiljgaabnpcaaa"><img src="icon.png"></a>
-<h1>WARCreate</h1>
-<h3>Google Chrome Extension</h3>
-<p>&#8220;Create WARC files from any webpage&#8221;</p>
-<h2>What is it?</h2>
-<p>WARCreate is a Google Chrome extension that allows a user to create a Web ARChive (WARC) file from any browseable webpage. The resulting files can then be used with other tools like the <a href="http://www.archive.org">Internet Archive</a>'s open source <a href="https://github.com/internetarchive/wayback">Wayback Machine</a>. The tool is an evolving product with the end result pushing toward being a personal web archiving solution for those that wish to securely archive their metadata in a standardize way.</p>
+  <a class="skip-link" href="#main-content">Skip to content</a>
 
-<!-- test 20230518
-<h2>What Are Its Features? What Features Will It Have?</h2>
-<p>The current goal of the tool is to allow a user to create WARC file from any page in a web browser. Future features consist of:
-<ul> 
-	<li>&bull; Encoding/Encryption Support for archive content privacy &bull; </li>
-	<li>&bull; WARC merging - allow multiple archiving sessions to exist in a single WARC file automatically&bull; </li>
-	<li>&bull; <a href="http://mementoweb.org/">Memento</a> integration &bull; </li>
-</ul>
-</p>-->
+  <header class="site-header">
+    <div class="shell nav-shell">
+      <a class="brand" href="#top" aria-label="WARCreate home">
+        <img src="icon.png" width="42" height="42" alt="">
+        <span>WARCreate</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="#features">Features</a>
+        <a href="#workflow">How it works</a>
+        <a href="#replay">Replay</a>
+        <a href="#research">Research</a>
+      </nav>
+      <a class="button button-small button-ghost" href="https://github.com/machawk1/warcreate">View source <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
 
-<h2>Where Can I Download It?</h2>
+  <main id="main-content">
+    <section class="hero" id="top">
+      <div class="hero-grid shell">
+        <div class="hero-copy">
+          <p class="eyebrow eyebrow-light"><span class="status-dot" aria-hidden="true"></span> Open-source Chrome extension</p>
+          <h1>Capture the page you see. <span>Keep it in a preservation standard.</span></h1>
+          <p class="hero-lede">WARCreate packages a rendered webpage and its resources into a Web ARChive file—giving researchers, archivists, and curious web users a practical way to preserve what is in the browser.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="https://chrome.google.com/webstore/detail/warcreate/kenncghfghgolcbmckhiljgaabnpcaaa?hl=en&amp;gl=US">Get WARCreate <span aria-hidden="true">→</span></a>
+            <a class="button button-dark" href="https://github.com/machawk1/warcreate">Explore on GitHub</a>
+          </div>
+          <ul class="hero-facts" aria-label="Project highlights">
+            <li><strong>WARC 1.0</strong><span>Preservation format</span></li>
+            <li><strong>Local first</strong><span>Download by default</span></li>
+            <li><strong>MIT</strong><span>Open-source license</span></li>
+          </ul>
+        </div>
 
-<p>WARCreate can be downloaded from the <a href="https://chrome.google.com/webstore/detail/warcreate/kenncghfghgolcbmckhiljgaabnpcaaa?hl=en&gl=US">Chrome Web Store</a>.</p>
+        <div class="hero-visual" aria-label="A webpage being packaged into a WARC file">
+          <div class="browser-card" aria-hidden="true">
+            <div class="browser-bar"><i></i><i></i><i></i><span>example.org/story</span></div>
+            <div class="page-preview">
+              <b class="preview-kicker"></b>
+              <b class="preview-title long"></b><b class="preview-title"></b>
+              <div><b class="preview-image"></b><b class="preview-lines"></b></div>
+            </div>
+          </div>
+          <span class="capture-dots" aria-hidden="true">•••</span>
+          <div class="warc-card">
+            <span class="warc-icon"><img src="icon.png" width="64" height="64" alt="WARCreate box and download-arrow logo"></span>
+            <span><small>WEB ARCHIVE</small><strong>capture.warc</strong><em>Page · resources · metadata</em></span>
+            <mark>Ready</mark>
+          </div>
+          <i class="format-chip chip-one" aria-hidden="true">HTML</i>
+          <i class="format-chip chip-two" aria-hidden="true">CSS</i>
+          <i class="format-chip chip-three" aria-hidden="true">IMG</i>
+        </div>
+      </div>
+    </section>
 
-<h2>What Can I Do with Generated WARCs?</h2>
+    <section class="section intro" id="features">
+      <div class="shell">
+        <div class="section-heading split-heading">
+          <div><p class="eyebrow">Preservation from the browser</p><h2>A lightweight path from live web to durable archive.</h2></div>
+          <p>Traditional crawlers cannot always reach the page state a person can see. WARCreate works from the browser so you can interact with a page first, then preserve the resulting view.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <span class="card-number">01</span><span class="feature-icon page-icon" aria-hidden="true"></span>
+            <h3>Preserve the rendered page</h3>
+            <p>Capture the document after dynamic content has loaded or the page has been expanded and explored.</p>
+          </article>
+          <article class="feature-card">
+            <span class="card-number">02</span><span class="feature-icon package-icon" aria-hidden="true"></span>
+            <h3>Package supporting resources</h3>
+            <p>Bring page markup, stylesheets, scripts, images, links, and HTTP metadata together in one archive.</p>
+          </article>
+          <article class="feature-card">
+            <span class="card-number">03</span><span class="feature-icon download-icon" aria-hidden="true"></span>
+            <h3>Keep the WARC you create</h3>
+            <p>Download the generated WARC locally by default and decide where, when, and how it should be stored.</p>
+          </article>
+        </div>
+      </div>
+    </section>
 
-<p>Software is needed to replay the WARCs by nature of the format.<br />I recommend using <a href="https://matkelly.com/wail">Web Archiving Integration Layer (WAIL)</a>, a software suite that came about because of WARCreate.</p>
+    <section class="section workflow-section" id="workflow">
+      <div class="shell workflow-grid">
+        <div class="workflow-copy">
+          <p class="eyebrow eyebrow-light">How it works</p>
+          <h2>Three steps from browsing to archiving.</h2>
+          <p>WARCreate stays out of the way until you are ready to preserve the current page.</p>
+          <a class="text-link light-link" href="https://github.com/machawk1/warcreate#readme">Read the documentation <span aria-hidden="true">→</span></a>
+        </div>
+        <ol class="workflow-list">
+          <li><span>1</span><div><h3>Prepare the page</h3><p>Navigate, sign in if needed, reveal dynamic content, and arrange the page state you want to preserve.</p></div></li>
+          <li><span>2</span><div><h3>Generate the archive</h3><p>Open WARCreate and start the capture. The extension collects the page and available supporting resources.</p></div></li>
+          <li><span>3</span><div><h3>Save and replay</h3><p>Download the resulting <code>.warc</code> file and open it later with WARC-compatible replay software.</p></div></li>
+        </ol>
+      </div>
+    </section>
 
+    <section class="section format-section">
+      <div class="shell format-grid">
+        <div class="format-definition">
+          <span class="format-mark" aria-hidden="true">W</span>
+          <div><p class="eyebrow">What is a WARC?</p><h2>A standard container for the evidence of the web.</h2></div>
+        </div>
+        <div class="format-explainer">
+          <p>The Web ARChive format stores web payloads alongside the request and response information that gives them context. It is widely used by web archives and preservation tools.</p>
+          <p>WARCreate makes that format accessible from an ordinary browser session—especially useful when content is interactive, personalized, or difficult for a crawler to reach.</p>
+          <a class="text-link" href="https://www.loc.gov/preservation/digital/formats/fdd/fdd000236.shtml">Learn about WARC <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
 
-<h2>I Found A Bug! Where Do I Report It?</h2>
+    <section class="section replay-section" id="replay">
+      <div class="shell">
+        <div class="section-heading centered-heading">
+          <p class="eyebrow">Replay your archive</p><h2>A WARC is meant to be opened again.</h2>
+          <p>Use replay software to browse the archived page and inspect the resources preserved with it.</p>
+        </div>
+        <div class="replay-grid">
+          <a class="replay-card featured" href="https://matkelly.com/wail">
+            <span class="replay-tag">Recommended</span><span class="card-arrow" aria-hidden="true">↗</span>
+            <div><p class="replay-type">Desktop replay</p><h3>Web Archiving Integration Layer</h3><p>WAIL bundles web-archiving tools into a user-friendly application and grew from work surrounding WARCreate.</p></div>
+          </a>
+          <a class="replay-card" href="https://github.com/internetarchive/wayback">
+            <span class="card-arrow" aria-hidden="true">↗</span>
+            <div><p class="replay-type">Open-source replay</p><h3>Wayback</h3><p>Explore the Internet Archive's open-source Java implementation for accessing archived web content.</p></div>
+          </a>
+        </div>
+      </div>
+    </section>
 
-<p>Send all bug reports to <a href="mailto:warcreate@matkelly.com">Mat Kelly</a> or <a href="https://github.com/machawk1/warcreate/issues/new">create a new issue</a> in the <a href="https://github.com/machawk1/warcreate">WARCreate GitHub repo</a>.</p>
+    <section class="section research-section" id="research">
+      <div class="shell research-grid">
+        <div><p class="eyebrow">Built from research</p><h2>Web preservation work with roots in JCDL 2012.</h2></div>
+        <div class="citation-card">
+          <p class="citation-label">Original publication</p>
+          <blockquote>“WARCreate — Create Wayback-Consumable WARC Files from Any Webpage”</blockquote>
+          <p>Mat Kelly and Michele C. Weigle · Proceedings of the ACM/IEEE Joint Conference on Digital Libraries · 2012</p>
+          <div class="citation-links">
+            <a class="text-link" href="https://doi.org/10.1145/2232817.2232930">View the paper <span aria-hidden="true">↗</span></a>
+            <a class="text-link" href="https://github.com/machawk1/warcreate#citing-project">Copy the citation <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <section class="privacy-band" aria-labelledby="privacy-title">
+      <div class="shell privacy-grid">
+        <div><p class="eyebrow eyebrow-light">Local by default</p><h2 id="privacy-title">Your archive can contain sensitive page data.</h2></div>
+        <div><p>WARCreate downloads generated WARCs locally unless you explicitly configure an upload destination. Treat archive files like the pages they preserve and share them only with services and people you trust.</p><a class="text-link light-link" href="privacy.html">Read the privacy policy <span aria-hidden="true">→</span></a></div>
+      </div>
+    </section>
 
+    <section class="section contribute-section">
+      <div class="shell contribute-card">
+        <div><p class="eyebrow">Shape what comes next</p><h2>WARCreate is open source and evolving.</h2><p>Review the code, report a capture problem, or help move browser-based web preservation forward.</p></div>
+        <div class="contribute-actions"><a class="button button-primary" href="https://github.com/machawk1/warcreate">View the repository</a><a class="button button-secondary" href="https://github.com/machawk1/warcreate/issues/new">Report an issue</a></div>
+      </div>
+    </section>
+  </main>
 
+  <footer class="site-footer">
+    <div class="shell footer-grid">
+      <div class="footer-brand"><img src="icon.png" width="40" height="40" alt=""><div><strong>WARCreate</strong><span>Create WARC files from any webpage.</span></div></div>
+      <nav class="footer-links" aria-label="Footer navigation"><a href="https://github.com/machawk1/warcreate">GitHub</a><a href="https://github.com/machawk1/warcreate/issues">Issues</a><a href="privacy.html">Privacy</a><a href="mailto:warcreate@matkelly.com">Contact</a></nav>
+      <p class="footer-note">Created by Mat Kelly · MIT licensed</p>
+    </div>
+  </footer>
 </body>
 </html>

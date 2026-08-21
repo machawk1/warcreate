@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Privacy policy for the WARCreate Chrome extension.">
+  <meta name="theme-color" content="#10233f">
+  <link rel="canonical" href="https://warcreate.com/privacy.html">
+  <link rel="icon" href="icon.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+  <title>Privacy Policy — WARCreate</title>
+</head>
+<body class="privacy-page">
+  <a class="skip-link" href="#policy">Skip to policy</a>
+  <header class="site-header">
+    <div class="shell nav-shell">
+      <a class="brand" href="index.html" aria-label="WARCreate home">
+        <img src="icon.png" width="42" height="42" alt="">
+        <span>WARCreate</span>
+      </a>
+      <a class="button button-small button-ghost" href="index.html">Back to homepage</a>
+    </div>
+  </header>
+
+  <main class="privacy-page-main" id="policy">
+    <div class="shell">
+      <header class="policy-header">
+        <p class="eyebrow">Privacy policy</p>
+        <h1>Clear about what an archive can contain.</h1>
+        <p>WARCreate creates Web ARChive files from webpages at the user's request. This policy explains what the extension accesses, where that information goes, and the choices available to the user.</p>
+        <p class="policy-updated">Last updated: August 21, 2026</p>
+      </header>
+
+      <div class="policy-layout">
+        <nav class="policy-nav" aria-label="Privacy policy sections">
+          <strong>On this page</strong>
+          <a href="#information">Information accessed</a>
+          <a href="#processing">When it is processed</a>
+          <a href="#storage">Storage and retention</a>
+          <a href="#uploads">Optional uploads</a>
+          <a href="#sharing">Sharing</a>
+          <a href="#permissions">Permissions</a>
+          <a href="#choices">Your choices</a>
+          <a href="#contact">Contact</a>
+        </nav>
+
+        <article class="policy-content">
+          <section id="information">
+            <h2>Information WARCreate accesses</h2>
+            <p>To create a WARC, WARCreate may process:</p>
+            <ul>
+              <li>The URL and rendered HTML of the page being archived.</li>
+              <li>URLs and content for page resources, including images, stylesheets, and scripts.</li>
+              <li>Links found in the page.</li>
+              <li>HTTP request and response metadata associated with the page and its resources.</li>
+              <li>User-provided settings, including a filename scheme, collection identifier, collection name, and optional upload destination.</li>
+            </ul>
+            <p>HTTP headers can contain sensitive information. Depending on the page and browser behavior, captured request headers may include cookies, authorization information, or referrer data, and captured response headers may include cookies or other server metadata. Private or authenticated page content visible in the browser may also be included in a generated WARC. WARCreate does not sanitize the WARC before saving or uploading it.</p>
+          </section>
+
+          <section id="processing">
+            <h2>When information is processed</h2>
+            <p>WARCreate collects the current page's rendered content and resource list only after the user clicks <strong>Generate WARC</strong>.</p>
+            <p>To preserve HTTP metadata needed for a WARC, WARCreate's background process observes HTTP and HTTPS request and response headers and temporarily associates them with browser tabs while the extension is enabled. This header processing can occur before the user clicks <strong>Generate WARC</strong>. The data is processed within the user's copy of Chrome and is not automatically sent to the WARCreate developer.</p>
+            <p>While creating an archive, WARCreate may request page resources directly from their original URLs. These requests can include the user's existing credentials or cookies for those resource hosts. The operators of those websites receive the requests under their own privacy policies.</p>
+            <p>The options page may also request a sequential-archiving specification from the source displayed on that page. The source operator may receive ordinary network information such as the user's IP address and request metadata.</p>
+          </section>
+
+          <section id="storage">
+            <h2>Storage and retention</h2>
+            <p>WARCreate stores captured HTTP metadata in Chrome's local extension storage. It attempts to remove metadata associated with a tab when that tab closes. Chrome may retain extension data until it is cleared or the extension is removed.</p>
+            <p>WARCreate settings are stored locally until the user changes them, resets them, clears extension data, or removes the extension.</p>
+            <p>By default, a generated WARC is saved through Chrome's download system to a location selected by the user. The user controls the downloaded file and its retention.</p>
+          </section>
+
+          <section id="uploads">
+            <h2>Optional WARC uploads</h2>
+            <p>Uploading is disabled by default. If the user enables uploading and supplies an upload destination, WARCreate sends the complete generated WARC to that destination. The WARC may contain webpage content, URLs, resource bodies, HTTP headers, cookies, authorization information, and collection metadata.</p>
+            <p>WARCreate does not control the security, storage, use, or retention practices of a user-selected upload destination. Users should upload only to a service they trust and use an HTTPS destination when available. If an HTTP destination is selected, the upload may be transmitted without transport encryption.</p>
+          </section>
+
+          <section id="sharing">
+            <h2>Sharing and developer access</h2>
+            <p>WARCreate does not include advertising, analytics, or telemetry, and the WARCreate developer does not sell user information.</p>
+            <p>WARCreate does not automatically transmit browsing history, page content, generated WARCs, or locally stored settings to the WARCreate developer. Information leaves the browser only as needed to retrieve resources from their source websites, retrieve a user-visible sequential-archiving specification, or upload a WARC when the user explicitly enables and configures that feature.</p>
+          </section>
+
+          <section id="permissions">
+            <h2>Permissions</h2>
+            <p>WARCreate requests access to HTTP and HTTPS pages, tabs, web requests, local extension storage, downloads, and notifications. These permissions are used to collect the selected page and its resources, preserve request and response metadata, build and save the WARC, and report download or optional upload status.</p>
+          </section>
+
+          <section id="choices">
+            <h2>User choices</h2>
+            <p>Users can:</p>
+            <ul>
+              <li>Leave uploading disabled and save WARCs locally.</li>
+              <li>Review or change the upload destination and other settings from the extension's options page.</li>
+              <li>Delete downloaded WARCs using operating-system or browser tools.</li>
+              <li>Clear WARCreate's locally stored data or uninstall the extension through Chrome.</li>
+            </ul>
+            <p>Because WARCs can contain sensitive or authenticated material, users should protect generated files and avoid sharing them with people or services that should not have access to the archived content.</p>
+          </section>
+
+          <section id="changes">
+            <h2>Changes to this policy</h2>
+            <p>This policy may be updated when WARCreate's behavior or features change. Material revisions will be reflected by changing the “Last updated” date above.</p>
+          </section>
+
+          <section id="contact">
+            <h2>Contact</h2>
+            <p>Questions or concerns can be sent to <a href="mailto:warcreate@matkelly.com">warcreate@matkelly.com</a> or reported through the <a href="https://github.com/machawk1/warcreate/issues">WARCreate GitHub repository</a>.</p>
+          </section>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-grid">
+      <div class="footer-brand"><img src="icon.png" width="40" height="40" alt=""><div><strong>WARCreate</strong><span>Create WARC files from any webpage.</span></div></div>
+      <nav class="footer-links" aria-label="Footer navigation"><a href="index.html">Home</a><a href="https://github.com/machawk1/warcreate">GitHub</a><a href="mailto:warcreate@matkelly.com">Contact</a></nav>
+      <p class="footer-note">Created by Mat Kelly · MIT licensed</p>
+    </div>
+  </footer>
+</body>
+</html>
