@@ -82,8 +82,6 @@ Then:
 4. Choose the repository root—the directory containing `manifest.json`.
 5. Reload any already-open webpage before testing the extension.
 
-If Chrome rejects the manifest, use a release or development branch compatible with that Chrome version and consult [issue #117](https://github.com/machawk1/warcreate/issues/117).
-
 ## Using generated WARCs
 
 A WARC needs replay software to display its archived content. Useful starting points include:
