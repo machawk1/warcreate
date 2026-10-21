@@ -69,11 +69,12 @@ function doGenerateWarc () {
 
       // Perform the first listener, populate the binary image data
       port.onMessage.addListener(function (msg) { // get image base64 data
-        let fileName = (new Date().toISOString()).replace(/:|-|T|Z|\./g, '') + '.warc'
+        const captureDate = new Date()
+        let fileName = buildWarcFilename(captureDate, tab[0].url)
 
         // If the user has specified a custom filename format, apply it here
         if (localStorage.filenameScheme && localStorage.filenameScheme.length > 0) {
-          fileName = moment().format(localStorage.filenameScheme) + '.warc'
+          fileName = buildWarcFilename(captureDate, tab[0].url, formatFilenamePrefix(captureDate, localStorage.filenameScheme))
         }
         const requestToBeSent = {
           url: tab[0].url,
@@ -89,6 +90,22 @@ function doGenerateWarc () {
       })
     })
   })
+}
+
+function formatFilenamePrefix (captureDate, scheme) {
+  return scheme === 'warcreate' ? scheme : moment(captureDate).format(scheme)
+}
+
+/**
+ * Builds a WARC filename using the components recommended by WARC 1.1 Annex C.
+ * WARCreate writes uncompressed data, so the extension remains `.warc` rather
+ * than claiming gzip compression with `.warc.gz`.
+ */
+function buildWarcFilename (captureDate, captureUrl, prefix = 'warcreate') {
+  const timestamp = captureDate.toISOString().replace(/[-:TZ.]/g, '')
+  const crawlHost = new URL(captureUrl).hostname.replace(/[^a-z0-9.-]/gi, '_') || 'localhost'
+  const safePrefix = prefix.replace(/[^a-z0-9._-]/gi, '_') || 'warcreate'
+  return `${safePrefix}-${timestamp}-00000-${crawlHost}.warc`
 }
 
 /**

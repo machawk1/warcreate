@@ -95,7 +95,8 @@ Keep the original WARC as the preservation copy. If a replay tool creates indexe
 
 WARCreate's options page supports:
 
-- Custom timestamp-based filename schemes.
+- Configurable filename prefix schemes. WARCreate adds the WARC Annex C-style
+  timestamp, serial, and capture host to every generated filename.
 - Optional collection identifiers and names stored as WARC metadata.
 - Local download, which is the default behavior.
 - An optional user-configured upload destination.

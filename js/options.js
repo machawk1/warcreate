@@ -115,7 +115,7 @@ function setupButtonFunctionalityAndVisibility () {
     $('#uploadTo').val('http://warcreate.com/warcs/').attr('disabled', 'disabled')
     $('#postGeneration_save').prop('checked', 'checked')
     $('#postGeneration_upload').removeAttr('checked')
-    $('#filenameScheme').val('YYYYMMDDHHMMssSSS')
+    $('#filenameScheme').val('warcreate')
     $('#collectionId').val('')
     $('#collectionName').val('')
     $('#addCollectionMetadataCheckbox').removeAttr('checked')
@@ -187,7 +187,10 @@ function fetchSocialStandardSpecification () {
 }
 
 function showFilenameExample () { // when the file format scheme changes, update the example
-  $('#exampleFileName').html('Example: ' + moment().format($('#filenameScheme').val()) + '.warc')
+  const scheme = $('#filenameScheme').val()
+  const prefix = scheme === 'warcreate' ? scheme : moment().format(scheme) || 'warcreate'
+  const timestamp = moment().format('YYYYMMDDHHmmssSSS')
+  $('#exampleFileName').html(`Example: ${prefix}-${timestamp}-00000-example.org.warc`)
 }
 
 function populatePendingContentTable () {
